@@ -77,11 +77,28 @@ Send a POST request to `http://localhost:5000/generate-website` with JSON data c
 
 ```json
 {
-  "title": "Test title"
+  "title": "Test title",
+  "scrollTrigger": true
 }
 ```
 
 The server will generate the website, upload it to MinIO, and return the URLs for the uploaded files.
+
+### Adding GSAP plugins
+
+You can specify more than one GSAP plugin to be included in the generated site.
+
+All core free plugins have been downloaded from GSAP (public files) [here](https://gsap.com/docs/v3/Installation) as of 21/09/2024.
+
+Plugin currently supported:
+
+| Plugin | Request Object Variable |
+| --- | --- |
+| ScrollTrigger | scrollTrigger |
+
+### Adding Content
+
+TBU
 
 ## Configuration
 
@@ -95,6 +112,12 @@ minio_client = Minio(
     secure=True  # Set to False if not using HTTPS
 )
 ```
+
+### Local Configuration
+
+Running the server locally will not upload any content to minio.
+
+All the files will be output in a local directory under `server/output`. Refer to the files generated inside the folder.
 
 ## Contributing
 
