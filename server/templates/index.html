@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="box gradient-green"></div>
+    <script src="js/gsap.min.js"></script>
+    {% if flip %}<script src="js/Flip.min.js"></script>{% endif %}    
+    {% if scroll_trigger %}<script src="js/ScrollTrigger.min.js"></script>{% endif %}
+    {% if observer %}<script src="js/Observer.min.js"></script>{% endif %}
+    {% if scroll_to_plugin %}<script src="js/ScrollToPlugin.min.js"></script>{% endif %}
+    {% if draggable %}<script src="js/Draggable.min.js"></script>{% endif %}
+    {% if motion_path_plugin %}<script src="js/MotionPathPlugin.min.js"></script>{% endif %}
+    {% if easel_plugin %}<script src="js/EaselPlugin.min.js"></script>{% endif %}
+    {% if pixi_plugin %}<script src="js/PixiPlugin.min.js"></script>{% endif %}
+    {% if text_plugin %}<script src="js/TextPlugin.min.js"></script>{% endif %}
+    {% if custom_ease %}<script src="js/CustomEase.min.js"></script>{% endif %}
+    {% if ease_pack %}<script src="js/EasePack.min.js"></script>{% endif %}
+    <!-- Add customized JS below here after GSAP script tag -->
+    {% if scroll_trigger %}<script src="js/gsap/registerScrollTrigger.js"></script>{% endif %}
+    <script>
+        document.addEventListener("DOMContentLoaded", (event) => {
+            gsap.to(".box", {
+                rotation: 360,
+                duration: 2,
+                scrollTrigger: {
+                    trigger: '.box',
+                    markers: true,
+                    scrub: true
+                }
+            })
+        });
+    </script>
+</body>
+</html>
