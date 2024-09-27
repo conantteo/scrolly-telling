@@ -82,7 +82,7 @@ Send a POST request to `http://localhost:8000/api/generate-website` with JSON da
 ```json
 {
   "title": "Test title",
-  "scrollTrigger": true
+  "scroll_trigger": true
 }
 ```
 

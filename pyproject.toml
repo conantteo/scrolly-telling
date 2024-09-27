@@ -9,5 +9,141 @@ dependencies = [
     "fastapi==0.115.0",
     "minio==7.1.13",
     "uvicorn==0.30.6",
-    "jinja2==3.1.4"
+    "jinja2==3.1.4",
+    "ruff==0.6.8"
 ]
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+output-format = "grouped"
+preview = true
+
+exclude = [
+    # ruff defaults
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    ".idea",
+    ".vscode",
+]
+
+[tool.ruff.lint]
+select = [
+    # https://docs.astral.sh/ruff/rules/
+    "F", # Pyflakes
+    "E", # pycodestyle (error)
+    "W", # pycodestyle (warning)
+    "C90", # mccabe
+    "I", # isort
+    "N", # pep8-naming
+    # "D", # pydocstyle
+    "UP", # pyupgrade
+    "YTT", # flake8-2020
+    "ANN", # flake8-annotations
+    # "ASYNC", # flake8-async
+    "ASYNC1", # flake8-trio has been renamed
+    "S", # flake8-bandit
+    "BLE", # flake8-blind-except
+    "FBT", # flake8-boolean-trap
+    "B", # flake8-bugbear
+    "A", # flake8-builtins
+    "COM", # flake8-commas
+    # "CPY", # flake8-copyright
+    "C4", # flake8-comprehensions
+    # "DTZ", # flake8-datetimez
+    "T10", # flake8-debugger
+    "DJ", # flake8-django
+    # "EM", # flake8-errmsg
+    "EXE", # flake8-executable
+    # "FA", # flake8-future-annotations
+    "ISC", # flake8-implicit-str-concat
+    "ICN", # flake8-import-conventions
+    "G", # flake8-logging-format
+    # "INP", # flake8-no-pep420
+    "PIE", # flake8-pie
+    # "T20", # flake8-print
+    "PYI", # flake8-pyi
+    "PT", # flake8-pytest-style
+    "Q", # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SLF", # flake8-self
+    "SLOT", # flake8-slots
+    "SIM", # flake8-simplify
+    "TID", # flake8-tidy-imports
+    "TCH", # flake8-type-checking
+    "INT", # flake8-gettext
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "TD", # flake8-todos
+    # "FIX", # flake8-fix-me
+    # "ERA", # eradicate
+    "PD", # pandas-vet
+    "PGH", # pygrep-hooks
+    "PL", # Pylint
+    "TRY", # tryceratops
+    "FLY", # flynt
+    "NPY", # NumPy-specific rules
+    "AIR", # Airflow
+    # "PERF", # Perflint
+    "FURB", # refurb
+    "LOG", # flake8-logging
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "ANN10", # deprecated
+    "ANN401", # `typing.Any` is occasionally necessary for FastAPI
+    "COM812", # trailing comma looks nice but shouldn't always be required
+    "G00", # you can log whatever you like
+    "PLR09", # maybe not best practice, but should be allowed
+    "PLR2004", # if you don't understand `status_code == 200` you shouldn't be in this codebase
+    "PLR6301", # too may false positives on pydantic field validators
+    "Q000", # don't be pedantic about 'string' / "string"
+    "Q001", # don't be pedantic about '''string''' / """string"""
+    "RUF100", # this occasionally clashes with flake8
+    "SIM102", # nested if statements are better because they let you wrap lines logically
+    "SIM105", # try-except is simple enough
+    "SIM108", # ternaries are not always simpler to reason about
+    "TCH001", # don't require TYPE_CHECKING block
+    "TCH002", # don't require TYPE_CHECKING block
+    "TCH003", # don't require TYPE_CHECKING block
+    "TD002", # committing author name is bad practice
+    "TD003", # tagging a jira task is optional
+    "TRY003", # long exception messages are sometimes fine
+]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+force-single-line = true
+known-local-folder = ["app", "tests"]
+order-by-type = false
