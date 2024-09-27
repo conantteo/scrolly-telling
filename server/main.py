@@ -10,8 +10,8 @@ from jinja2 import Template
 from minio import Minio
 from minio.error import S3Error
 
-from server.model.Article import Article
-from server.model.PluginRegistration import PluginRegistration
+from server.model.article import Article
+from server.model.plugin_registration import PluginRegistration
 from server.utilities.utils import generate_js_function
 
 IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
