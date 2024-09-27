@@ -24,4 +24,4 @@ def generate_js_function(template_path: Path, output_file: Path, **kwargs: Any) 
     # Write the rendered JavaScript to the output file
     Path(output_file).write_text(rendered_js, encoding='utf-8')
 
-    logger.warning(f"JavaScript function generated in {output_file}")
+    logger.info(f"JavaScript function generated in {output_file}")
