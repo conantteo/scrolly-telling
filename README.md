@@ -44,19 +44,32 @@ scrolly-telling/
    cd scrolly-telling
    ```
 
-2. Install Poetry: 
-   ```
-   pip install poetry
-   ```
+2. Create and run the virtual environment:
+   - In anaconda:
+     ```
+     conda create -n scrolly
+     conda activate scrolly
+     conda install pip
+     ```
+   - In Python:
+     ```
+     python -m venv venv
 
-3. Create and run the virtual environment:
-   ```
-   poetry shell
-   ```
+     # On Windows
+     venv\Scripts\activate
 
+     # On macOS and Linux
+     source venv/bin/activate
+     ```
+
+3. Install the required packages:
+   ```
+   pip install .
+   ```
+   
 4. Run the server:
    ```
-   poetry run server\main.py
+   uvicorn server.main:app --reload
    ```
 
 The server should now be running on `http://localhost:8000`.

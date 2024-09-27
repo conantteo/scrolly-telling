@@ -1,19 +1,13 @@
-[tool.poetry]
+[project]
 name = "scrolly-telling"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = [{name = "test", email = "test@example.com"}]
 readme = "README.md"
-packages = [{include = "server"}]
-
-[tool.poetry.dependencies]
-python = "^3.8"
-fastapi = "0.115.0"
-minio = "7.1.13"
-uvicorn = {extras = ["standard"], version = "^0.30.6"}
-jinja2 = "^3.1.4"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">= 3.8"
+dependencies = [
+    "fastapi==0.115.0",
+    "minio==7.1.13",
+    "uvicorn==0.30.6",
+    "jinja2==3.1.4"
+]
