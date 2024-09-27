@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, jsonify, send_file, render_template_string
+from fastapi import FastAPI
+from fastapi.responses import JSONResponse
+from jinja2 import Template
 from minio import Minio
 from minio.error import S3Error
 import os
@@ -6,11 +8,9 @@ import tempfile
 import shutil
 
 from server.model.PluginRegistration import PluginRegistration
+from server.model.Article import Article
 from server.utilities.utils import generate_js_function
 
-app = Flask(__name__)
-
-# Check if running in local environment
 IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
 
 # Local output directory
@@ -39,23 +39,20 @@ if not IS_LOCAL:
 GSAP_LOCAL_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'js', 'gsap.min.js')
 REGISTER_PLUGIN_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), 'templates', 'js', 'gsap', 'registerPlugin.js')
 
+app = FastAPI()
 
-@app.route('/api/generate-website', methods=['POST'])
-def generate_website():
-    data = request.json
-    title = data.get('title', 'My Animated Website')
-    scroll_trigger = False
 
-    # Check if scrollTrigger is in the request data and convert to boolean
-    if data and 'scrollTrigger' in data:
-        scroll_trigger = bool(data['scrollTrigger'])
-
+@app.post("/api/generate-website")
+async def root(request_body: Article):
+    title = request_body.title if request_body.title is not None else 'My Animated Website'
+    scroll_trigger = request_body.scrollTrigger
+    
     # Load HTML template
     with open(os.path.join(os.path.dirname(__file__), 'templates', 'index.html'), 'r') as file:
         html_template = file.read()
 
     # Render HTML template with provided data
-    html_content = render_template_string(html_template, title=title, scroll_trigger=scroll_trigger)
+    html_content = Template(html_template).render(title=title, scroll_trigger=scroll_trigger)
 
     # Load CSS content
     with open(os.path.join(os.path.dirname(__file__), 'templates', 'css', 'styles.css'), 'r') as file:
@@ -66,7 +63,7 @@ def generate_website():
         js_template = file.read()
 
     # Render JS template with provided data
-    js_content = render_template_string(js_template)
+    js_content = Template(js_template).render()
 
     # Create temporary files
     with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as html_file, \
@@ -89,7 +86,7 @@ def generate_website():
                                     local_js_path=os.path.join(LOCAL_OUTPUT_JS_DIR, 'ScrollTrigger.min.js'), 
                                     source_path=os.path.join(os.path.dirname(__file__), 'templates', 'js', 'ScrollTrigger.min.js'))
         plugins.append(plugin)
-        
+    
     for plugin in plugins:
         generate_js_function(
             REGISTER_PLUGIN_TEMPLATE_PATH,
@@ -97,7 +94,7 @@ def generate_website():
             plugin_name=plugin.plugin_name
         )
         print(f'Generated plugin: {plugin.plugin_name}')
-        
+   
     if IS_LOCAL:
         # Write files to local directory
         shutil.copy(html_filename, os.path.join(LOCAL_OUTPUT_DIR, 'index.html'))
@@ -127,7 +124,7 @@ def generate_website():
                 minio_client.fput_object(bucket_name, plugin.bucket_js_path, plugin.source_path)
                 minio_client.fput_object(bucket_name, plugin.bucket_register_path, plugin.local_register_path)
         except S3Error as err:
-            return jsonify({"error": f"Error uploading files: {err}"}), 500
+            return JSONResponse(status_code=500, content={"error": f"Error uploading files: {err}"})
         
         response = {
             "message": "Website with GSAP animation generated and uploaded successfully",
@@ -138,9 +135,4 @@ def generate_website():
     os.unlink(html_filename)
     os.unlink(css_filename)
     os.unlink(js_filename)
-
-    return jsonify(response)
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
+    return response

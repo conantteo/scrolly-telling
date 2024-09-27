@@ -44,36 +44,27 @@ scrolly-telling/
    cd scrolly-telling
    ```
 
-2. Create a virtual environment:
+2. Install Poetry: 
    ```
-   python -m venv venv
-   ```
-
-3. Activate the virtual environment:
-   - On Windows:
-     ```
-     venv\Scripts\activate
-     ```
-   - On macOS and Linux:
-     ```
-     source venv/bin/activate
-     ```
-
-4. Install the required packages:
-   ```
-   pip install -r requirements.txt
+   pip install poetry
    ```
 
-5. Run the application:
+3. Create and run the virtual environment:
    ```
-   python server/main.py
+   poetry shell
    ```
 
-The server should now be running on `http://localhost:5000`.
+4. Run the server:
+   ```
+   poetry run server\main.py
+   ```
+
+The server should now be running on `http://localhost:8000`.
+To access the Swagger API UI page, go to `http://localhost:8000/docs` or `http://localhost:8000/redoc`
 
 ## Usage
 
-Send a POST request to `http://localhost:5000/generate-website` with JSON data containing the title and content for your website. For example:
+Send a POST request to `http://localhost:8000/api/generate-website` with JSON data containing the title and content for your website. For example:
 
 ```json
 {
