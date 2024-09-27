@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 from typing import Any
@@ -5,6 +6,7 @@ from typing import Any
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 
+logger = logging.getLogger(__name__)
 
 def generate_js_function(template_path: Path, output_file: Path, **kwargs: Any) -> None:
     # Get the directory and filename from the full path
@@ -20,6 +22,6 @@ def generate_js_function(template_path: Path, output_file: Path, **kwargs: Any) 
     rendered_js = template.render(**kwargs)
 
     # Write the rendered JavaScript to the output file
-    Path(output_file).write_text(rendered_js)
+    Path(output_file).write_text(rendered_js, encoding='utf-8')
 
-    print(f"JavaScript function generated in {output_file}")
+    logger.warning(f"JavaScript function generated in {output_file}")

@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import tempfile
@@ -13,6 +14,8 @@ from minio.error import S3Error
 from server.model.article import Article
 from server.model.plugin_registration import PluginRegistration
 from server.utilities.utils import generate_js_function
+
+logger = logging.getLogger(__name__)
 
 IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
 
@@ -96,7 +99,7 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
             plugin.local_register_path,
             plugin_name=plugin.plugin_name
         )
-        print(f'Generated plugin: {plugin.plugin_name}')
+        logger.info(f'Generated plugin: {plugin.plugin_name}')
 
     if IS_LOCAL:
         # Write files to local directory

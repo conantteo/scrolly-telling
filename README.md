@@ -72,6 +72,10 @@ scrolly-telling/
    uvicorn server.main:app --reload
    ```
 
+5. To run the checks for linting and formatting, run:
+   ```
+   ruff check --fix
+   ```
 The server should now be running on `http://localhost:8000`.
 To access the Swagger API UI page, go to `http://localhost:8000/docs` or `http://localhost:8000/redoc`
 
