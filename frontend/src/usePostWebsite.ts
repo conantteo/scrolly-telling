@@ -1,13 +1,25 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 
-// Define the API endpoint
-const postWebsite = async (data: { title: string; scroll_trigger: boolean }) => {
-  const response = await axios.post('http://localhost:8000/api/generate-website', data);
-  return response.data;
-};
+interface PostWebsiteRequest {
+  title: string;
+  scroll_trigger: boolean;
+}
+
+interface PostWebsiteResponse {
+  title: string;
+  scroll_trigger: boolean;
+}
 
 // Use React Query's mutation hook for POST requests
-export const usePostWebsite = () => {
-  return useMutation(postWebsite);
+const usePostWebsite = () => {
+  return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
+    mutationFn: async (data: PostWebsiteRequest) => {
+      const response = await axios.post<PostWebsiteResponse>(
+        'https://your-api-endpoint.com/websites',
+        data
+      );
+      return response.data; // Ensure this is returning a Promise
+    },
+  });
 };
