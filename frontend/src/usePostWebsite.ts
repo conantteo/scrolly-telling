@@ -12,7 +12,7 @@ interface PostWebsiteResponse {
 }
 
 // Use React Query's mutation hook for POST requests
-const usePostWebsite = () => {
+export const usePostWebsite = () => {
   return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
       const response = await axios.post<PostWebsiteResponse>(
