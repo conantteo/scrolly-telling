@@ -1,34 +1,33 @@
-import { useState } from 'react';
-import viteLogo from '/vite.svg';
-import reactLogo from './assets/react.svg';
+import React from 'react';
+import { AppShell, Flex, Grid } from '@mantine/core';
+import AnimationDrawer from './components/AnimationDrawer';
+import ComponentDrawer from './components/ComponentDrawer';
+import Header from './components/Header';
+import ScrollyContainer from './components/ScrollyContainer';
+import ScrollySideBar from './components/ScrollySideBar';
 
-import './App.css';
-
-function App() {
-  const [count, setCount] = useState(0);
-
+const App: React.FC = () => {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)} type="button">
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
-    </>
+    <AppShell header={{ height: 60 }} padding="md">
+      <AppShell.Header>
+        <Flex justify="start" align="center" h="100%" ml={24}>
+          <Header />
+        </Flex>
+      </AppShell.Header>
+      <AppShell.Main>
+        <Grid>
+          <Grid.Col span={3}>
+            <ScrollySideBar />
+          </Grid.Col>
+          <Grid.Col span={9}>
+            <ScrollyContainer />
+          </Grid.Col>
+          <AnimationDrawer />
+          <ComponentDrawer />
+        </Grid>
+      </AppShell.Main>
+    </AppShell>
   );
-}
+};
 
 export default App;
