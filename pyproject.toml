@@ -147,3 +147,9 @@ case-sensitive = true
 force-single-line = true
 known-local-folder = ["app", "tests"]
 order-by-type = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["*"]
+exclude = ["js", "css"]
+namespaces = false
