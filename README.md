@@ -79,6 +79,18 @@ scrolly-telling/
 The server should now be running on `http://localhost:8000`.
 To access the Swagger API UI page, go to `http://localhost:8000/docs` or `http://localhost:8000/redoc`
 
+## Docker setup instructions
+
+### Build
+```bash
+docker build -t scrollytelling:v1 .
+```
+
+### Run
+```bash
+docker run -p 8000:8000 -p 5173:5173 -it scrollytelling:v1
+```
+
 ## Usage
 
 Send a POST request to `http://localhost:8000/api/generate-website` with JSON data containing the title and content for your website. For example:
