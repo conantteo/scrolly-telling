@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "scrolly-telling"
 version = "0.1.0"
@@ -12,6 +16,9 @@ dependencies = [
     "jinja2==3.1.4",
     "ruff==0.6.8"
 ]
+
+[tool.setuptools.packages.find]
+include = ["server", "server.*"]
 
 [tool.ruff]
 line-length = 120
