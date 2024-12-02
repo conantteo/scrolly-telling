@@ -15,6 +15,8 @@ from server.model.article import Article
 from server.model.plugin_registration import PluginRegistration
 from server.utilities.utils import generate_js_function
 
+from server.test_minio import test
+
 logger = logging.getLogger(__name__)
 
 IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
@@ -142,3 +144,5 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     Path.unlink(css_filename)
     Path.unlink(js_filename)
     return response
+
+test()

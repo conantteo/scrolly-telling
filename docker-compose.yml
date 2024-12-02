@@ -1,0 +1,59 @@
+services:
+  app:
+    image: scrollytelling:v1
+    container_name: scrollytelling
+    build:
+      context: .
+      dockerfile: compose/app/Dockerfile
+      target: dev
+      args:
+        DOCKER_REGISTRY: docker.io
+        DOCKER_BASE_IMAGE: node:23-alpine3.19
+    depends_on:
+      - minio
+    environment: 
+      FLASK_ENV: development
+      S3_SECURE: "False"
+      S3_ENDPOINT: minio:9000
+    ports:
+      - 8000:8000
+      - 5173:5173
+    networks:
+      - db
+
+  minio:
+    image: docker.io/minio/minio:RELEASE.2022-12-12T19-27-27Z
+    environment:
+      # Default credentials from minio setup
+      MINIO_ACCESS_KEY: minio
+      MINIO_SECRET_KEY: minio123
+    ports:
+      - "9000:9000"
+    volumes:
+      - minio-data:/data
+    command:
+      - "server"
+      - "/data"
+    networks:
+      - db
+
+  minio-configure:
+    image: docker.io/minio/mc:RELEASE.2022-12-13T00-23-28Z
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set test_minio http://minio:9000 minio minio123;
+      /usr/bin/mc mb test_minio/apps;
+      /usr/bin/mc anonymous set public test_minio/apps;
+      exit 0;
+      "
+    networks:
+      - db
+
+volumes:
+  minio-data:
+
+networks:
+  db:
+    driver: bridge
