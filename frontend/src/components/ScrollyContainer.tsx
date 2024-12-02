@@ -10,7 +10,7 @@ const ScrollyContainer: React.FC = () => {
   viewableElements.pop();
   return (
     <>
-      <Title order={1}>Showing {elements.length - 1} scrolly components...</Title>
+      <Title order={1}>Showing {elements.length - 1} storyboard items:</Title>
       <Space h="xl" />
       <Stack align="stretch" justify="center" gap="xs">
         {viewableElements.map((element) => (
