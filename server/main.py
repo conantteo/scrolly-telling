@@ -39,13 +39,13 @@ if IS_LOCAL:
     Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-# if not IS_LOCAL:
-#     minio_client = Minio(
-#         "play.min.io",  # Replace with your MinIO server URL
-#         access_key="minioadmin",  # Replace with your access key
-#         secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-#         secure=True  # Set to False if not using HTTPS
-#     )
+if not IS_LOCAL:
+    minio_client = Minio(
+        "play.min.io",  # Replace with your MinIO server URL
+        access_key="minioadmin",  # Replace with your access key
+        secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
+        secure=True  # Set to False if not using HTTPS
+    )
 
 # Template files
 GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
