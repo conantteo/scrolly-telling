@@ -39,13 +39,13 @@ if IS_LOCAL:
     Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-if not IS_LOCAL:
-    minio_client = Minio(
-        "play.min.io",  # Replace with your MinIO server URL
-        access_key="minioadmin",  # Replace with your access key
-        secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-        secure=True  # Set to False if not using HTTPS
-    )
+# if not IS_LOCAL:
+#     minio_client = Minio(
+#         "play.min.io",  # Replace with your MinIO server URL
+#         access_key="minioadmin",  # Replace with your access key
+#         secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
+#         secure=True  # Set to False if not using HTTPS
+#     )
 
 # Template files
 GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
@@ -232,7 +232,7 @@ def handle_component_content(component: Component):
     body_content = soup.body
     wrapper_div = soup.new_tag("div", id=component.id)
 
-    for element in body_content.find_all(text=True):  # Find all text nodes inside body
+    for element in body_content.find_all(string=True):  # Find all text nodes inside body
         element.replace_with(element.strip())  # Strip leading/trailing whitespace
 
     if body_content:
@@ -251,6 +251,7 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
 
     pinned_left_content = ""
     pinned_right_content = ""
+    pinned_center_content = ""
 
     break_index = -1
 
@@ -269,6 +270,12 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
                     pinned_right_content += handle_component_content(component)
                 if component.image:
                     pinned_right_content += handle_component_image(component)
+
+            if component.position == "center":
+                if component.content:
+                    pinned_center_content += handle_component_content(component)
+                if component.image:
+                    pinned_center_content += handle_component_image(component)
         else:
             break_index = i
             break
@@ -276,9 +283,15 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
     if break_index == -1:
         break_index = len(components)
 
-    # Add left and right sections to the pinned HTML
-    pinned_html_section += f'<div class="pinned-{section_index_id}-left">{pinned_left_content}</div>\n'
-    pinned_html_section += f'<div class="pinned-{section_index_id}-right">{pinned_right_content}</div>\n'
+    if pinned_left_content != "":
+        pinned_html_section += f'<div class="pinned-{section_index_id}-left">{pinned_left_content}</div>\n'
+
+    if pinned_right_content != "":
+        pinned_html_section += f'<div class="pinned-{section_index_id}-right">{pinned_right_content}</div>\n'
+
+    if pinned_center_content != "":
+        pinned_html_section += f'<div class="pinned-{section_index_id}-center">{pinned_center_content}</div>\n'
+
     pinned_html_section += '</section>\n'
 
     return pinned_html_section, break_index
@@ -303,45 +316,17 @@ def parse_components(components: list[Component], title: str):
 
         else:
             if component.content:  # If content is not empty
-                # Parse the HTML content of the component
-                soup = BeautifulSoup(component.content, "html.parser")
-                # Extract the body content
-                body_content = soup.body
-
-                for element in body_content.find_all(text=True):  # Find all text nodes inside body
-                    element.replace_with(element.strip())  # Strip leading/trailing whitespace
-
-                if body_content:
-                    # Create a new div with the component id
-                    wrapper_section = soup.new_tag("section", id=component.id)
-
-                    # Move all non-empty children of body into the new section
-                    for child in body_content.children:
-                        if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
-                            continue
-                        wrapper_section.append(child.extract())
-
-                    # Add the new section to the HTML output
-                    html_output += str(wrapper_section) + "\n"
+                component_content = handle_component_content(component)
+                html_output += component_content + "\n"
 
                 # Extract the style content
+                soup = BeautifulSoup(component.content, "html.parser")
                 style_content = soup.style
                 if style_content:
                     css_output += style_content.string + "\n"
 
             if component.image:
-                # Download file to local directory
-                # Create image tag with src as link to file, and id of component.id
-                image = component.image
-                image_filename = f"{component.id}-{image.filename}"
-                local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
-
-                # Open the local image file in binary write mode ('wb') and copy the content
-                with local_image_path.open("wb") as image_file:
-                    shutil.copyfileobj(image.file, image_file)  # Ensure image_file is in 'wb' mode
-
-                # Create the image tag to include in the HTML output
-                img_tag = f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
+                img_tag = handle_component_image(component)
                 html_output += img_tag + "\n"
 
         index += 1
