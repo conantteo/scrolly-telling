@@ -1,15 +1,9 @@
-body {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    flex-direction: column;
-    min-height: 400vh;
+body,
+html {
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
 
-.box {
-    width: 200px;
-    height: 200px;
-    background: linear-gradient(to right, #00b09b, #96c93d);
-    padding: 20px;
-    box-sizing: border-box;
+.scroller {
+    height: 100vh;
 }

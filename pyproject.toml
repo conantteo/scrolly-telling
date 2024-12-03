@@ -14,11 +14,9 @@ dependencies = [
     "minio==7.1.13",
     "uvicorn==0.30.6",
     "jinja2==3.1.4",
-    "ruff==0.6.8"
+    "ruff==0.6.8",
+    "beautifulsoup4==4.12.2"
 ]
-
-[tool.setuptools.packages.find]
-include = ["server", "server.*"]
 
 [tool.ruff]
 line-length = 120
