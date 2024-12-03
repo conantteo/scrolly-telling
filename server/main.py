@@ -4,7 +4,9 @@ import shutil
 import tempfile
 import typing
 from pathlib import Path
+import uvicorn
 
+from bs4 import BeautifulSoup
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from jinja2 import Template
@@ -12,6 +14,7 @@ from minio import Minio
 from minio.error import S3Error
 
 from server.model.article import Article
+from server.model.component import Component
 from server.model.plugin_registration import PluginRegistration
 from server.utilities.utils import generate_js_function
 
@@ -24,6 +27,7 @@ LOCAL_OUTPUT_DIR = Path(__file__).parent / 'output'
 LOCAL_OUTPUT_JS_DIR = Path(LOCAL_OUTPUT_DIR) / 'js'
 LOCAL_OUTPUT_GSAP_DIR = Path(LOCAL_OUTPUT_DIR) / 'js' / 'gsap'
 LOCAL_OUTPUT_CSS_DIR = Path(LOCAL_OUTPUT_DIR) / 'css'
+LOCAL_OUTPUT_IMAGE_DIR = Path(LOCAL_OUTPUT_DIR) / 'images'
 
 # Create local output directory if it doesn't exist
 if IS_LOCAL:
@@ -47,8 +51,7 @@ REGISTER_PLUGIN_TEMPLATE_PATH = Path(__file__).parent / 'templates' / 'js' / 'gs
 
 app = FastAPI()
 
-
-@app.post("/api/generate-website")
+# @app.post("/api/generate-website")
 async def root(request_body: Article) -> typing.Dict[str, str]:
     title = request_body.title if request_body.title is not None else 'My Animated Website'
     scroll_trigger = request_body.scroll_trigger
@@ -142,3 +145,208 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     Path.unlink(css_filename)
     Path.unlink(js_filename)
     return response
+
+@app.post("/api/generate-website")
+async def generate_website(request_body: Article) -> str:
+    try:
+        # Extract the values from the request body
+        title = request_body.title if request_body.title is not None else 'My Animated Website'
+        scroll_trigger = request_body.scroll_trigger
+        components = request_body.components
+
+        # Print the values for debugging
+        print(title)
+        print(scroll_trigger)
+
+        # Process the components and generate HTML content
+        parse_components(components, title)
+        return "ok"
+
+    except Exception as e:
+        # Handle the exception and log the error
+        print(f"Error occurred: {e}")
+        # You can return an appropriate error message or raise a custom exception
+        return {"error": "An error occurred while processing the request."}
+
+
+def generate_html(body_content: str, title: str):
+    # Load HTML template
+    with Path.open(Path(__file__).parent / 'templates' / 'index.html', encoding='utf-8') as file:
+        html_template = file.read()
+
+    # Render HTML template with provided data
+    html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)
+
+    # Use BeautifulSoup to pretty-print the HTML content
+    soup = BeautifulSoup(html_content, "html.parser")
+    formatted_html_content = soup.prettify()
+
+    # Write to local temp file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as html_file:
+        html_file.write(formatted_html_content.encode())
+        html_filename = html_file.name
+     # Write to local file directory
+    shutil.copy(html_filename, Path(LOCAL_OUTPUT_DIR) / 'index.html')
+
+
+def generate_css(styling_content: str):
+    # Load existing CSS content from the template file
+    css_template_path = Path(__file__).parent / 'templates' / 'css' / 'styles.css'
+    with css_template_path.open(encoding='utf-8') as file:
+        template_css_content = file.read()
+
+    # Concatenate the template CSS content with the provided styling content
+    combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
+
+    # Create temporary CSS file with the combined content
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.css') as css_file:
+        css_file.write(combined_css_content.encode())
+        css_filename = css_file.name
+
+    # Copy the temporary CSS file to the desired output directory
+    output_css_path = Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css'
+    shutil.copy(css_filename, output_css_path)
+
+
+def generate_js(js_content: str):
+    return 0
+
+def handle_component_image(component: Component):
+    image = component.image
+    image_filename = f"{component.id}-{image.filename}"
+    local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
+
+    # Save the image to the local directory
+    with local_image_path.open("wb") as image_file:
+        shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
+
+    # Add the image HTML tag
+    img_tag = f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
+
+    return img_tag
+
+def handle_component_content(component: Component):
+    soup = BeautifulSoup(component.content, "html.parser")
+    body_content = soup.body
+    wrapper_div = soup.new_tag("div", id=component.id)
+
+    for element in body_content.find_all(text=True):  # Find all text nodes inside body
+        element.replace_with(element.strip())  # Strip leading/trailing whitespace
+
+    if body_content:
+        # Move all non-empty children of body into the new section
+        for child in body_content.children:
+            if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
+                continue
+            wrapper_div.append(child.extract())
+
+    return str(wrapper_div)
+
+def parse_pinned_components(components: list[Component], index_start: int, section_index_id: int):
+    pinned_html_section = ""
+    pinned_section_id = components[index_start].animation.pinnedSectionId
+    pinned_html_section += f'<section class="pinned-{section_index_id}" id="{pinned_section_id}">\n'
+
+    pinned_left_content = ""
+    pinned_right_content = ""
+
+    break_index = -1
+
+    for i in range(index_start, len(components)):
+        component = components[i]
+        if component.animation.pin:
+            # Handle content and images for left and right positions
+            if component.position == "left":
+                if component.content:
+                    pinned_left_content += handle_component_content(component)
+                if component.image:
+                    pinned_left_content += handle_component_image(component)
+
+            if component.position == "right":
+                if component.content:
+                    pinned_right_content += handle_component_content(component)
+                if component.image:
+                    pinned_right_content += handle_component_image(component)
+        else:
+            break_index = i
+            break
+
+    if break_index == -1:
+        break_index = len(components)
+
+    # Add left and right sections to the pinned HTML
+    pinned_html_section += f'<div class="pinned-{section_index_id}-left">{pinned_left_content}</div>\n'
+    pinned_html_section += f'<div class="pinned-{section_index_id}-right">{pinned_right_content}</div>\n'
+    pinned_html_section += '</section>\n'
+
+    return pinned_html_section, break_index
+
+
+def parse_components(components: list[Component], title: str):
+    html_output = ""
+    css_output = ""
+    pinned_sections_count = 0
+    index = 0
+
+    while index < len(components):
+        component = components[index]
+
+        if component.animation.pin:
+           pinned_html_section, break_at = parse_pinned_components(components, index_start=index, section_index_id=pinned_sections_count)
+           pinned_sections_count += 1
+           html_output += pinned_html_section + "\n"
+
+           if break_at != -1:
+               index = break_at - 1
+
+        else:
+            if component.content:  # If content is not empty
+                # Parse the HTML content of the component
+                soup = BeautifulSoup(component.content, "html.parser")
+                # Extract the body content
+                body_content = soup.body
+
+                for element in body_content.find_all(text=True):  # Find all text nodes inside body
+                    element.replace_with(element.strip())  # Strip leading/trailing whitespace
+
+                if body_content:
+                    # Create a new div with the component id
+                    wrapper_section = soup.new_tag("section", id=component.id)
+
+                    # Move all non-empty children of body into the new section
+                    for child in body_content.children:
+                        if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
+                            continue
+                        wrapper_section.append(child.extract())
+
+                    # Add the new section to the HTML output
+                    html_output += str(wrapper_section) + "\n"
+
+                # Extract the style content
+                style_content = soup.style
+                if style_content:
+                    css_output += style_content.string + "\n"
+
+            if component.image:
+                # Download file to local directory
+                # Create image tag with src as link to file, and id of component.id
+                image = component.image
+                image_filename = f"{component.id}-{image.filename}"
+                local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
+
+                # Open the local image file in binary write mode ('wb') and copy the content
+                with local_image_path.open("wb") as image_file:
+                    shutil.copyfileobj(image.file, image_file)  # Ensure image_file is in 'wb' mode
+
+                # Create the image tag to include in the HTML output
+                img_tag = f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
+                html_output += img_tag + "\n"
+
+        index += 1
+
+    generate_html(html_output, title)
+    generate_css(css_output)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
