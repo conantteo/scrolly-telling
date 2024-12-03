@@ -18,6 +18,8 @@ from server.model.component import Component
 from server.model.plugin_registration import PluginRegistration
 from server.utilities.utils import generate_js_function
 
+from server.test_minio import test
+
 logger = logging.getLogger(__name__)
 
 IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
@@ -37,13 +39,13 @@ if IS_LOCAL:
     Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-# if not IS_LOCAL:
-#     minio_client = Minio(
-#         "play.min.io",  # Replace with your MinIO server URL
-#         access_key="minioadmin",  # Replace with your access key
-#         secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-#         secure=True  # Set to False if not using HTTPS
-#     )
+if not IS_LOCAL:
+    minio_client = Minio(
+        "play.min.io",  # Replace with your MinIO server URL
+        access_key="minioadmin",  # Replace with your access key
+        secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
+        secure=True  # Set to False if not using HTTPS
+    )
 
 # Template files
 GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
@@ -104,7 +106,7 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
         )
         logger.info(f'Generated plugin: {plugin.plugin_name}')
 
-    # if IS_LOCAL:
+    if IS_LOCAL:
         # Write files to local directory
         shutil.copy(html_filename, Path(LOCAL_OUTPUT_DIR) / 'index.html')
         shutil.copy(css_filename, Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css')
@@ -115,30 +117,30 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
         response = {
             "message": "Website with GSAP animation generated and saved locally",
         }
-    # else:
-    #     try:
-    #         # Upload files to MinIO
-    #         bucket_name = "websites"
-    #         minio_client.make_bucket(bucket_name)
-    #     except S3Error:
-    #         # Bucket already exists
-    #         pass
+    else:
+        try:
+            # Upload files to MinIO
+            bucket_name = "websites"
+            minio_client.make_bucket(bucket_name)
+        except S3Error:
+            # Bucket already exists
+            pass
 
-    #     try:
-    #         minio_client.fput_object(bucket_name, "index.html", html_filename)
-    #         minio_client.fput_object(bucket_name, "css/styles.css", css_filename)
-    #         minio_client.fput_object(bucket_name, "js/animation.js", js_filename)
-    #         minio_client.fput_object(bucket_name, "js/gsap.min.js", GSAP_LOCAL_PATH)
-    #         for plugin in plugins:
-    #             minio_client.fput_object(bucket_name, plugin.bucket_js_path, plugin.source_path)
-    #             minio_client.fput_object(bucket_name, plugin.bucket_register_path, plugin.local_register_path)
-    #     except S3Error as err:
-    #         return JSONResponse(status_code=500, content={"error": f"Error uploading files: {err}"})
+        try:
+            minio_client.fput_object(bucket_name, "index.html", html_filename)
+            minio_client.fput_object(bucket_name, "css/styles.css", css_filename)
+            minio_client.fput_object(bucket_name, "js/animation.js", js_filename)
+            minio_client.fput_object(bucket_name, "js/gsap.min.js", GSAP_LOCAL_PATH)
+            for plugin in plugins:
+                minio_client.fput_object(bucket_name, plugin.bucket_js_path, plugin.source_path)
+                minio_client.fput_object(bucket_name, plugin.bucket_register_path, plugin.local_register_path)
+        except S3Error as err:
+            return JSONResponse(status_code=500, content={"error": f"Error uploading files: {err}"})
 
-    #     response = {
-    #         "message": "Website with GSAP animation generated and uploaded successfully",
-    #         "url": "to be generated"
-    #     }
+        response = {
+            "message": "Website with GSAP animation generated and uploaded successfully",
+            "url": "to be generated"
+        }
 
     # Clean up temporary files
     Path.unlink(html_filename)
@@ -350,3 +352,4 @@ def parse_components(components: list[Component], title: str):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    test()

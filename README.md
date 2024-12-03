@@ -87,6 +87,12 @@ docker build -t scrollytelling:v1 .
 ```
 
 ### Run
+To run Minio and the application together:
+```bash
+docker compose up
+```
+
+Running the application only:
 ```bash
 docker run -p 8000:8000 -p 5173:5173 -it scrollytelling:v1
 ```
