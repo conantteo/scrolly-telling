@@ -6,15 +6,13 @@ import io
 from pathlib import Path
 
 import uvicorn
-from bs4 import BeautifulSoup
 from fastapi import FastAPI, UploadFile
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse
 from jinja2 import Template
 from minio import Minio
 from minio.error import S3Error
 
 from server.model.article import Article
-from server.model.component import Component
 from server.model.plugin_registration import PluginRegistration
 from server.utilities.utils import generate_js_function, stage_file
 from server.utilities.constants import (
@@ -22,8 +20,7 @@ from server.utilities.constants import (
     IS_LOCAL, 
     LOCAL_OUTPUT_CSS_DIR, 
     LOCAL_OUTPUT_DIR, 
-    LOCAL_OUTPUT_GSAP_DIR, 
-    LOCAL_OUTPUT_IMAGE_DIR, 
+    LOCAL_OUTPUT_GSAP_DIR,  
     LOCAL_OUTPUT_JS_DIR, 
     MINIO_ACCESS_KEY, 
     MINIO_ARTICLE_BUCKET,
@@ -32,6 +29,8 @@ from server.utilities.constants import (
     MINIO_SECURE, 
     REGISTER_PLUGIN_TEMPLATE_PATH
 )
+from server.parser import parse_components
+from server.utilities.utils import generate_js_function
 
 logger = logging.getLogger(__name__)
 
@@ -144,199 +143,34 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     Path.unlink(js_filename)
     return response
 
+@app.post("/api/upload-image")
+async def upload_file(file: UploadFile, article_id: str):
+    stage_file(minio_client, article_id, file.file, file.filename, file.size)
 
 @app.post("/api/generate-website")
-async def generate_website(request_body: Article) -> typing.Dict[str, str]:
+async def generate_website(request_body: Article) -> JSONResponse:
     try:
         # Extract the values from the request body
         title = request_body.title if request_body.title is not None else 'My Animated Website'
         scroll_trigger = request_body.scroll_trigger
         components = request_body.components
 
-        # Process the components and generate HTML content
-        parse_components(request_body.article_id, components, title)
-        if IS_LOCAL:
-            return {"message": "Look for index.html file in the output folder"}
-        else:
-            return {"message": f"The article can be found in {MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}
+        # Parse components to generate website
+        parse_components(minio_client, request_body.article_id, components, title)
+        return JSONResponse(content={"message": f"Website generated successfully. The article can be found in {MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}, status_code=200)
+
+    except ValueError as ve:
+        logger.error(f"ValueError occurred: {ve}")
+        return JSONResponse(content={"error": f"Invalid data: {ve}"}, status_code=400)
+
+    except FileNotFoundError as fnf:
+        logger.error(f"FileNotFoundError occurred: {fnf}")
+        return JSONResponse(content={"error": f"File not found: {fnf}"}, status_code=404)
 
     except Exception as e:
-        # Handle the exception and log the error
-        print(f"Error occurred: {e}")
-        # You can return an appropriate error message or raise a custom exception
-        return {"error": "An error occurred while processing the request."}
-
-@app.post("/api/upload-image")
-async def upload_file(file: UploadFile, article_id: str):
-    stage_file(minio_client, article_id, file.file, file.filename, file.size)
-
-def generate_html(article_id: str, body_content: str, title: str):
-    # Load HTML template
-    with Path.open(Path(__file__).parent / 'templates' / 'index.html', encoding='utf-8') as file:
-        html_template = file.read()
-
-    # Render HTML template with provided data
-    html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)
-
-    # Use BeautifulSoup to pretty-print the HTML content
-    soup = BeautifulSoup(html_content, "html.parser")
-    formatted_html_content = soup.prettify()
-
-    if IS_LOCAL:
-        with open(Path(LOCAL_OUTPUT_DIR) / 'index.html', "wb") as f:
-            f.write(formatted_html_content.encode())
-    else:
-        minio_client.put_object(MINIO_ARTICLE_BUCKET, f"{article_id}/index.html", io.BytesIO(formatted_html_content.encode()), length=len(formatted_html_content), content_type="text/html")
-
-
-def generate_css(article_id: str, styling_content: str):
-    # Load existing CSS content from the template file
-    css_template_path = Path(__file__).parent / 'templates' / 'css' / 'styles.css'
-    with css_template_path.open(encoding='utf-8') as file:
-        template_css_content = file.read()
-
-    # Concatenate the template CSS content with the provided styling content
-    combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
-
-    if IS_LOCAL:
-        with open(Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css', "wb") as f:
-            f.write(combined_css_content.encode())
-    else:
-        minio_client.put_object(MINIO_ARTICLE_BUCKET, f"{article_id}/css/styles.css", io.BytesIO(combined_css_content.encode()), length=len(combined_css_content.encode()), content_type="text/css")
-
-def generate_js(js_content: str):
-    return 0
-
-
-def handle_component_image(component: Component):
-    image = component.image
-    image_filename = f"{component.id}-{image.filename}"
-    local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
-
-    # Save the image to the local directory
-    with local_image_path.open("wb") as image_file:
-        shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
-
-    # Add the image HTML tag
-    img_tag = f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
-
-    return img_tag
-
-# Returns html and css
-def handle_component_content(component: Component):
-    soup = BeautifulSoup(component.content, "html.parser")
-    body_content = soup.body
-    wrapper_div = soup.new_tag("div", id=component.id)
-
-    for element in body_content.find_all(string=True):  # Find all text nodes inside body
-        element.replace_with(element.strip())  # Strip leading/trailing whitespace
-
-    if body_content:
-        # Move all non-empty children of body into the new section
-        for child in body_content.children:
-            if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
-                continue
-            wrapper_div.append(child.extract())
-
-    # Extract style content if it exists
-    style_content = soup.style
-    css_output = style_content.string.strip() if style_content else ""
-
-    return str(wrapper_div), str(css_output)
-
-
-def parse_pinned_components(components: list[Component], index_start: int, section_index_id: int):
-    pinned_html_section = ""
-    pinned_css = ""
-
-    pinned_section_id = components[index_start].animation.pinnedSectionId
-    pinned_html_section += f'<section class="pinned-{section_index_id}" id="{pinned_section_id}">\n'
-
-    pinned_left_content = ""
-    pinned_right_content = ""
-    pinned_center_content = ""
-
-    break_index = -1
-
-    for i in range(index_start, len(components)):
-        component = components[i]
-        if component.animation.pin:
-            # Handle content and images for left and right positions
-            if component.position == "left":
-                if component.content:
-                    left_content, left_content_css = handle_component_content(component)
-                    pinned_left_content += left_content
-                    pinned_css += left_content_css
-                if component.image:
-                    pinned_left_content += handle_component_image(component)
-
-            if component.position == "right":
-                if component.content:
-                    right_content, right_content_css = handle_component_content(component)
-                    pinned_right_content += right_content
-                    pinned_css += right_content_css
-                if component.image:
-                    pinned_right_content += handle_component_image(component)
-
-            if component.position == "center":
-                if component.content:
-                    center_content, center_content_css = handle_component_content(component)
-                    pinned_center_content +=  center_content
-                    pinned_css += center_content_css
-                if component.image:
-                    pinned_center_content += handle_component_image(component)
-        else:
-            break_index = i
-            break
-
-    if break_index == -1:
-        break_index = len(components)
-
-    if pinned_left_content != "":
-        pinned_html_section += f'<div class="pinned-{section_index_id}-left">{pinned_left_content}</div>\n'
-
-    if pinned_right_content != "":
-        pinned_html_section += f'<div class="pinned-{section_index_id}-right">{pinned_right_content}</div>\n'
-
-    if pinned_center_content != "":
-        pinned_html_section += f'<div class="pinned-{section_index_id}-center">{pinned_center_content}</div>\n'
-
-    pinned_html_section += '</section>\n'
-
-    return pinned_html_section, pinned_css, break_index
-
-def parse_components(article_id: str, components: list[Component], title: str):
-    html_output = ""
-    css_output = ""
-    pinned_sections_count = 0
-    index = 0
-
-    while index < len(components):
-        component = components[index]
-
-        if component.animation.pin:
-           pinned_html_section, pinned_css, break_at = parse_pinned_components(components, index_start=index, section_index_id=pinned_sections_count)
-           pinned_sections_count += 1
-           html_output += pinned_html_section + "\n"
-           css_output += pinned_css + "\n"
-
-           if break_at != -1:
-               # Continue loop at next component in list that is not pinned
-               index = break_at - 1
-        else:
-            if component.content:
-                component_content, component_css = handle_component_content(component)
-                html_output += component_content + "\n"
-                css_output += component_css + "\n"
-
-            if component.image:
-                img_tag = handle_component_image(component)
-                html_output += img_tag + "\n"
-
-        index += 1
-    
-    generate_html(article_id, html_output, title)
-    generate_css(article_id, css_output)
+        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        return JSONResponse(content={"error": "An unexpected error occurred while processing the request."},
+                            status_code=500)
 
 
 if __name__ == "__main__":
