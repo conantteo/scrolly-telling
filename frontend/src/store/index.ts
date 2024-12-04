@@ -102,7 +102,7 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
             {
               ...element,
               isNew: false,
-              isOpen: false,
+              isOpen: true,
               id: `${updatedElements.length}`,
             },
             element.type === 'animation' ? NEW_COMPONENT : NEW_ANIMATION,

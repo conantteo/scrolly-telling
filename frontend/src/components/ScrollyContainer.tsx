@@ -1,27 +1,40 @@
-import { Card, Space, Stack, Title } from '@mantine/core';
+import { useEffect } from 'react';
+import { Grid, Paper } from '@mantine/core';
 import { useScrollyStore } from '../store';
 
 const ScrollyContainer: React.FC = () => {
   const elements = useScrollyStore((state) => state.elements);
   const data = useScrollyStore((state) => state.data);
+  const currentElementId = useScrollyStore((state) => state.currentElementId);
 
-  console.log({ elements, data });
+  const targetData = data.find((d) => d.id === currentElementId) ?? {
+    id: currentElementId,
+    type: 'component',
+    metadata: {},
+  };
+
+  useEffect(() => {
+    console.log(currentElementId);
+    console.log(data.find((d) => d.id === currentElementId));
+  }, [data]);
+
   const viewableElements = [...elements];
   viewableElements.pop();
+  console.log(targetData.metadata['numColumns']);
   return (
-    <>
-      <Title order={1}>Showing {elements.length - 1} storyboard items:</Title>
-      <Space h="xl" />
-      <Stack align="stretch" justify="center" gap="xs">
-        {viewableElements.map((element) => (
-          <Card key={element.id} withBorder shadow="xl">
-            <div>
-              {element.type === 'component' ? 'Component' : 'Animation'} {element.id}
-            </div>
-          </Card>
+    <Paper p="sm">
+      <Grid
+        columns={
+          'numColumns' in targetData.metadata ? Number(targetData.metadata['numColumns']) : 1
+        }
+      >
+        {[...Array(targetData.metadata.numColumns)].map((_, v) => (
+          <Grid.Col span={1} key={v}>
+            Configure on the animations pane first
+          </Grid.Col>
         ))}
-      </Stack>
-    </>
+      </Grid>
+    </Paper>
   );
 };
 
