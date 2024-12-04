@@ -4,7 +4,9 @@ import shutil
 import tempfile
 import typing
 from pathlib import Path
+import uvicorn
 
+from bs4 import BeautifulSoup
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from jinja2 import Template
@@ -13,6 +15,7 @@ from minio.error import S3Error
 
 from server.model.article import Article
 from server.model.plugin_registration import PluginRegistration
+from server.parser import parse_components
 from server.utilities.utils import generate_js_function
 
 from server.test_minio import test
@@ -26,6 +29,7 @@ LOCAL_OUTPUT_DIR = Path(__file__).parent / 'output'
 LOCAL_OUTPUT_JS_DIR = Path(LOCAL_OUTPUT_DIR) / 'js'
 LOCAL_OUTPUT_GSAP_DIR = Path(LOCAL_OUTPUT_DIR) / 'js' / 'gsap'
 LOCAL_OUTPUT_CSS_DIR = Path(LOCAL_OUTPUT_DIR) / 'css'
+LOCAL_OUTPUT_IMAGE_DIR = Path(LOCAL_OUTPUT_DIR) / 'images'
 
 # Create local output directory if it doesn't exist
 if IS_LOCAL:
@@ -49,8 +53,7 @@ REGISTER_PLUGIN_TEMPLATE_PATH = Path(__file__).parent / 'templates' / 'js' / 'gs
 
 app = FastAPI()
 
-
-@app.post("/api/generate-website")
+# @app.post("/api/generate-website")
 async def root(request_body: Article) -> typing.Dict[str, str]:
     title = request_body.title if request_body.title is not None else 'My Animated Website'
     scroll_trigger = request_body.scroll_trigger
@@ -145,4 +148,32 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     Path.unlink(js_filename)
     return response
 
-test()
+@app.post("/api/generate-website")
+async def generate_website(request_body: Article) -> JSONResponse:
+    try:
+        # Extract the values from the request body
+        title = request_body.title if request_body.title is not None else 'My Animated Website'
+        scroll_trigger = request_body.scroll_trigger
+        components = request_body.components
+
+        # Parse components to generate website
+        parse_components(components, title)
+        return JSONResponse(content={"message": "Website generated successfully"}, status_code=200)
+
+    except ValueError as ve:
+        logger.error(f"ValueError occurred: {ve}")
+        return JSONResponse(content={"error": f"Invalid data: {ve}"}, status_code=400)
+
+    except FileNotFoundError as fnf:
+        logger.error(f"FileNotFoundError occurred: {fnf}")
+        return JSONResponse(content={"error": f"File not found: {fnf}"}, status_code=404)
+
+    except Exception as e:
+        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        return JSONResponse(content={"error": "An unexpected error occurred while processing the request."},
+                            status_code=500)
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+    test()
