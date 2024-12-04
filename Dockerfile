@@ -22,7 +22,7 @@ RUN npm install
 WORKDIR /app/server
 RUN /opt/venv/bin/pip3 install .
 
-EXPOSE 8000
+EXPOSE 8001
 EXPOSE 5173
 
 ENV FLASK_ENV=development
