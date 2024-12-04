@@ -1,5 +1,4 @@
 import logging
-import os
 import shutil
 import tempfile
 import typing
@@ -7,8 +6,8 @@ from pathlib import Path
 
 import uvicorn
 from bs4 import BeautifulSoup
-from fastapi import FastAPI, File, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, UploadFile
+from fastapi.responses import JSONResponse, FileResponse
 from jinja2 import Template
 from minio import Minio
 from minio.error import S3Error
@@ -162,9 +161,13 @@ async def generate_website(request_body: Article) -> typing.Dict[str, str]:
         # You can return an appropriate error message or raise a custom exception
         return {"error": "An error occurred while processing the request."}
 
-@app.post("/api/upload_image")
+@app.post("/api/upload-image")
 async def upload_file(file: UploadFile, article_id: str):
     stage_file(minio_client, article_id, file.file, file.filename, file.size)
+
+@app.get("/api/tmp/download_output")
+async def download_output():
+    return FileResponse(path=Path(LOCAL_OUTPUT_DIR.parent) / "output.zip", filename="output.zip", media_type="application/zip")
 
 def generate_html(body_content: str, title: str):
     # Load HTML template
@@ -308,7 +311,6 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
 
     return pinned_html_section, pinned_css, break_index
 
-
 def parse_components(components: list[Component], title: str):
     html_output = ""
     css_output = ""
@@ -341,6 +343,7 @@ def parse_components(components: list[Component], title: str):
 
     generate_html(html_output, title)
     generate_css(css_output)
+    shutil.make_archive(Path(LOCAL_OUTPUT_DIR).parent / "output", "zip", LOCAL_OUTPUT_DIR)
 
 
 if __name__ == "__main__":
