@@ -39,13 +39,13 @@ if IS_LOCAL:
     Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-if not IS_LOCAL:
-    minio_client = Minio(
-        "play.min.io",  # Replace with your MinIO server URL
-        access_key="minioadmin",  # Replace with your access key
-        secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-        secure=True  # Set to False if not using HTTPS
-    )
+# if not IS_LOCAL:
+#     minio_client = Minio(
+#         "play.min.io",  # Replace with your MinIO server URL
+#         access_key="minioadmin",  # Replace with your access key
+#         secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
+#         secure=True  # Set to False if not using HTTPS
+#     )
 
 # Template files
 GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
@@ -156,10 +156,6 @@ async def generate_website(request_body: Article) -> str:
         scroll_trigger = request_body.scroll_trigger
         components = request_body.components
 
-        # Print the values for debugging
-        print(title)
-        print(scroll_trigger)
-
         # Process the components and generate HTML content
         parse_components(components, title)
         return "ok"
@@ -168,7 +164,7 @@ async def generate_website(request_body: Article) -> str:
         # Handle the exception and log the error
         print(f"Error occurred: {e}")
         # You can return an appropriate error message or raise a custom exception
-        return {"error": "An error occurred while processing the request."}
+        return "An error occurred while processing the request."
 
 
 def generate_html(body_content: str, title: str):
@@ -227,6 +223,7 @@ def handle_component_image(component: Component):
 
     return img_tag
 
+# Returns html and css
 def handle_component_content(component: Component):
     soup = BeautifulSoup(component.content, "html.parser")
     body_content = soup.body
@@ -242,10 +239,16 @@ def handle_component_content(component: Component):
                 continue
             wrapper_div.append(child.extract())
 
-    return str(wrapper_div)
+    # Extract style content if it exists
+    style_content = soup.style
+    css_output = style_content.string.strip() if style_content else ""
+
+    return str(wrapper_div), str(css_output)
 
 def parse_pinned_components(components: list[Component], index_start: int, section_index_id: int):
     pinned_html_section = ""
+    pinned_css = ""
+
     pinned_section_id = components[index_start].animation.pinnedSectionId
     pinned_html_section += f'<section class="pinned-{section_index_id}" id="{pinned_section_id}">\n'
 
@@ -261,19 +264,25 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
             # Handle content and images for left and right positions
             if component.position == "left":
                 if component.content:
-                    pinned_left_content += handle_component_content(component)
+                    left_content, left_content_css = handle_component_content(component)
+                    pinned_left_content += left_content
+                    pinned_css += left_content_css
                 if component.image:
                     pinned_left_content += handle_component_image(component)
 
             if component.position == "right":
                 if component.content:
-                    pinned_right_content += handle_component_content(component)
+                    right_content, right_content_css = handle_component_content(component)
+                    pinned_right_content += right_content
+                    pinned_css += right_content_css
                 if component.image:
                     pinned_right_content += handle_component_image(component)
 
             if component.position == "center":
                 if component.content:
-                    pinned_center_content += handle_component_content(component)
+                    center_content, center_content_css = handle_component_content(component)
+                    pinned_center_content +=  center_content
+                    pinned_css += center_content_css
                 if component.image:
                     pinned_center_content += handle_component_image(component)
         else:
@@ -294,7 +303,7 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
 
     pinned_html_section += '</section>\n'
 
-    return pinned_html_section, break_index
+    return pinned_html_section, pinned_css, break_index
 
 
 def parse_components(components: list[Component], title: str):
@@ -307,23 +316,19 @@ def parse_components(components: list[Component], title: str):
         component = components[index]
 
         if component.animation.pin:
-           pinned_html_section, break_at = parse_pinned_components(components, index_start=index, section_index_id=pinned_sections_count)
+           pinned_html_section, pinned_css, break_at = parse_pinned_components(components, index_start=index, section_index_id=pinned_sections_count)
            pinned_sections_count += 1
            html_output += pinned_html_section + "\n"
+           css_output += pinned_css + "\n"
 
            if break_at != -1:
+               # Continue loop at next component in list that is not pinned
                index = break_at - 1
-
         else:
-            if component.content:  # If content is not empty
-                component_content = handle_component_content(component)
+            if component.content:
+                component_content, component_css = handle_component_content(component)
                 html_output += component_content + "\n"
-
-                # Extract the style content
-                soup = BeautifulSoup(component.content, "html.parser")
-                style_content = soup.style
-                if style_content:
-                    css_output += style_content.string + "\n"
+                css_output += component_css + "\n"
 
             if component.image:
                 img_tag = handle_component_image(component)
