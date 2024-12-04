@@ -14,8 +14,8 @@ from minio import Minio
 from minio.error import S3Error
 
 from server.model.article import Article
-from server.model.component import Component
 from server.model.plugin_registration import PluginRegistration
+from server.parser import parse_components
 from server.utilities.utils import generate_js_function
 
 from server.test_minio import test
@@ -149,195 +149,32 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     return response
 
 @app.post("/api/generate-website")
-async def generate_website(request_body: Article) -> str:
+async def generate_website(request_body: Article) -> JSONResponse:
     try:
         # Extract the values from the request body
         title = request_body.title if request_body.title is not None else 'My Animated Website'
         scroll_trigger = request_body.scroll_trigger
         components = request_body.components
 
-        # Process the components and generate HTML content
+        # Parse components to generate website
         parse_components(components, title)
-        return "ok"
+        return JSONResponse(content={"message": "Website generated successfully"}, status_code=200)
+
+    except ValueError as ve:
+        # Handle specific exceptions like missing or invalid data
+        logger.error(f"ValueError occurred: {ve}")
+        return JSONResponse(content={"error": f"Invalid data: {ve}"}, status_code=400)
+
+    except FileNotFoundError as fnf:
+        # Handle file not found errors (e.g., missing templates or resources)
+        logger.error(f"FileNotFoundError occurred: {fnf}")
+        return JSONResponse(content={"error": f"File not found: {fnf}"}, status_code=404)
 
     except Exception as e:
-        # Handle the exception and log the error
-        print(f"Error occurred: {e}")
-        # You can return an appropriate error message or raise a custom exception
-        return "An error occurred while processing the request."
-
-
-def generate_html(body_content: str, title: str):
-    # Load HTML template
-    with Path.open(Path(__file__).parent / 'templates' / 'index.html', encoding='utf-8') as file:
-        html_template = file.read()
-
-    # Render HTML template with provided data
-    html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)
-
-    # Use BeautifulSoup to pretty-print the HTML content
-    soup = BeautifulSoup(html_content, "html.parser")
-    formatted_html_content = soup.prettify()
-
-    # Write to local temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as html_file:
-        html_file.write(formatted_html_content.encode())
-        html_filename = html_file.name
-     # Write to local file directory
-    shutil.copy(html_filename, Path(LOCAL_OUTPUT_DIR) / 'index.html')
-
-
-def generate_css(styling_content: str):
-    # Load existing CSS content from the template file
-    css_template_path = Path(__file__).parent / 'templates' / 'css' / 'styles.css'
-    with css_template_path.open(encoding='utf-8') as file:
-        template_css_content = file.read()
-
-    # Concatenate the template CSS content with the provided styling content
-    combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
-
-    # Create temporary CSS file with the combined content
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.css') as css_file:
-        css_file.write(combined_css_content.encode())
-        css_filename = css_file.name
-
-    # Copy the temporary CSS file to the desired output directory
-    output_css_path = Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css'
-    shutil.copy(css_filename, output_css_path)
-
-
-def generate_js(js_content: str):
-    return 0
-
-def handle_component_image(component: Component):
-    image = component.image
-    image_filename = f"{component.id}-{image.filename}"
-    local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
-
-    # Save the image to the local directory
-    with local_image_path.open("wb") as image_file:
-        shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
-
-    # Add the image HTML tag
-    img_tag = f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
-
-    return img_tag
-
-# Returns html and css
-def handle_component_content(component: Component):
-    soup = BeautifulSoup(component.content, "html.parser")
-    body_content = soup.body
-    wrapper_div = soup.new_tag("div", id=component.id)
-
-    for element in body_content.find_all(string=True):  # Find all text nodes inside body
-        element.replace_with(element.strip())  # Strip leading/trailing whitespace
-
-    if body_content:
-        # Move all non-empty children of body into the new section
-        for child in body_content.children:
-            if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
-                continue
-            wrapper_div.append(child.extract())
-
-    # Extract style content if it exists
-    style_content = soup.style
-    css_output = style_content.string.strip() if style_content else ""
-
-    return str(wrapper_div), str(css_output)
-
-def parse_pinned_components(components: list[Component], index_start: int, section_index_id: int):
-    pinned_html_section = ""
-    pinned_css = ""
-
-    pinned_section_id = components[index_start].animation.pinnedSectionId
-    pinned_html_section += f'<section class="pinned-{section_index_id}" id="{pinned_section_id}">\n'
-
-    pinned_left_content = ""
-    pinned_right_content = ""
-    pinned_center_content = ""
-
-    break_index = -1
-
-    for i in range(index_start, len(components)):
-        component = components[i]
-        if component.animation.pin:
-            # Handle content and images for left and right positions
-            if component.position == "left":
-                if component.content:
-                    left_content, left_content_css = handle_component_content(component)
-                    pinned_left_content += left_content
-                    pinned_css += left_content_css
-                if component.image:
-                    pinned_left_content += handle_component_image(component)
-
-            if component.position == "right":
-                if component.content:
-                    right_content, right_content_css = handle_component_content(component)
-                    pinned_right_content += right_content
-                    pinned_css += right_content_css
-                if component.image:
-                    pinned_right_content += handle_component_image(component)
-
-            if component.position == "center":
-                if component.content:
-                    center_content, center_content_css = handle_component_content(component)
-                    pinned_center_content +=  center_content
-                    pinned_css += center_content_css
-                if component.image:
-                    pinned_center_content += handle_component_image(component)
-        else:
-            break_index = i
-            break
-
-    if break_index == -1:
-        break_index = len(components)
-
-    if pinned_left_content != "":
-        pinned_html_section += f'<div class="pinned-{section_index_id}-left">{pinned_left_content}</div>\n'
-
-    if pinned_right_content != "":
-        pinned_html_section += f'<div class="pinned-{section_index_id}-right">{pinned_right_content}</div>\n'
-
-    if pinned_center_content != "":
-        pinned_html_section += f'<div class="pinned-{section_index_id}-center">{pinned_center_content}</div>\n'
-
-    pinned_html_section += '</section>\n'
-
-    return pinned_html_section, pinned_css, break_index
-
-
-def parse_components(components: list[Component], title: str):
-    html_output = ""
-    css_output = ""
-    pinned_sections_count = 0
-    index = 0
-
-    while index < len(components):
-        component = components[index]
-
-        if component.animation.pin:
-           pinned_html_section, pinned_css, break_at = parse_pinned_components(components, index_start=index, section_index_id=pinned_sections_count)
-           pinned_sections_count += 1
-           html_output += pinned_html_section + "\n"
-           css_output += pinned_css + "\n"
-
-           if break_at != -1:
-               # Continue loop at next component in list that is not pinned
-               index = break_at - 1
-        else:
-            if component.content:
-                component_content, component_css = handle_component_content(component)
-                html_output += component_content + "\n"
-                css_output += component_css + "\n"
-
-            if component.image:
-                img_tag = handle_component_image(component)
-                html_output += img_tag + "\n"
-
-        index += 1
-
-    generate_html(html_output, title)
-    generate_css(css_output)
+        # Handle any other unexpected errors
+        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        return JSONResponse(content={"error": "An unexpected error occurred while processing the request."},
+                            status_code=500)
 
 
 if __name__ == "__main__":
