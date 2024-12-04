@@ -15,7 +15,7 @@ MINIO_ENDPOINT = os.getenv("S3_ENDPOINT", "localhost:9000")
 MINIO_ACCESS_KEY = os.getenv("S3_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("S3_SECRET_KEY", "minio123")
 MINIO_SECURE = os.getenv("S3_SECURE", "False").lower == "false"
-
+MINIO_ARTICLE_BUCKET = "articles"
 
 GSAP_LOCAL_PATH = LOCAL_PARENT_DIR / 'templates' / 'js' / 'gsap.min.js'
 REGISTER_PLUGIN_TEMPLATE_PATH = LOCAL_PARENT_DIR / 'templates' / 'js' / 'gsap' / 'registerPlugin.js'

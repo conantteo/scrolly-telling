@@ -6,6 +6,7 @@ from server.model.component import Component
 
 
 class Article(BaseModel):
+    article_id: str
     title: str
     scroll_trigger: bool
     components: List[Component]  # List of Component models
@@ -13,6 +14,7 @@ class Article(BaseModel):
 
 # Example usage
 article_data = {
+    "article_id": "123-abc",
     "title": "1234567890",
     "scroll_trigger": True,
     "components": [
