@@ -1,5 +1,6 @@
 import shutil
 import tempfile
+import io
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -7,13 +8,15 @@ from bs4 import BeautifulSoup
 from server.model.component import Component
 from jinja2 import Template
 
+from server.utilities.constants import (
+    IS_LOCAL,
+    LOCAL_OUTPUT_CSS_DIR, 
+    LOCAL_OUTPUT_DIR, 
+    LOCAL_OUTPUT_IMAGE_DIR,
+    MINIO_ARTICLE_BUCKET
+)
 
 # Local output directory
-LOCAL_OUTPUT_DIR = Path(__file__).parent / 'output'
-LOCAL_OUTPUT_JS_DIR = Path(LOCAL_OUTPUT_DIR) / 'js'
-LOCAL_OUTPUT_GSAP_DIR = Path(LOCAL_OUTPUT_DIR) / 'js' / 'gsap'
-LOCAL_OUTPUT_CSS_DIR = Path(LOCAL_OUTPUT_DIR) / 'css'
-LOCAL_OUTPUT_IMAGE_DIR = Path(LOCAL_OUTPUT_DIR) / 'images'
 
 def handle_pinned_component_content(component: Component, class_name: str):
     soup = BeautifulSoup(component.content, "html.parser")
@@ -97,7 +100,7 @@ def handle_component_content(component: Component):
     return str(wrapper_div), str(css_output)
 
 
-def generate_html(body_content: str, title: str):
+def generate_html(minio_client, article_id: str, body_content: str, title: str):
     # Load HTML template
     with Path.open(Path(__file__).parent / 'templates' / 'index.html', encoding='utf-8') as file:
         html_template = file.read()
@@ -109,15 +112,15 @@ def generate_html(body_content: str, title: str):
     soup = BeautifulSoup(html_content, "html.parser")
     formatted_html_content = soup.prettify()
 
-    # Write to local temp file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as html_file:
-        html_file.write(formatted_html_content.encode())
-        html_filename = html_file.name
-     # Write to local file directory
-    shutil.copy(html_filename, Path(LOCAL_OUTPUT_DIR) / 'index.html')
+    if IS_LOCAL:
+        with open(Path(LOCAL_OUTPUT_DIR) / 'index.html', "wb") as f:
+            f.write(formatted_html_content.encode())
+    else:
+        minio_client.put_object(MINIO_ARTICLE_BUCKET, f"{article_id}/index.html", io.BytesIO(formatted_html_content.encode()), length=len(formatted_html_content), content_type="text/html")
 
 
-def generate_css(styling_content: str):
+
+def generate_css(minio_client, article_id: str, styling_content: str):
     # Load existing CSS content from the template file
     css_template_path = Path(__file__).parent / 'templates' / 'css' / 'styles.css'
     with css_template_path.open(encoding='utf-8') as file:
@@ -126,11 +129,8 @@ def generate_css(styling_content: str):
     # Concatenate the template CSS content with the provided styling content
     combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
 
-    # Create temporary CSS file with the combined content
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.css') as css_file:
-        css_file.write(combined_css_content.encode())
-        css_filename = css_file.name
-
-    # Copy the temporary CSS file to the desired output directory
-    output_css_path = Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css'
-    shutil.copy(css_filename, output_css_path)
+    if IS_LOCAL:
+        with open(Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css', "wb") as f:
+            f.write(combined_css_content.encode())
+    else:
+        minio_client.put_object(MINIO_ARTICLE_BUCKET, f"{article_id}/css/styles.css", io.BytesIO(combined_css_content.encode()), length=len(combined_css_content.encode()), content_type="text/css")

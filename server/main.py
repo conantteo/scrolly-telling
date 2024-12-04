@@ -1,13 +1,12 @@
 import logging
-import os
 import shutil
 import tempfile
 import typing
+import io
 from pathlib import Path
-import uvicorn
 
-from bs4 import BeautifulSoup
-from fastapi import FastAPI
+import uvicorn
+from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 from jinja2 import Template
 from minio import Minio
@@ -15,43 +14,44 @@ from minio.error import S3Error
 
 from server.model.article import Article
 from server.model.plugin_registration import PluginRegistration
+from server.utilities.utils import generate_js_function, stage_file
+from server.utilities.constants import (
+    GSAP_LOCAL_PATH, 
+    IS_LOCAL, 
+    LOCAL_OUTPUT_CSS_DIR, 
+    LOCAL_OUTPUT_DIR, 
+    LOCAL_OUTPUT_GSAP_DIR,  
+    LOCAL_OUTPUT_JS_DIR, 
+    MINIO_ACCESS_KEY, 
+    MINIO_ARTICLE_BUCKET,
+    MINIO_ENDPOINT, 
+    MINIO_SECRET_KEY, 
+    MINIO_SECURE, 
+    REGISTER_PLUGIN_TEMPLATE_PATH
+)
 from server.parser import parse_components
 from server.utilities.utils import generate_js_function
 
-from server.test_minio import test
-
 logger = logging.getLogger(__name__)
 
-IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
-
-# Local output directory
-LOCAL_OUTPUT_DIR = Path(__file__).parent / 'output'
-LOCAL_OUTPUT_JS_DIR = Path(LOCAL_OUTPUT_DIR) / 'js'
-LOCAL_OUTPUT_GSAP_DIR = Path(LOCAL_OUTPUT_DIR) / 'js' / 'gsap'
-LOCAL_OUTPUT_CSS_DIR = Path(LOCAL_OUTPUT_DIR) / 'css'
-LOCAL_OUTPUT_IMAGE_DIR = Path(LOCAL_OUTPUT_DIR) / 'images'
-
 # Create local output directory if it doesn't exist
-if IS_LOCAL:
-    Path.mkdir(LOCAL_OUTPUT_DIR, parents=True, exist_ok=True)
-    Path.mkdir(LOCAL_OUTPUT_JS_DIR, parents=True, exist_ok=True)
-    Path.mkdir(LOCAL_OUTPUT_GSAP_DIR, parents=True, exist_ok=True)
-    Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
+# if IS_LOCAL:
+Path.mkdir(LOCAL_OUTPUT_DIR, parents=True, exist_ok=True)
+Path.mkdir(LOCAL_OUTPUT_JS_DIR, parents=True, exist_ok=True)
+Path.mkdir(LOCAL_OUTPUT_GSAP_DIR, parents=True, exist_ok=True)
+Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
 if not IS_LOCAL:
     minio_client = Minio(
-        "play.min.io",  # Replace with your MinIO server URL
-        access_key="minioadmin",  # Replace with your access key
-        secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-        secure=True  # Set to False if not using HTTPS
+        endpoint=MINIO_ENDPOINT,
+        access_key=MINIO_ACCESS_KEY,
+        secret_key=MINIO_SECRET_KEY,
+        secure=MINIO_SECURE,
     )
 
-# Template files
-GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
-REGISTER_PLUGIN_TEMPLATE_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap' / 'registerPlugin.js'
-
 app = FastAPI()
+
 
 # @app.post("/api/generate-website")
 async def root(request_body: Article) -> typing.Dict[str, str]:
@@ -118,14 +118,9 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
             "message": "Website with GSAP animation generated and saved locally",
         }
     else:
-        try:
-            # Upload files to MinIO
-            bucket_name = "websites"
+        bucket_name = "websites"
+        if not minio_client.bucket_exists(bucket_name):
             minio_client.make_bucket(bucket_name)
-        except S3Error:
-            # Bucket already exists
-            pass
-
         try:
             minio_client.fput_object(bucket_name, "index.html", html_filename)
             minio_client.fput_object(bucket_name, "css/styles.css", css_filename)
@@ -148,6 +143,10 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     Path.unlink(js_filename)
     return response
 
+@app.post("/api/upload-image")
+async def upload_file(file: UploadFile, article_id: str):
+    stage_file(minio_client, article_id, file.file, file.filename, file.size)
+
 @app.post("/api/generate-website")
 async def generate_website(request_body: Article) -> JSONResponse:
     try:
@@ -157,8 +156,8 @@ async def generate_website(request_body: Article) -> JSONResponse:
         components = request_body.components
 
         # Parse components to generate website
-        parse_components(components, title)
-        return JSONResponse(content={"message": "Website generated successfully"}, status_code=200)
+        parse_components(minio_client, request_body.article_id, components, title)
+        return JSONResponse(content={"message": f"Website generated successfully. The article can be found in {'localhost:9000' if MINIO_ENDPOINT == 'minio:9000' else MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}, status_code=200)
 
     except ValueError as ve:
         logger.error(f"ValueError occurred: {ve}")
@@ -176,4 +175,3 @@ async def generate_website(request_body: Article) -> JSONResponse:
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    test()

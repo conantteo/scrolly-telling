@@ -3,7 +3,7 @@ from server.content_generator import handle_component_content, handle_component_
 from server.model.component import Component
 
 
-def parse_components(components: list[Component], title: str):
+def parse_components(minio_client, article_id: str, components: list[Component], title: str):
     html_output = ""
     css_output = ""
     pinned_sections_count = 0
@@ -33,8 +33,8 @@ def parse_components(components: list[Component], title: str):
 
         index += 1
 
-    generate_html(html_output, title)
-    generate_css(css_output)
+    generate_html(minio_client, article_id, html_output, title)
+    generate_css(minio_client, article_id, css_output)
 
 
 def parse_pinned_components(components: list[Component], index_start: int, section_index_id: int):
