@@ -157,7 +157,7 @@ async def generate_website(request_body: Article) -> JSONResponse:
 
         # Parse components to generate website
         parse_components(minio_client, request_body.article_id, components, title)
-        return JSONResponse(content={"message": f"Website generated successfully. The article can be found in {MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}, status_code=200)
+        return JSONResponse(content={"message": f"Website generated successfully. The article can be found in {'localhost:9000' if MINIO_ENDPOINT == 'minio:9000' else MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}, status_code=200)
 
     except ValueError as ve:
         logger.error(f"ValueError occurred: {ve}")
