@@ -1,14 +1,25 @@
-import { useState } from 'react';
-import { Box, Button, Drawer, FileInput, Group, Radio, Stack, Title } from '@mantine/core';
+import { useEffect, useState } from 'react';
+import {
+  Box,
+  Button,
+  Drawer,
+  FileInput,
+  Group,
+  InputLabel,
+  Radio,
+  Stack,
+  Title,
+} from '@mantine/core';
 import { useScrollyStore } from '../store';
 import { ScrollyElementData } from '../types';
+import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
 const ComponentDrawer: React.FC = () => {
   const isComponentWindowOpen = useScrollyStore((state) => state.isComponentWindowOpen);
   const currentElementId = useScrollyStore((state) => state.currentElementId);
-  const upsertData = useScrollyStore((state) => state.upsertData);
+  const setData = useScrollyStore((state) => state.setData);
   const upsertElement = useScrollyStore((state) => state.upsertElement);
   const setViewElement = useScrollyStore((state) => state.setViewElement);
   const elements = useScrollyStore((state) => state.elements);
@@ -20,13 +31,27 @@ const ComponentDrawer: React.FC = () => {
     isNew: true,
     isOpen: false,
   };
-  const targetData = data.find((d) => d.id === currentElementId) ?? {
+  const [modifiedData, setModifiedData] = useState<ScrollyElementData>({
     id: currentElementId,
     type: 'component',
     metadata: {},
-  };
-  const [modifiedData, setModifiedData] = useState<ScrollyElementData>({ ...targetData });
+  });
   const [formError, setFormError] = useState({ type: '', file: '' });
+  const formHasError = Object.keys(formError).every(
+    (key) => formError[key as keyof typeof formError]
+  );
+
+  useEffect(() => {
+    if (currentElementId) {
+      setModifiedData(
+        data.find((d) => d.id === currentElementId) ?? {
+          id: currentElementId,
+          type: 'component',
+          metadata: {},
+        }
+      );
+    }
+  }, [data, currentElementId]);
 
   const onClose = () => {
     setViewElement(currentElementId, false);
@@ -52,6 +77,10 @@ const ComponentDrawer: React.FC = () => {
           },
         });
       };
+      setFormError((prev) => ({
+        ...prev,
+        file: '',
+      }));
     } else {
       setFormError((prev) => ({
         ...prev,
@@ -59,6 +88,20 @@ const ComponentDrawer: React.FC = () => {
       }));
     }
   };
+
+  const onTextChange = (text: string) => {
+    setModifiedData({
+      ...modifiedData,
+      metadata: {
+        ...modifiedData.metadata,
+        text,
+      },
+    });
+  };
+
+  useEffect(() => {
+    console.log(currentElementId, elements, data, targetElement, modifiedData);
+  });
   return (
     <Drawer opened={isComponentWindowOpen} onClose={onClose} position="right" size="xl">
       <Stack>
@@ -101,11 +144,18 @@ const ComponentDrawer: React.FC = () => {
             />
           </Box>
         )}
+        {modifiedData.metadata.type === 'text' && (
+          <Box>
+            <InputLabel required>Enter content below</InputLabel>
+            <ScrollyRichTextEditor value={modifiedData.metadata.text} onChange={onTextChange} />
+          </Box>
+        )}
         <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
           <Button
+            disabled={formHasError}
             onClick={() => {
               onClose();
-              upsertData(modifiedData);
+              setData(currentElementId, modifiedData);
               upsertElement(targetElement);
             }}
           >

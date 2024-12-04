@@ -9,19 +9,19 @@ interface ScrollyState {
   currentElementId: string;
   removeElement: (id: string) => void;
   setViewElement: (id: string, isOpen: boolean) => void;
-  upsertData: (data: ScrollyElementData) => void;
   upsertElement: (data: ScrollyContainerElementProps) => void;
+  setData: (id: string, data: ScrollyElementData) => void;
 }
 
 const NEW_ANIMATION: ScrollyContainerElementProps = {
-  id: `-1`,
+  id: `0`,
   type: 'animation',
   isNew: true,
   isOpen: false,
 };
 
 const NEW_COMPONENT: ScrollyContainerElementProps = {
-  id: `-1`,
+  id: `0`,
   type: 'component',
   isNew: true,
   isOpen: false,
@@ -57,37 +57,26 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       };
     });
   },
-  removeElement: (id) =>
-    set((state) => {
-      const newElements = [...state.elements];
-      newElements.pop();
-      const elementIndex = newElements.findIndex((element) => element.id === id);
-      if (elementIndex !== -1) {
-        const deletedElements = newElements.splice(elementIndex, 2);
-        const deletedIds = deletedElements.map((element) => element.id);
-        const updatedData = [...state.data].filter((d) => !deletedIds.includes(d.id));
-        const orderedData = updatedData.map((item, idx) => ({ ...item, id: `${idx}` }));
-
-        const sortedElements = newElements.sort((a, b) => Number(a.id) - Number(b.id));
-        const orderedElements = sortedElements.map((item, idx) => ({ ...item, id: String(idx) }));
-        const lastElement = orderedElements[orderedElements.length - 1];
-        orderedElements.push(
-          lastElement && lastElement.type === 'component' ? NEW_ANIMATION : NEW_COMPONENT
-        );
-
-        return { elements: orderedElements, data: orderedData };
-      }
-      return { elements: state.elements, data: state.data };
-    }),
-  upsertData: (data) => {
+  removeElement: (id) => {
+    const numericalId = Number(id);
     set((state) => {
       const updatedData = [...state.data];
-      const dataIds = updatedData.map((data) => data.id);
-      if (!dataIds.includes(data.id)) {
-        return { data: [...updatedData, { ...data, id: `${updatedData.length}` }] };
-      }
-      const existingDataIndex = state.data.findIndex((d) => d.id === data.id);
-      updatedData[existingDataIndex] = data;
+      const updatedElements = [...state.elements];
+      updatedData.splice(numericalId, 2);
+      updatedElements.splice(numericalId, 2);
+      const reorderedData = updatedData.map((item, index) => ({ ...item, id: `${index}` }));
+      const reorderedElements = updatedElements.map((item, index) => ({ ...item, id: `${index}` }));
+      return {
+        data: reorderedData,
+        elements: reorderedElements.length > 0 ? reorderedElements : [NEW_COMPONENT],
+      };
+    });
+  },
+  setData: (index, data) => {
+    set((state) => {
+      const updatedData = [...state.data];
+      const indexToSet = Number(index) < 0 ? 0 : Number(index);
+      updatedData[indexToSet] = data;
       return { data: updatedData };
     });
   },
@@ -105,7 +94,9 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
               isOpen: false,
               id: `${updatedElements.length}`,
             },
-            element.type === 'animation' ? NEW_COMPONENT : NEW_ANIMATION,
+            element.type === 'animation'
+              ? { ...NEW_COMPONENT, id: `${Number(updatedElements.length + 1)}` }
+              : { ...NEW_ANIMATION, id: `${Number(updatedElements.length + 1)}` },
           ],
         };
       }

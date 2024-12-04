@@ -5,7 +5,7 @@ import { useScrollyStore } from '../store';
 const AnimationDrawer: React.FC = () => {
   const isAnimationWindowOpen = useScrollyStore((state) => state.isAnimationWindowOpen);
   const currentElementId = useScrollyStore((state) => state.currentElementId);
-  const upsertData = useScrollyStore((state) => state.upsertData);
+  const setData = useScrollyStore((state) => state.setData);
   const upsertElement = useScrollyStore((state) => state.upsertElement);
   const setViewElement = useScrollyStore((state) => state.setViewElement);
 
@@ -36,7 +36,7 @@ const AnimationDrawer: React.FC = () => {
           <Button
             onClick={() => {
               onClose();
-              upsertData(targetData);
+              setData(currentElementId, targetData);
               upsertElement(targetElement);
             }}
           >
