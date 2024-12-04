@@ -15,7 +15,9 @@ const ScrollyContainer: React.FC = () => {
       <Stack align="stretch" justify="center" gap="xs">
         {viewableElements.map((element) => (
           <Card key={element.id} withBorder shadow="xl">
-            <div> {element.type == "component" ? "Component" : "Animation"} {element.id}</div>
+            <div>
+              {element.type === 'component' ? 'Component' : 'Animation'} {element.id}
+            </div>
           </Card>
         ))}
       </Stack>
