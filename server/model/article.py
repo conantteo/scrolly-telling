@@ -1,12 +1,15 @@
 from typing import List
+
 from pydantic import BaseModel
 
 from server.model.component import Component
+
 
 class Article(BaseModel):
     title: str
     scroll_trigger: bool
     components: List[Component]  # List of Component models
+
 
 # Example usage
 article_data = {

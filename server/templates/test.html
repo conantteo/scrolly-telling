@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/test-styles.css">
+    <script src="js/gsap.min.js"></script>
+    <script src="js/ScrollTrigger.min.js"></script>
+    <script src="js/gsap/registerScrollTrigger.js"></script>
+</head>
+<body>
+    <div class="relative isolate overflow-hidden bg-white px-6 py-24 sm:py-32 lg:overflow-visible lg:px-0">
+        <div class="px-24">
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">A better workflow</h1>
+            <div class="mx-auto grid grid-cols-2 gap-x-8 gap-y-8">
+                <div class="mt-6 col-start-1">
+                    <p class="mt-6 text-xl leading-8 text-gray-700">Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At arcu, sit dui mi, nibh dui, diam eget aliquam. Quisque id at vitae feugiat egestas.</p>
+                </div>
+                <div class="mt-6 col-start-2">
+                    <p class="mt-6 text-xl leading-8 text-gray-700">Aliquet nec orci mattis amet quisque ullamcorper neque, nibh sem. At arcu, sit dui mi, nibh dui, diam eget aliquam. Quisque id at vitae feugiat egestas.</p>
+                </div>
+                <div class="text-base leading-7 text-gray-700 col-span-2">
+                    <p>Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus enim. Mattis mauris semper sed amet vitae sed turpis id. Id dolor praesent donec est. Odio penatibus risus viverra tellus varius sit neque erat velit. Faucibus commodo massa rhoncus, volutpat. Dignissim sed eget risus enim. Mattis mauris semper sed amet vitae sed turpis id.</p>
+                    <ul role="list" class="mt-8 space-y-8 text-gray-600">
+                        <li class="flex gap-x-3">
+                            <svg class="mt-1 h-5 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                <path fill-rule="evenodd" d="M5.5 17a4.5 4.5 0 0 1-1.44-8.765 4.5 4.5 0 0 1 8.302-3.046 3.5 3.5 0 0 1 4.504 4.272A4 4 0 0 1 15 17H5.5Zm3.75-2.75a.75.75 0 0 0 1.5 0V9.66l1.95 2.1a.75.75 0 1 0 1.1-1.02l-3.25-3.5a.75.75 0 0 0-1.1 0l-3.25 3.5a.75.75 0 1 0 1.1 1.02l1.95-2.1v4.59Z" clip-rule="evenodd" />
+                            </svg>
+                            <span><strong class="font-semibold text-gray-900">Push to deploy.</strong> Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis ratione.</span>
+                        </li>
+                        <li class="flex gap-x-3">
+                            <svg class="mt-1 h-5 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 0 0-4.5 4.5V9H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2h-.5V5.5A4.5 4.5 0 0 0 10 1Zm3 8V5.5a3 3 0 1 0-6 0V9h6Z" clip-rule="evenodd" />
+                            </svg>
+                            <span><strong class="font-semibold text-gray-900">SSL certificates.</strong> Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span>
+                        </li>
+                            <li class="flex gap-x-3">
+                            <svg class="mt-1 h-5 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+                                <path d="M4.632 3.533A2 2 0 0 1 6.577 2h6.846a2 2 0 0 1 1.945 1.533l1.976 8.234A3.489 3.489 0 0 0 16 11.5H4c-.476 0-.93.095-1.344.267l1.976-8.234Z" />
+                                <path fill-rule="evenodd" d="M4 13a2 2 0 1 0 0 4h12a2 2 0 1 0 0-4H4Zm11.24 2a.75.75 0 0 1 .75-.75H16a.75.75 0 0 1 .75.75v.01a.75.75 0 0 1-.75.75h-.01a.75.75 0 0 1-.75-.75V15Zm-2.25-.75a.75.75 0 0 0-.75.75v.01c0 .414.336.75.75.75H13a.75.75 0 0 0 .75-.75V15a.75.75 0 0 0-.75-.75h-.01Z" clip-rule="evenodd" />
+                            </svg>
+                            <span><strong class="font-semibold text-gray-900">Database backups.</strong> Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus. Et magna sit morbi lobortis.</span>
+                        </li>
+                    </ul>
+                    <p class="mt-6">Et vitae blandit facilisi magna lacus commodo. Vitae sapien duis odio id et. Id blandit molestie auctor fermentum dignissim. Lacus diam tincidunt ac cursus in vel. Mauris varius vulputate et ultrices hac adipiscing egestas. Iaculis convallis ac tempor et ut. Ac lorem vel integer orci.</p>
+                    <h2 class="mt-8 text-2xl font-bold tracking-tight text-gray-900">No server? No problem.</h2>
+                    <p class="mt-6">Id orci tellus laoreet id ac. Dolor, aenean leo, ac etiam consequat in. Convallis arcu ipsum urna nibh. Pharetra, euismod vitae interdum mauris enim, consequat vulputate nibh. Maecenas pellentesque id sed tellus mauris, ultrices mauris. Tincidunt enim cursus ridiculus mi. Pellentesque nam sed nullam sed diam turpis ipsum eu a sed convallis diam.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-span-2 fullbox-tan">
+            test
+        </div>
+        <div class="col-span-2 fullbox-faded">
+        </div>
+        <div class="col-span-2 fullbox-aquamarine">
+            test
+        </div>
+        <div class="col-span-2 fullbox-coral">
+            test
+        </div>
+    </div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", (event) => {
+        let t1 = gsap.timeline({
+            scrollTrigger: {
+                trigger: '.fullbox-aquamarine',
+                pin: true, // pin the trigger element while active
+                start: 'top top', // when the top of the trigger hits the top of the viewport
+                end: '+=900', // end after scrolling 500px beyond the start
+                scrub: 1, // smooth scrubbing, takes 1 second to "catch up" to the scrollbar
+                snap: {
+                    snapTo: 'labels'
+                }
+            }
+        });
+        ScrollTrigger.create({
+            trigger: ".fullbox-tan",
+            start: "center 80%",
+            end: "bottom 40%",
+            onEnter: () => gsap.to(".fullbox-tan", { y: 0, opacity: 1, duration: 0.4 }),
+            onEnterBack: () => gsap.to(".fullbox-tan", { y: 0, opacity: 1, duration: 0.4 }),
+            onLeave: () => gsap.to(".fullbox-tan", { y: -100, opacity: 0, duration: 0.4 }),
+            onLeaveBack: () => gsap.to(".fullbox-tan", { y: 100, opacity: 0, duration: 0.4 }),
+        });
+        // gsap.to('.fullbox-tan', {
+        //     y: (i, e1) => (1-ScrollTrigger.maxScroll(window)),
+        //     ease: "none",
+        //     scrollTrigger: {
+        //         start: 0,
+        //         end: "max",
+        //         invalidateOnRefresh: true,
+        //         scrub: 0
+        //     }
+        // })
+    //     let tl = gsap.timeline({
+    // // yes, we can add it to an entire timeline!
+    //         scrollTrigger: {
+    //             trigger: '.fullbox-aquamarine',
+    //             pin: true, // pin the trigger element while active
+    //             start: 'top top', // when the top of the trigger hits the top of the viewport
+    //             end: '+=900', // end after scrolling 500px beyond the start
+    //             scrub: 1, // smooth scrubbing, takes 1 second to "catch up" to the scrollbar
+    //             snap: {
+    //                 snapTo: 'labels'
+    //             }
+    //         }
+    //     });
+
+    // add animations and labels to the timeline
+    // tl.addLabel('start')
+    // .set(".fullbox-faded", {backgroundColor: 'red', innerText: "fading"})
+    // .from('.fullbox-faded', {opacity: 0})
+    // .to('.fullbox-faded', {opacity: 1})
+        // .to('.fullbox-tan', { y: (i, e1) => (1-ScrollTrigger.maxScroll(window)),
+        //     ease: "none",
+        //     scrollTrigger: {
+        //         start: 0,
+        //         end: "max",
+        //         invalidateOnRefresh: true,
+        //         scrub: 0
+        //     }})
+        // // .addLabel('spin')
+        // // .to('.fullbox-tan', { rotation: 360 })
+        // .addLabel('end');
+    });
+</script>
+</html>

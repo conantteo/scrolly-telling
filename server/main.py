@@ -4,10 +4,10 @@ import shutil
 import tempfile
 import typing
 from pathlib import Path
-import uvicorn
 
+import uvicorn
 from bs4 import BeautifulSoup
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from jinja2 import Template
 from minio import Minio
@@ -16,42 +16,42 @@ from minio.error import S3Error
 from server.model.article import Article
 from server.model.component import Component
 from server.model.plugin_registration import PluginRegistration
-from server.utilities.utils import generate_js_function
-
-from server.test_minio import test
+from server.utilities.utils import generate_js_function, stage_file
+from server.utilities.constants import (
+    GSAP_LOCAL_PATH, 
+    IS_LOCAL, 
+    LOCAL_OUTPUT_CSS_DIR, 
+    LOCAL_OUTPUT_DIR, 
+    LOCAL_OUTPUT_GSAP_DIR, 
+    LOCAL_OUTPUT_IMAGE_DIR, 
+    LOCAL_OUTPUT_JS_DIR, 
+    MINIO_ACCESS_KEY, 
+    MINIO_ENDPOINT, 
+    MINIO_SECRET_KEY, 
+    MINIO_SECURE, 
+    REGISTER_PLUGIN_TEMPLATE_PATH
+)
 
 logger = logging.getLogger(__name__)
 
-IS_LOCAL = os.environ.get('FLASK_ENV') == 'development'
-
-# Local output directory
-LOCAL_OUTPUT_DIR = Path(__file__).parent / 'output'
-LOCAL_OUTPUT_JS_DIR = Path(LOCAL_OUTPUT_DIR) / 'js'
-LOCAL_OUTPUT_GSAP_DIR = Path(LOCAL_OUTPUT_DIR) / 'js' / 'gsap'
-LOCAL_OUTPUT_CSS_DIR = Path(LOCAL_OUTPUT_DIR) / 'css'
-LOCAL_OUTPUT_IMAGE_DIR = Path(LOCAL_OUTPUT_DIR) / 'images'
-
 # Create local output directory if it doesn't exist
-if IS_LOCAL:
-    Path.mkdir(LOCAL_OUTPUT_DIR, parents=True, exist_ok=True)
-    Path.mkdir(LOCAL_OUTPUT_JS_DIR, parents=True, exist_ok=True)
-    Path.mkdir(LOCAL_OUTPUT_GSAP_DIR, parents=True, exist_ok=True)
-    Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
+# if IS_LOCAL:
+Path.mkdir(LOCAL_OUTPUT_DIR, parents=True, exist_ok=True)
+Path.mkdir(LOCAL_OUTPUT_JS_DIR, parents=True, exist_ok=True)
+Path.mkdir(LOCAL_OUTPUT_GSAP_DIR, parents=True, exist_ok=True)
+Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-# if not IS_LOCAL:
-#     minio_client = Minio(
-#         "play.min.io",  # Replace with your MinIO server URL
-#         access_key="minioadmin",  # Replace with your access key
-#         secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-#         secure=True  # Set to False if not using HTTPS
-#     )
-
-# Template files
-GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
-REGISTER_PLUGIN_TEMPLATE_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap' / 'registerPlugin.js'
+if not IS_LOCAL:
+    minio_client = Minio(
+        endpoint=MINIO_ENDPOINT,
+        access_key=MINIO_ACCESS_KEY,
+        secret_key=MINIO_SECRET_KEY,
+        secure=MINIO_SECURE,
+    )
 
 app = FastAPI()
+
 
 # @app.post("/api/generate-website")
 async def root(request_body: Article) -> typing.Dict[str, str]:
@@ -118,14 +118,9 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
             "message": "Website with GSAP animation generated and saved locally",
         }
     else:
-        try:
-            # Upload files to MinIO
-            bucket_name = "websites"
+        bucket_name = "websites"
+        if not minio_client.bucket_exists(bucket_name):
             minio_client.make_bucket(bucket_name)
-        except S3Error:
-            # Bucket already exists
-            pass
-
         try:
             minio_client.fput_object(bucket_name, "index.html", html_filename)
             minio_client.fput_object(bucket_name, "css/styles.css", css_filename)
@@ -148,8 +143,9 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
     Path.unlink(js_filename)
     return response
 
+
 @app.post("/api/generate-website")
-async def generate_website(request_body: Article) -> str:
+async def generate_website(request_body: Article) -> typing.Dict[str, str]:
     try:
         # Extract the values from the request body
         title = request_body.title if request_body.title is not None else 'My Animated Website'
@@ -158,14 +154,17 @@ async def generate_website(request_body: Article) -> str:
 
         # Process the components and generate HTML content
         parse_components(components, title)
-        return "ok"
+        return {"message": "ok"}
 
     except Exception as e:
         # Handle the exception and log the error
         print(f"Error occurred: {e}")
         # You can return an appropriate error message or raise a custom exception
-        return "An error occurred while processing the request."
+        return {"error": "An error occurred while processing the request."}
 
+@app.post("/api/upload_image")
+async def upload_file(file: UploadFile, article_id: str):
+    stage_file(minio_client, article_id, file.file, file.filename, file.size)
 
 def generate_html(body_content: str, title: str):
     # Load HTML template
@@ -209,6 +208,7 @@ def generate_css(styling_content: str):
 def generate_js(js_content: str):
     return 0
 
+
 def handle_component_image(component: Component):
     image = component.image
     image_filename = f"{component.id}-{image.filename}"
@@ -225,8 +225,10 @@ def handle_component_image(component: Component):
 
 # Returns html and css
 def handle_component_content(component: Component):
+    print(component.content)
     soup = BeautifulSoup(component.content, "html.parser")
     body_content = soup.body
+    print(body_content)
     wrapper_div = soup.new_tag("div", id=component.id)
 
     for element in body_content.find_all(string=True):  # Find all text nodes inside body
@@ -244,6 +246,7 @@ def handle_component_content(component: Component):
     css_output = style_content.string.strip() if style_content else ""
 
     return str(wrapper_div), str(css_output)
+
 
 def parse_pinned_components(components: list[Component], index_start: int, section_index_id: int):
     pinned_html_section = ""
@@ -342,4 +345,3 @@ def parse_components(components: list[Component], title: str):
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    test()
