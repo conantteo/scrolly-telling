@@ -48,8 +48,6 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
     pinned_right_content = ""
     pinned_center_content = ""
 
-
-
     break_index = -1
 
     for i in range(index_start, len(components)):
@@ -105,7 +103,21 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
                    position: relative;
                    width: 50%;
                    height: 100vh;
+                   z-index: 1;
                }}"""
+
+        pinned_css += f"""
+              .pinned-{section_index_id}-left-component {{
+                    position: absolute;
+                    width: 100%;
+                    height: 100%;
+                    background-size: cover;
+                    background-repeat: no-repeat;
+                    z-index: auto;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+              }}"""
 
     if pinned_right_content != "":
         pinned_html_section += f'<div class="pinned-{section_index_id}-right">{pinned_right_content}</div>\n'
@@ -117,7 +129,21 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
                        position: relative;
                        width: 50%;
                        height: 100vh;
+                       z-index: 2;
                    }}"""
+        pinned_css += f"""
+                     .pinned-{section_index_id}-right-component {{
+                          position: absolute;
+                          width: 100%;
+                          height: 100%;
+                          font-size: 40px;
+                          text-transform: uppercase;
+                          font-weight: 900;
+                          text-align: center;
+                          transform: translateY(100%);
+                          opacity: 0;
+                          z-index: 1;
+                     }}"""
 
     if pinned_center_content != "":
         pinned_html_section += f'<div class="pinned-{section_index_id}-center">{pinned_center_content}</div>\n'
@@ -126,6 +152,19 @@ def parse_pinned_components(components: list[Component], index_start: int, secti
               position: relative;
               height: 100%;
        }}"""
+
+        pinned_css += f"""
+                        .pinned-{section_index_id}-center-component {{
+                              position: absolute;
+                              width: 100%;
+                              height: 100%;
+                              display: flex;
+                              justify-content: center;
+                              align-items: center;
+                              opacity: 0;
+                              visibility: hidden;
+                              transition: opacity 0.2s ease, visibility 0.2s ease;
+                        }}"""
 
     pinned_html_section += '</section>\n'
 

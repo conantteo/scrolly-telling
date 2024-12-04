@@ -39,13 +39,13 @@ if IS_LOCAL:
     Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-# if not IS_LOCAL:
-#     minio_client = Minio(
-#         "play.min.io",  # Replace with your MinIO server URL
-#         access_key="minioadmin",  # Replace with your access key
-#         secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
-#         secure=True  # Set to False if not using HTTPS
-#     )
+if not IS_LOCAL:
+    minio_client = Minio(
+        "play.min.io",  # Replace with your MinIO server URL
+        access_key="minioadmin",  # Replace with your access key
+        secret_key=os.environ['SECRET_KEY'],  # Replace with your secret key
+        secure=True  # Set to False if not using HTTPS
+    )
 
 # Template files
 GSAP_LOCAL_PATH = Path(__file__).parent / 'templates' / 'js' / 'gsap.min.js'
@@ -161,17 +161,14 @@ async def generate_website(request_body: Article) -> JSONResponse:
         return JSONResponse(content={"message": "Website generated successfully"}, status_code=200)
 
     except ValueError as ve:
-        # Handle specific exceptions like missing or invalid data
         logger.error(f"ValueError occurred: {ve}")
         return JSONResponse(content={"error": f"Invalid data: {ve}"}, status_code=400)
 
     except FileNotFoundError as fnf:
-        # Handle file not found errors (e.g., missing templates or resources)
         logger.error(f"FileNotFoundError occurred: {fnf}")
         return JSONResponse(content={"error": f"File not found: {fnf}"}, status_code=404)
 
     except Exception as e:
-        # Handle any other unexpected errors
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
         return JSONResponse(content={"error": "An unexpected error occurred while processing the request."},
                             status_code=500)
