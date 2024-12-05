@@ -62,6 +62,28 @@
             test
         </div>
     </div>
+    <div class="scroller">
+        <!-- A component that fades in an image and text -->
+        <div class="component" data-animation="fade-in">
+            <img src="images/example-image-1.jpg" alt="An example image" class="w-full h-auto mb-4">
+            <h1 class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">A better workflow</h1>
+            <p class="mt-6 text-xl leading-8 text-gray-700">This text and image will fade in as you scroll down.</p>
+        </div>
+    
+        <!-- A component that slides up into view, containing another image -->
+        <div class="component" data-animation="slide-up">
+            <img src="images/example-image-2.jpg" alt="Another image" class="w-full h-auto mb-4">
+            <p class="mt-6 text-xl leading-8 text-gray-700">This component, including its image, will slide up into view.</p>
+        </div>
+    
+        <!-- A component that pins a section while scrolling, showing an image -->
+        <div class="component" data-pin-section="true">
+            <img src="images/example-image-3.jpg" alt="Pinned section image" class="w-full h-auto mb-4">
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900">Pinned Section</h2>
+            <p>As you scroll, this entire section (image + text) will stay pinned for a while, allowing the user to focus on this content before continuing.</p>
+        </div>
+    </div>
+    
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", (event) => {
@@ -128,4 +150,6 @@
         // .addLabel('end');
     });
 </script>
+<script src="https://cdn.jsdelivr.net/npm/smooth-scrollbar@8.7.4/dist/smooth-scrollbar.js"></script>
+<script src="js/animation.js"></script>
 </html>
