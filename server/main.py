@@ -8,7 +8,7 @@ from pathlib import Path
 import uvicorn
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
-from jinja2 import Template
+from jinja2 import Template, Undefined
 from minio import Minio
 from minio.error import S3Error
 
@@ -49,6 +49,9 @@ if not IS_LOCAL:
         secret_key=MINIO_SECRET_KEY,
         secure=MINIO_SECURE,
     )
+
+if IS_LOCAL:
+    minio_client = Undefined
 
 app = FastAPI()
 
@@ -147,6 +150,10 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
 async def upload_file(file: UploadFile, article_id: str):
     stage_file(minio_client, article_id, file.file, file.filename, file.size)
 
+@app.get("/test")
+async def test():
+    return "ok"
+
 @app.post("/api/generate-website")
 async def generate_website(request_body: Article) -> JSONResponse:
     try:
@@ -154,9 +161,10 @@ async def generate_website(request_body: Article) -> JSONResponse:
         title = request_body.title if request_body.title is not None else 'My Animated Website'
         scroll_trigger = request_body.scroll_trigger
         components = request_body.components
+        article_id = request_body.article_id
 
         # Parse components to generate website
-        parse_components(minio_client, request_body.article_id, components, title)
+        parse_components(minio_client, "test", components, title)
         return JSONResponse(content={"message": f"Website generated successfully. The article can be found in {'localhost:9000' if MINIO_ENDPOINT == 'minio:9000' else MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}, status_code=200)
 
     except ValueError as ve:
