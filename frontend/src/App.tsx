@@ -1,9 +1,9 @@
 import React from 'react';
 import { AppShell, Flex, Grid } from '@mantine/core';
 import Header from './components/Header';
-import ScrollyContainer from './components/ScrollyContainer';
+import ScrollyLeftPanel from './components/ScrollyLeftPanel';
+import ScrollyMainPanel from './components/ScrollyMainPanel';
 import ScrollyRightPanel from './components/ScrollyRightPanel';
-import ScrollySideBar from './components/ScrollySideBar';
 
 const App: React.FC = () => {
   return (
@@ -16,10 +16,10 @@ const App: React.FC = () => {
       <AppShell.Main>
         <Grid>
           <Grid.Col span={3}>
-            <ScrollySideBar />
+            <ScrollyLeftPanel />
           </Grid.Col>
           <Grid.Col span={6}>
-            <ScrollyContainer />
+            <ScrollyMainPanel />
           </Grid.Col>
           <Grid.Col span={3}>
             <ScrollyRightPanel />

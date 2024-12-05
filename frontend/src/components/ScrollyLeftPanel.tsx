@@ -3,7 +3,7 @@ import { useScrollyStore } from '../store';
 import ScrollyAnimationCard from './ScrollyAnimationCard';
 import ScrollyComponentCard from './ScrollyComponentCard';
 
-const ScrollySideBar: React.FC = () => {
+const ScrollyLeftPanel: React.FC = () => {
   const elements = useScrollyStore((state) => state.elements);
   return (
     <Box>
@@ -27,4 +27,4 @@ const ScrollySideBar: React.FC = () => {
   );
 };
 
-export default ScrollySideBar;
+export default ScrollyLeftPanel;

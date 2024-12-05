@@ -2,7 +2,7 @@ import { Card, Space, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
 import { ScrollyElementData } from '../types';
 
-const ScrollyContainer: React.FC = () => {
+const ScrollyMainPanel: React.FC = () => {
   const data = useScrollyStore((state) => state.data);
 
   const renderContainerItem = (item: ScrollyElementData) => {
@@ -33,4 +33,4 @@ const ScrollyContainer: React.FC = () => {
   );
 };
 
-export default ScrollyContainer;
+export default ScrollyMainPanel;
