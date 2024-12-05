@@ -1,9 +1,8 @@
 import React from 'react';
-import { Box, Button, Drawer, Stack, Title } from '@mantine/core';
+import { Box, Button, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
 
 const AnimationDrawer: React.FC = () => {
-  const isAnimationWindowOpen = useScrollyStore((state) => state.isAnimationWindowOpen);
   const currentElementId = useScrollyStore((state) => state.currentElementId);
   const setData = useScrollyStore((state) => state.setData);
   const upsertElement = useScrollyStore((state) => state.upsertElement);
@@ -26,25 +25,23 @@ const AnimationDrawer: React.FC = () => {
     setViewElement(currentElementId, false);
   };
   return (
-    <Drawer opened={isAnimationWindowOpen} onClose={onClose} position="right">
-      <Stack>
-        <Title order={2}>
-          {targetElement.isNew ? `Create new animation` : `Edit animation ${currentElementId}`}
-        </Title>
-        <Box>Animation Content</Box>
-        <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
-          <Button
-            onClick={() => {
-              onClose();
-              setData(currentElementId, targetData);
-              upsertElement(targetElement);
-            }}
-          >
-            Save
-          </Button>
-        </Box>
-      </Stack>
-    </Drawer>
+    <Stack>
+      <Title order={2}>
+        {targetElement.isNew ? `Create new animation` : `Edit animation ${currentElementId}`}
+      </Title>
+      <Box>Animation Content</Box>
+      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
+        <Button
+          onClick={() => {
+            onClose();
+            setData(currentElementId, targetData);
+            upsertElement(targetElement);
+          }}
+        >
+          Save
+        </Button>
+      </Box>
+    </Stack>
   );
 };
 

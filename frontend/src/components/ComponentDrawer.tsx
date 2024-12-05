@@ -1,15 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
-  Drawer,
-  FileInput,
-  Group,
-  InputLabel,
-  Radio,
-  Stack,
-  Title,
-} from '@mantine/core';
+import { Box, Button, FileInput, Group, InputLabel, Radio, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
 import { ScrollyElementData } from '../types';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
@@ -17,7 +7,6 @@ import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
 const ComponentDrawer: React.FC = () => {
-  const isComponentWindowOpen = useScrollyStore((state) => state.isComponentWindowOpen);
   const currentElementId = useScrollyStore((state) => state.currentElementId);
   const setData = useScrollyStore((state) => state.setData);
   const upsertElement = useScrollyStore((state) => state.upsertElement);
@@ -103,67 +92,65 @@ const ComponentDrawer: React.FC = () => {
     console.log(currentElementId, elements, data, targetElement, modifiedData);
   });
   return (
-    <Drawer opened={isComponentWindowOpen} onClose={onClose} position="right" size="xl">
-      <Stack>
-        <Title order={2}>
-          {targetElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
-        </Title>
+    <Stack>
+      <Title order={2}>
+        {targetElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
+      </Title>
+      <Box>
+        <Radio.Group
+          value={modifiedData.metadata.type}
+          onChange={(value) =>
+            setModifiedData((prev) => ({
+              ...prev,
+              metadata: {
+                ...prev.metadata,
+                type: value,
+              },
+            }))
+          }
+          label="Choose a component to create"
+          description="Select either an image or text component"
+        >
+          <Group mt="xs">
+            <Radio label="Image" value="image" />
+            <Radio label="Text" value="text" />
+          </Group>
+        </Radio.Group>
+      </Box>
+      {modifiedData.metadata.type === 'image' && (
         <Box>
-          <Radio.Group
-            value={modifiedData.metadata.type}
-            onChange={(value) =>
-              setModifiedData((prev) => ({
-                ...prev,
-                metadata: {
-                  ...prev.metadata,
-                  type: value,
-                },
-              }))
+          <FileInput
+            radius="xl"
+            label="Upload Image"
+            withAsterisk
+            description=".png"
+            error={formError.file ? formError.file : null}
+            placeholder={
+              modifiedData.metadata.fileName ? modifiedData.metadata.fileName : 'Select an image'
             }
-            label="Choose a component to create"
-            description="Select either an image or text component"
-          >
-            <Group mt="xs">
-              <Radio label="Image" value="image" />
-              <Radio label="Text" value="text" />
-            </Group>
-          </Radio.Group>
+            onChange={onFileUpload}
+          />
         </Box>
-        {modifiedData.metadata.type === 'image' && (
-          <Box>
-            <FileInput
-              radius="xl"
-              label="Upload Image"
-              withAsterisk
-              description=".png"
-              error={formError.file ? formError.file : null}
-              placeholder={
-                modifiedData.metadata.fileName ? modifiedData.metadata.fileName : 'Select an image'
-              }
-              onChange={onFileUpload}
-            />
-          </Box>
-        )}
-        {modifiedData.metadata.type === 'text' && (
-          <Box>
-            <InputLabel required>Enter content below</InputLabel>
-            <ScrollyRichTextEditor value={modifiedData.metadata.text} onChange={onTextChange} />
-          </Box>
-        )}
-        <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
-          <Button
-            disabled={formHasError}
-            onClick={() => {
-              onClose();
-              setData(currentElementId, modifiedData);
-              upsertElement(targetElement);
-            }}
-          >
-            Save
-          </Button>
+      )}
+      {modifiedData.metadata.type === 'text' && (
+        <Box>
+          <InputLabel required>Enter content below</InputLabel>
+          <ScrollyRichTextEditor value={modifiedData.metadata.text} onChange={onTextChange} />
         </Box>
-      </Stack>
-    </Drawer>
+      )}
+      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
+        <Button
+          disabled={formHasError}
+          onClick={() => {
+            onClose();
+            setData(currentElementId, modifiedData);
+            upsertElement(targetElement);
+          }}
+        >
+          Save
+        </Button>
+      </Box>
+    </Stack>
   );
 };
 

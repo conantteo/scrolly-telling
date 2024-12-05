@@ -1,9 +1,8 @@
 import React from 'react';
 import { AppShell, Flex, Grid } from '@mantine/core';
-import AnimationDrawer from './components/AnimationDrawer';
-import ComponentDrawer from './components/ComponentDrawer';
 import Header from './components/Header';
 import ScrollyContainer from './components/ScrollyContainer';
+import ScrollyRightPanel from './components/ScrollyRightPanel';
 import ScrollySideBar from './components/ScrollySideBar';
 
 const App: React.FC = () => {
@@ -19,11 +18,12 @@ const App: React.FC = () => {
           <Grid.Col span={3}>
             <ScrollySideBar />
           </Grid.Col>
-          <Grid.Col span={9}>
+          <Grid.Col span={6}>
             <ScrollyContainer />
           </Grid.Col>
-          <AnimationDrawer />
-          <ComponentDrawer />
+          <Grid.Col span={3}>
+            <ScrollyRightPanel />
+          </Grid.Col>
         </Grid>
       </AppShell.Main>
     </AppShell>
