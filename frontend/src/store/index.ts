@@ -4,21 +4,14 @@ import { ScrollyContainerElementProps, ScrollyElementData } from '../types';
 interface ScrollyState {
   elements: ScrollyContainerElementProps[];
   data: ScrollyElementData[];
-  isAnimationWindowOpen: boolean;
-  isComponentWindowOpen: boolean;
   currentElementId: string;
   removeElement: (id: string) => void;
   setViewElement: (id: string, isOpen: boolean) => void;
+  setElement: (id: string, data: ScrollyContainerElementProps) => void;
   upsertElement: (data: ScrollyContainerElementProps) => void;
   setData: (id: string, data: ScrollyElementData) => void;
+  appendElement: () => void;
 }
-
-const NEW_ANIMATION: ScrollyContainerElementProps = {
-  id: `0`,
-  type: 'animation',
-  isNew: true,
-  isOpen: false,
-};
 
 const NEW_COMPONENT: ScrollyContainerElementProps = {
   id: `0`,
@@ -30,29 +23,17 @@ const NEW_COMPONENT: ScrollyContainerElementProps = {
 export const useScrollyStore = create<ScrollyState>((set) => ({
   elements: [NEW_COMPONENT],
   data: [],
-  isAnimationWindowOpen: false,
-  isComponentWindowOpen: false,
   currentElementId: '',
   setViewElement: (id, isOpen) => {
     set((state) => {
-      let isAnimationOpen = state.isAnimationWindowOpen;
-      let isComponentOpen = state.isComponentWindowOpen;
       const updatedElements = state.elements.map((e) => {
         if (e.id === id) {
-          if (e.type === 'animation') {
-            isAnimationOpen = isOpen;
-            return { ...e, isOpen: isAnimationOpen };
-          } else if (e.type === 'component') {
-            isComponentOpen = isOpen;
-            return { ...e, isOpen: isComponentOpen };
-          }
+          return { ...e, isOpen };
         }
-        return { ...e };
+        return { ...e, isOpen: false };
       });
       return {
         elements: updatedElements,
-        isAnimationWindowOpen: isAnimationOpen,
-        isComponentWindowOpen: isComponentOpen,
         currentElementId: isOpen ? id : '',
       };
     });
@@ -80,6 +61,14 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       return { data: updatedData };
     });
   },
+  setElement: (index, data) => {
+    set((state) => {
+      const updatedElement = [...state.elements];
+      const indexToSet = Number(index) < 0 ? 0 : Number(index);
+      updatedElement[indexToSet] = data;
+      return { elements: updatedElement };
+    });
+  },
   upsertElement: (element) => {
     set((state) => {
       const updatedElements = [...state.elements];
@@ -94,9 +83,6 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
               isOpen: false,
               id: `${updatedElements.length}`,
             },
-            element.type === 'animation'
-              ? { ...NEW_COMPONENT, id: `${Number(updatedElements.length + 1)}` }
-              : { ...NEW_ANIMATION, id: `${Number(updatedElements.length + 1)}` },
           ],
         };
       }
@@ -106,6 +92,13 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
         return { elements: updatedElements };
       }
       return { elements: state.elements };
+    });
+  },
+  appendElement: () => {
+    set((state) => {
+      const updatedElemenets = [...state.elements];
+      updatedElemenets.push({ ...NEW_COMPONENT, id: `${updatedElemenets.length}` });
+      return { elements: updatedElemenets };
     });
   },
 }));

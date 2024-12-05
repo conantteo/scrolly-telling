@@ -6,11 +6,11 @@ import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
-const ComponentDrawer: React.FC = () => {
+const ScrollyComponentForm: React.FC = () => {
   const currentElementId = useScrollyStore((state) => state.currentElementId);
   const setData = useScrollyStore((state) => state.setData);
-  const upsertElement = useScrollyStore((state) => state.upsertElement);
-  const setViewElement = useScrollyStore((state) => state.setViewElement);
+  const appendElement = useScrollyStore((state) => state.appendElement);
+  const setElement = useScrollyStore((state) => state.setElement);
   const elements = useScrollyStore((state) => state.elements);
   const data = useScrollyStore((state) => state.data);
 
@@ -42,9 +42,17 @@ const ComponentDrawer: React.FC = () => {
     }
   }, [data, currentElementId]);
 
-  const onClose = () => {
-    setViewElement(currentElementId, false);
+  const onSave = () => {
+    setElement(currentElementId, { ...targetElement, isNew: false, isOpen: false });
+    setData(currentElementId, modifiedData);
+    appendElement();
+    setModifiedData({
+      id: '',
+      type: 'component',
+      metadata: {},
+    });
   };
+
   const onFileUpload = (file: File | null) => {
     if (!file) {
       return;
@@ -139,14 +147,7 @@ const ComponentDrawer: React.FC = () => {
         </Box>
       )}
       <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
-        <Button
-          disabled={formHasError}
-          onClick={() => {
-            onClose();
-            setData(currentElementId, modifiedData);
-            upsertElement(targetElement);
-          }}
-        >
+        <Button disabled={formHasError} onClick={onSave}>
           Save
         </Button>
       </Box>
@@ -154,4 +155,4 @@ const ComponentDrawer: React.FC = () => {
   );
 };
 
-export default ComponentDrawer;
+export default ScrollyComponentForm;

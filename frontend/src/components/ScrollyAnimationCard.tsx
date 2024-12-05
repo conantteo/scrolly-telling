@@ -9,24 +9,13 @@ export interface ScrollyAnimationCardProps {
   isOpen?: boolean;
 }
 
-const ScrollyAnimationCard: React.FC<ScrollyAnimationCardProps> = ({
-  id,
-  isNew = false,
-  isOpen = false,
-}) => {
+const ScrollyAnimationCard: React.FC<ScrollyAnimationCardProps> = ({ id, isOpen = false }) => {
   const setViewElement = useScrollyStore((state) => state.setViewElement);
   const getGradient = () => {
     if (isOpen) {
       return {
         from: 'red',
         to: 'orange',
-        deg: 90,
-      };
-    }
-    if (isNew) {
-      return {
-        from: 'green',
-        to: 'lime',
         deg: 90,
       };
     }
@@ -39,7 +28,7 @@ const ScrollyAnimationCard: React.FC<ScrollyAnimationCardProps> = ({
   return (
     <Divider
       my="lg"
-      variant={isNew ? 'dotted' : 'solid'}
+      variant="solid"
       labelPosition="center"
       label={
         <ActionIcon

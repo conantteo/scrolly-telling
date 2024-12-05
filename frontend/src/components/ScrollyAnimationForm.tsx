@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
 
-const AnimationDrawer: React.FC = () => {
+const ScrollyAnimationForm: React.FC = () => {
   const currentElementId = useScrollyStore((state) => state.currentElementId);
   const setData = useScrollyStore((state) => state.setData);
   const upsertElement = useScrollyStore((state) => state.upsertElement);
@@ -21,8 +21,10 @@ const AnimationDrawer: React.FC = () => {
     type: 'animation',
     metadata: {},
   };
-  const onClose = () => {
+  const onSave = () => {
     setViewElement(currentElementId, false);
+    setData(currentElementId, targetData);
+    upsertElement(targetElement);
   };
   return (
     <Stack>
@@ -31,18 +33,10 @@ const AnimationDrawer: React.FC = () => {
       </Title>
       <Box>Animation Content</Box>
       <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
-        <Button
-          onClick={() => {
-            onClose();
-            setData(currentElementId, targetData);
-            upsertElement(targetElement);
-          }}
-        >
-          Save
-        </Button>
+        <Button onClick={onSave}>Save</Button>
       </Box>
     </Stack>
   );
 };
 
-export default AnimationDrawer;
+export default ScrollyAnimationForm;
