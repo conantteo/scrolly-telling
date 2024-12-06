@@ -83,57 +83,6 @@ const ScrollyComponentForm: React.FC = () => {
     }
   };
 
-  const onMultiFileUpload = (files: File[]) => {
-    if (!files || files.length === 0) {
-      return;
-    }
-    let hasError = false;
-    const fileData = [];
-    files.forEach((file) => {
-      const fileExtension = file.name.split('.').pop();
-      if (fileExtension && ALLOW_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          fileData.push({
-            ...modifiedData,
-            metadata: {
-              ...modifiedData.metadata,
-              fileBase64: base64,
-              fileName: file.name,
-              fileExtension,
-              fileSize: `${file.size}`,
-            },
-          });
-        };
-      } else {
-        hasError = true;
-      }
-    });
-    if (hasError) {
-      setFormError((prev) => ({
-        ...prev,
-        file: `Only the following file extensions are allowed: ${ALLOW_EXTENSIONS.join(', ')}`,
-      }));
-    } else {
-      setModifiedData({
-        ...modifiedData,
-        metadata: {
-          ...modifiedData.metadata,
-          fileBase64: base64,
-          fileName: file.name,
-          fileExtension,
-          fileSize: `${file.size}`,
-        },
-      });
-      setFormError((prev) => ({
-        ...prev,
-        file: '',
-      }));
-    }
-  };
-
   const onFileUpload = (file: File | null) => {
     if (!file) {
       return;
