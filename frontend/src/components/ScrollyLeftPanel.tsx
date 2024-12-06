@@ -1,27 +1,34 @@
-import { Box } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
+import { Box, Button, Center } from '@mantine/core';
 import { useScrollyStore } from '../store';
-import ScrollyAnimationCard from './ScrollyAnimationCard';
+import { ScrollyContainerElementProps } from '../types';
 import ScrollyComponentCard from './ScrollyComponentCard';
 
 const ScrollyLeftPanel: React.FC = () => {
   const elements = useScrollyStore((state) => state.elements);
+  const setElement = useScrollyStore((state) => state.setElement);
+  const setCurrentElementId = useScrollyStore((state) => state.setCurrentElementId);
+  const onCreateNew = (element: ScrollyContainerElementProps) => {
+    setElement(element.id, { ...element });
+    setCurrentElementId(element.id);
+  };
   return (
     <Box>
       {elements.map((element) => {
-        if (element.type === 'animation') {
+        if (element.isNew) {
           return (
-            <Box key={element.id}>
-              <ScrollyAnimationCard {...element} />
-            </Box>
-          );
-        } else if (element.type === 'component') {
-          return (
-            <Box key={element.id}>
-              <ScrollyComponentCard {...element} />
-            </Box>
+            <Center key={element.id}>
+              <Button leftSection={<IconPlus />} onClick={() => onCreateNew(element)} color="blue">
+                New
+              </Button>
+            </Center>
           );
         }
-        return null;
+        return (
+          <Box key={element.id} py={8}>
+            <ScrollyComponentCard {...element} />
+          </Box>
+        );
       })}
     </Box>
   );

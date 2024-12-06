@@ -1,14 +1,15 @@
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
+import { ScrollyComponent } from '../types';
 
 interface PostWebsiteRequest {
-  title: string;
-  scroll_trigger: boolean;
+  id: string;
+  data: ScrollyComponent[];
 }
 
 interface PostWebsiteResponse {
-  title: string;
-  scroll_trigger: boolean;
+  id: string;
+  url: string;
 }
 
 // Use React Query's mutation hook for POST requests
