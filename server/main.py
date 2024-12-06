@@ -8,7 +8,6 @@ from pathlib import Path
 import uvicorn
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import JSONResponse
-from jinja2 import Template, Undefined
 from minio import Minio
 from minio.error import S3Error
 
@@ -42,7 +41,9 @@ Path.mkdir(LOCAL_OUTPUT_GSAP_DIR, parents=True, exist_ok=True)
 Path.mkdir(LOCAL_OUTPUT_CSS_DIR, parents=True, exist_ok=True)
 
 # MinIO client setup (only if not local)
-if not IS_LOCAL:
+if IS_LOCAL:
+    minio_client = None
+else:
     minio_client = Minio(
         endpoint=MINIO_ENDPOINT,
         access_key=MINIO_ACCESS_KEY,
@@ -50,8 +51,8 @@ if not IS_LOCAL:
         secure=MINIO_SECURE,
     )
 
-if IS_LOCAL:
-    minio_client = Undefined
+# if IS_LOCAL:
+#     minio_client = Undefined
 
 app = FastAPI()
 
@@ -164,7 +165,7 @@ async def generate_website(request_body: Article) -> JSONResponse:
         article_id = request_body.article_id
 
         # Parse components to generate website
-        parse_components(minio_client, "test", components, title)
+        parse_components(minio_client, request_body.article_id, components, title)
         return JSONResponse(content={"message": f"Website generated successfully. The article can be found in {'localhost:9000' if MINIO_ENDPOINT == 'minio:9000' else MINIO_ENDPOINT}/{MINIO_ARTICLE_BUCKET}/{request_body.article_id}/index.html"}, status_code=200)
 
     except ValueError as ve:
