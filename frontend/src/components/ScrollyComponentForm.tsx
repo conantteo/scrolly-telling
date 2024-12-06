@@ -195,7 +195,7 @@ const ScrollyComponentForm: React.FC = () => {
         <Box>
           <InputLabel required>Enter content below</InputLabel>
           <ScrollyRichTextEditor
-            value={`${modifiedData.metadata.text}`}
+            value={`${modifiedData.metadata.text ?? ''}`}
             onChange={onContentChange}
           />
         </Box>
