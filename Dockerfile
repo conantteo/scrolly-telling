@@ -28,4 +28,7 @@ EXPOSE 5173
 ENV FLASK_ENV=development
 
 WORKDIR /app
+
+RUN dos2unix entrypoint.sh
+
 CMD ./entrypoint.sh

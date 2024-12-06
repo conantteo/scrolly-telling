@@ -149,7 +149,7 @@ async def root(request_body: Article) -> typing.Dict[str, str]:
 
 @app.post("/api/upload-image")
 async def upload_file(file: UploadFile, article_id: str):
-    stage_file(minio_client, article_id, file.file, file.filename, file.size)
+    return stage_file(minio_client, article_id, file.file, file.filename, file.size, file.content_type)
 
 @app.get("/test")
 async def test():
