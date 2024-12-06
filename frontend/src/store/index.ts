@@ -1,40 +1,30 @@
 import { create } from 'zustand';
-import { ScrollyContainerElementProps, ScrollyElementData } from '../types';
+import { ScrollyComponent, ScrollyContainerElementProps } from '../types';
 
 interface ScrollyState {
+  currentElementId: string | null;
+  setCurrentElementId: (id: string | null) => void;
   elements: ScrollyContainerElementProps[];
-  data: ScrollyElementData[];
-  currentElementId: string;
   removeElement: (id: string) => void;
-  setViewElement: (id: string, isOpen: boolean) => void;
   setElement: (id: string, data: ScrollyContainerElementProps) => void;
-  upsertElement: (data: ScrollyContainerElementProps) => void;
-  setData: (id: string, data: ScrollyElementData) => void;
-  appendElement: () => void;
+  appendDefaultElement: () => void;
+  data: ScrollyComponent[];
+  setData: (id: string, data: ScrollyComponent) => void;
 }
 
-const NEW_COMPONENT: ScrollyContainerElementProps = {
+const INITIAL_COMPONENT: ScrollyContainerElementProps = {
   id: `0`,
-  type: 'component',
   isNew: true,
-  isOpen: false,
 };
 
 export const useScrollyStore = create<ScrollyState>((set) => ({
-  elements: [NEW_COMPONENT],
+  elements: [INITIAL_COMPONENT],
   data: [],
-  currentElementId: '',
-  setViewElement: (id, isOpen) => {
-    set((state) => {
-      const updatedElements = state.elements.map((e) => {
-        if (e.id === id) {
-          return { ...e, isOpen };
-        }
-        return { ...e, isOpen: false };
-      });
+  currentElementId: null,
+  setCurrentElementId: (id) => {
+    set(() => {
       return {
-        elements: updatedElements,
-        currentElementId: isOpen ? id : '',
+        currentElementId: id,
       };
     });
   },
@@ -43,13 +33,13 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
     set((state) => {
       const updatedData = [...state.data];
       const updatedElements = [...state.elements];
-      updatedData.splice(numericalId, 2);
-      updatedElements.splice(numericalId, 2);
+      updatedData.splice(numericalId, 1);
+      updatedElements.splice(numericalId, 1);
       const reorderedData = updatedData.map((item, index) => ({ ...item, id: `${index}` }));
       const reorderedElements = updatedElements.map((item, index) => ({ ...item, id: `${index}` }));
       return {
         data: reorderedData,
-        elements: reorderedElements.length > 0 ? reorderedElements : [NEW_COMPONENT],
+        elements: reorderedElements.length > 0 ? reorderedElements : [INITIAL_COMPONENT],
       };
     });
   },
@@ -69,35 +59,10 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       return { elements: updatedElement };
     });
   },
-  upsertElement: (element) => {
-    set((state) => {
-      const updatedElements = [...state.elements];
-      if (element.isNew) {
-        updatedElements.pop();
-        return {
-          elements: [
-            ...updatedElements,
-            {
-              ...element,
-              isNew: false,
-              isOpen: false,
-              id: `${updatedElements.length}`,
-            },
-          ],
-        };
-      }
-      const existingElementIndex = state.elements.findIndex((e) => e.id === element.id);
-      if (existingElementIndex !== -1) {
-        updatedElements[existingElementIndex] = { ...element, isOpen: false };
-        return { elements: updatedElements };
-      }
-      return { elements: state.elements };
-    });
-  },
-  appendElement: () => {
+  appendDefaultElement: () => {
     set((state) => {
       const updatedElemenets = [...state.elements];
-      updatedElemenets.push({ ...NEW_COMPONENT, id: `${updatedElemenets.length}` });
+      updatedElemenets.push({ ...INITIAL_COMPONENT, id: `${updatedElemenets.length}` });
       return { elements: updatedElemenets };
     });
   },

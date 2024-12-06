@@ -1,20 +1,16 @@
 import { Card, Space, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
-import { ScrollyElementData } from '../types';
+import { ScrollyComponent } from '../types';
 
 const ScrollyMainPanel: React.FC = () => {
   const data = useScrollyStore((state) => state.data);
 
-  const renderContainerItem = (item: ScrollyElementData) => {
-    if (item.type === 'component') {
-      if (item.metadata.type === 'text') {
-        return <div dangerouslySetInnerHTML={{ __html: item.metadata.text }} />;
-      }
-      if (item.metadata.type === 'image') {
-        return <div>Preview Image Here</div>;
-      }
-    } else if (item.type === 'animation') {
-      return `Animation ${item.id}`;
+  const renderContainerItem = (item: ScrollyComponent) => {
+    if (item.metadata.type === 'text') {
+      return <div dangerouslySetInnerHTML={{ __html: item.metadata.content }} />;
+    }
+    if (item.metadata.type === 'image') {
+      return <div>Preview Image Here</div>;
     }
   };
 

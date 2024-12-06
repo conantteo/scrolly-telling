@@ -5,17 +5,17 @@ import { useScrollyStore } from '../store';
 
 interface ScrollyComponentCardProps {
   id: string;
-  isNew?: boolean;
-  isOpen?: boolean;
 }
 
-const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id, isOpen }) => {
+const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
-  const setViewElement = useScrollyStore((state) => state.setViewElement);
+  const currentElementId = useScrollyStore((state) => state.currentElementId);
+  const setCurrentElementId = useScrollyStore((state) => state.setCurrentElementId);
   const removeElement = useScrollyStore((state) => state.removeElement);
+  const isCurrent = currentElementId === id;
 
   const getGradient = () => {
-    if (isOpen) {
+    if (isCurrent) {
       return {
         from: 'red',
         to: 'orange',
@@ -41,7 +41,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id, isOpen }) => 
         <Button.Group>
           <Button
             onClick={() => {
-              setViewElement(id, true);
+              setCurrentElementId(id);
             }}
             variant="gradient"
             gradient={getGradient()}
