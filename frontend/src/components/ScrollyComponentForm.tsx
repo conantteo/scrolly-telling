@@ -4,8 +4,6 @@ import {
   Button,
   FileInput,
   Group,
-  Input,
-  InputDescription,
   InputLabel,
   InputWrapper,
   Radio,
@@ -186,7 +184,7 @@ const ScrollyComponentForm: React.FC = () => {
       </Title>
       <Box>
         <Radio.Group
-          value={modifiedData.metadata.type}
+          value={`${modifiedData.metadata.type}`}
           onChange={(value) =>
             setModifiedData((prev) => ({
               ...prev,
@@ -247,7 +245,10 @@ const ScrollyComponentForm: React.FC = () => {
       {modifiedData.metadata.type === 'text' && (
         <Box>
           <InputLabel required>Enter content below</InputLabel>
-          <ScrollyRichTextEditor value={modifiedData.metadata.text} onChange={onContentChange} />
+          <ScrollyRichTextEditor
+            value={`${modifiedData.metadata.text}`}
+            onChange={onContentChange}
+          />
         </Box>
       )}
       <Box>
