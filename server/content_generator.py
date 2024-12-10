@@ -59,15 +59,16 @@ def handle_pinned_component_image(article_id: str, component: Component, class_n
 
 def handle_component_image(article_id: str, component: Component) -> str:
     image = component.image
-    image_filename = f"{component.id}-{image.filename}"
-    local_image_path = LOCAL_OUTPUT_DIR / article_id / "image" / image_filename
+    # image_filename = f"{component.id}-{image.filename}"
+    # local_image_path = LOCAL_OUTPUT_DIR / article_id / "image" / image_filename
 
-    # Save the image to the local directory
-    with local_image_path.open("wb") as image_file:
-        shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
+    # # Save the image to the local directory
+    # with local_image_path.open("wb") as image_file:
+    #     shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
 
     # Add the image HTML tag
-    return f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
+    # return f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
+    return "ok"
 
 
 # Returns html and css
@@ -118,10 +119,10 @@ def handle_component_js(
             }})\n
     """
     if component_transition == "fade-in":
-        js_image_output += """
-            t0.to(image, {opacity: 1, autoAlpha: 1, duration: 0.33})
-              .to(image, {opacity: 0, duration: 0.33});
-        });\n
+        js_image_output += f"""
+            t{section_index_id}.to(image, {{opacity: 1, autoAlpha: 1, duration: 0.33}})
+              .to(image, {{opacity: 0, duration: 0.33}});
+        }});\n
         """
 
     js_image_output += f"""
@@ -140,7 +141,7 @@ def handle_component_js(
     js_text_output += f"var texts = gsap.utils.toArray('.pinned-{section_index_id}-left-component');\n"
     js_text_output += f"""
         texts.forEach((text, i) => {{
-            var t0 = gsap.timeline({{
+            var t{section_index_id} = gsap.timeline({{
 
                 scrollTrigger: {{
                     trigger: "section.pinned-{section_index_id}",
