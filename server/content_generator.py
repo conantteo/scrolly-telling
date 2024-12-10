@@ -1,24 +1,20 @@
-import shutil
-import tempfile
 import io
+import shutil
 from pathlib import Path
 
 from bs4 import BeautifulSoup
-
-from server.model.component import Component
 from jinja2 import Template
 
-from server.utilities.constants import (
-    IS_LOCAL,
-    LOCAL_OUTPUT_CSS_DIR, 
-    LOCAL_OUTPUT_DIR, 
-    LOCAL_OUTPUT_IMAGE_DIR,
-    MINIO_ARTICLE_BUCKET
-)
+from server.model.component import Component
+from server.utilities.constants import IS_LOCAL, MINIO_ENDPOINT
+from server.utilities.constants import LOCAL_OUTPUT_DIR
+from server.utilities.constants import MINIO_ARTICLE_BUCKET
+from server.utilities.constants import MINIO_CLIENT
 
 # Local output directory
 
-def handle_pinned_component_content(component: Component, class_name: str):
+
+def handle_pinned_component_content(component: Component, class_name: str) -> tuple[str, str]:
     soup = BeautifulSoup(component.content, "html.parser")
     body_content = soup.body
     wrapper_div = soup.new_tag("div", id=component.id, class_=class_name)
@@ -29,7 +25,7 @@ def handle_pinned_component_content(component: Component, class_name: str):
     if body_content:
         # Move all non-empty children of body into the new section
         for child in body_content.children:
-            if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
+            if isinstance(child, str) and not child.strip():  # Skip empty string nodes (newlines)
                 continue
             wrapper_div.append(child.extract())
 
@@ -39,46 +35,41 @@ def handle_pinned_component_content(component: Component, class_name: str):
 
     # Handle css for making it pinned
 
-
     return str(wrapper_div), str(css_output)
 
 
-def handle_pinned_component_image(component: Component, class_name: str):
+def handle_pinned_component_image(article_id: str, component: Component, class_name: str) -> str:
     image = component.image
     image_filename = f"{component.id}-{image.filename}"
-    local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
+    local_image_path = LOCAL_OUTPUT_DIR / article_id / "image" / image_filename
 
     # Save the image to the local directory
     with local_image_path.open("wb") as image_file:
         shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
 
     # Add the image HTML tag
-    img_tag = (
+    return (
         f'<div class="{class_name}">'
         f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
-        f'</div>'
+        f"</div>"
     )
 
-    # Handle css for making it pinned
 
-    return img_tag
-
-def handle_component_image(component: Component):
+def handle_component_image(article_id: str, component: Component) -> str:
     image = component.image
     image_filename = f"{component.id}-{image.filename}"
-    local_image_path = LOCAL_OUTPUT_IMAGE_DIR / image_filename
+    local_image_path = LOCAL_OUTPUT_DIR / article_id / "image" / image_filename
 
     # Save the image to the local directory
     with local_image_path.open("wb") as image_file:
         shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
 
     # Add the image HTML tag
-    img_tag = f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
+    return f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
 
-    return img_tag
 
 # Returns html and css
-def handle_component_content(component: Component):
+def handle_component_content(component: Component) -> tuple[str, str]:
     soup = BeautifulSoup(component.content, "html.parser")
     body_content = soup.body
     wrapper_div = soup.new_tag("div", id=component.id)
@@ -89,7 +80,7 @@ def handle_component_content(component: Component):
     if body_content:
         # Move all non-empty children of body into the new section
         for child in body_content.children:
-            if isinstance(child, str) and child.strip() == "":  # Skip empty string nodes (newlines)
+            if isinstance(child, str) and not child.strip():  # Skip empty string nodes (newlines)
                 continue
             wrapper_div.append(child.extract())
 
@@ -100,9 +91,9 @@ def handle_component_content(component: Component):
     return str(wrapper_div), str(css_output)
 
 
-def generate_html(minio_client, article_id: str, body_content: str, title: str):
+def generate_html(article_id: str, body_content: str, title: str) -> None:
     # Load HTML template
-    with Path.open(Path(__file__).parent / 'templates' / 'index.html', encoding='utf-8') as file:
+    with Path.open(Path(__file__).parent / "templates" / "index.html", encoding="utf-8") as file:
         html_template = file.read()
 
     # Render HTML template with provided data
@@ -113,24 +104,37 @@ def generate_html(minio_client, article_id: str, body_content: str, title: str):
     formatted_html_content = soup.prettify()
 
     if IS_LOCAL:
-        with open(Path(LOCAL_OUTPUT_DIR) / 'index.html', "wb") as f:
-            f.write(formatted_html_content.encode())
+        Path.mkdir(LOCAL_OUTPUT_DIR / article_id, parents=True, exist_ok=True)
+        Path(LOCAL_OUTPUT_DIR / article_id / "index.html").write_bytes(formatted_html_content.encode())
+        return str(Path(LOCAL_OUTPUT_DIR / article_id / "index.html"))
     else:
-        minio_client.put_object(MINIO_ARTICLE_BUCKET, f"{article_id}/index.html", io.BytesIO(formatted_html_content.encode()), length=len(formatted_html_content), content_type="text/html")
+        MINIO_CLIENT.put_object(
+            MINIO_ARTICLE_BUCKET,
+            f"{article_id}/index.html",
+            io.BytesIO(formatted_html_content.encode()),
+            length=len(formatted_html_content),
+            content_type="text/html",
+        )
+        return f"{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_ARTICLE_BUCKET}/{article_id}/index.html"
 
 
-
-def generate_css(minio_client, article_id: str, styling_content: str):
+def generate_css(article_id: str, styling_content: str) -> None:
     # Load existing CSS content from the template file
-    css_template_path = Path(__file__).parent / 'templates' / 'css' / 'styles.css'
-    with css_template_path.open(encoding='utf-8') as file:
+    css_template_path = Path(__file__).parent / "templates" / "css" / "styles.css"
+    with css_template_path.open(encoding="utf-8") as file:
         template_css_content = file.read()
 
     # Concatenate the template CSS content with the provided styling content
     combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
 
     if IS_LOCAL:
-        with open(Path(LOCAL_OUTPUT_CSS_DIR) / 'styles.css', "wb") as f:
-            f.write(combined_css_content.encode())
+        Path.mkdir(LOCAL_OUTPUT_DIR / article_id / "css", parents=True, exist_ok=True)
+        Path(LOCAL_OUTPUT_DIR / article_id / "css" / "styles.css").write_bytes(combined_css_content.encode())
     else:
-        minio_client.put_object(MINIO_ARTICLE_BUCKET, f"{article_id}/css/styles.css", io.BytesIO(combined_css_content.encode()), length=len(combined_css_content.encode()), content_type="text/css")
+        MINIO_CLIENT.put_object(
+            MINIO_ARTICLE_BUCKET,
+            f"{article_id}/css/styles.css",
+            io.BytesIO(combined_css_content.encode()),
+            length=len(combined_css_content.encode()),
+            content_type="text/css",
+        )
