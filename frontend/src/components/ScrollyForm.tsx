@@ -12,6 +12,7 @@ const ScrollyForm: React.FC = () => {
   const setElement = useScrollyStore((state) => state.setElement);
   const data = useScrollyStore((state) => state.data);
   const setData = useScrollyStore((state) => state.setData);
+  const addDataToComponentGroup = useScrollyStore((state) => state.addDataToComponentGroup);
 
   const existingElement = elements.find((element) => element.id === currentElementId);
   const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
@@ -64,7 +65,7 @@ const ScrollyForm: React.FC = () => {
       setData(currentElementId, {
         pinnable: false,
         layout: { template: 'single' },
-        componentGroups: [{ components: [{ ...modifiedData }] }],
+        components: [{ ...modifiedData }],
       });
     }
     onReset();
@@ -72,11 +73,7 @@ const ScrollyForm: React.FC = () => {
 
   const onNext = () => {
     if (currentElementId) {
-      setData(currentElementId, {
-        pinnable: true,
-        layout: { template: 'left-right' },
-        componentGroups: [{ components: [{ ...modifiedData }] }],
-      });
+      addDataToComponentGroup(currentElementId, { ...modifiedData });
     }
     onReset();
   };

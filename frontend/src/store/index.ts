@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ScrollyContainerElementProps, ScrollyPage } from '../types';
+import { ScrollyComponent, ScrollyContainerElementProps, ScrollyPage } from '../types';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -9,6 +9,7 @@ interface ScrollyState {
   setElement: (id: string, data: ScrollyContainerElementProps) => void;
   appendDefaultElement: () => void;
   data: ScrollyPage[];
+  addDataToComponentGroup: (id: string, data: ScrollyComponent) => void;
   setData: (id: string, data: ScrollyPage) => void;
 }
 
@@ -48,6 +49,17 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       const updatedData = [...state.data];
       const indexToSet = Number(index) < 0 ? 0 : Number(index);
       updatedData[indexToSet] = data;
+      return { data: updatedData };
+    });
+  },
+  addDataToComponentGroup: (index, data) => {
+    set((state) => {
+      const updatedData = [...state.data];
+      const indexToSet = Number(index) < 0 ? 0 : Number(index);
+      updatedData[indexToSet] = {
+        ...updatedData[indexToSet],
+        components: [...updatedData[indexToSet].components, data],
+      };
       return { data: updatedData };
     });
   },

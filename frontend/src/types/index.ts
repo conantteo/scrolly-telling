@@ -12,9 +12,7 @@ export type ScrollyArticle = {
 export type ScrollyPage = {
   pinnable: boolean;
   layout: ScrollyLayout;
-  componentGroups: {
-    components: ScrollyComponent[];
-  }[];
+  components: ScrollyComponent[];
 };
 
 export type ScrollyLayout = {
@@ -27,7 +25,7 @@ export type ScrollyLayout = {
 
 export type ScrollyComponent = {
   id: string;
-  position: 'center' | 'left' | 'right';
+  position: 'center' | 'left' | 'right' | 'top' | 'bottom';
   animation: ScrollyAnimation | null;
 } & (ScrollyImageComponent | ScrollyRichTextComponent);
 
