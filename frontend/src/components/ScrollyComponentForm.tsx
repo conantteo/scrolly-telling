@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Box,
-  Button,
   FileInput,
   Group,
   InputLabel,
@@ -9,77 +8,28 @@ import {
   Radio,
   Select,
   Slider,
-  Stack,
   TextInput,
-  Title,
 } from '@mantine/core';
-import { useScrollyStore } from '../store';
-import {
-  ANIMATION_TYPES,
-  ScrollyAnimation,
-  ScrollyComponent,
-  ScrollyContainerElementProps,
-} from '../types';
+import { ANIMATION_TYPES, ScrollyComponent } from '../types';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
+
+interface ScrollyComponentFormProps {
+  formError: { type: string; file: string };
+  setFormError: ({ type, file }: { type: string; file: string }) => void;
+  modifiedData: ScrollyComponent;
+  setModifiedData: (data: ScrollyComponent) => void;
+  resetAnimation: (animationData: { [key: string]: string | number | boolean }) => void;
+}
 
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
-const ScrollyComponentForm: React.FC = () => {
-  const currentElementId = useScrollyStore((state) => state.currentElementId);
-  const setCurrentElementId = useScrollyStore((state) => state.setCurrentElementId);
-  const elements = useScrollyStore((state) => state.elements);
-  const appendDefaultElement = useScrollyStore((state) => state.appendDefaultElement);
-  const setElement = useScrollyStore((state) => state.setElement);
-  const data = useScrollyStore((state) => state.data);
-  const setData = useScrollyStore((state) => state.setData);
-
-  const existingElement = elements.find((element) => element.id === currentElementId);
-  const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
-    id: currentElementId ?? '',
-    type: 'image',
-    position: 'center',
-    animation: null,
-  };
-  const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
-    id: `${currentElementId}-animation`,
-    type: 'fade-in',
-    metadata: {
-      pin: false,
-      transition: '',
-      duration: 1000,
-    },
-  };
-
-  const currentElement: ScrollyContainerElementProps = existingElement ?? {
-    id: currentElementId ?? '',
-    isNew: true,
-  };
-  const [modifiedData, setModifiedData] = useState<ScrollyComponent>({
-    ...DEFAULT_COMPONENT_FORM_DATA,
-  });
-  const [formError, setFormError] = useState({ type: '', file: '' });
-  const formHasError = Object.keys(formError).every(
-    (key) => formError[key as keyof typeof formError]
-  );
-
-  useEffect(() => {
-    if (currentElementId) {
-      setModifiedData(data.find((d) => d.id === currentElementId) ?? DEFAULT_COMPONENT_FORM_DATA);
-    }
-  }, [data, currentElementId]);
-
-  const onSave = () => {
-    if (currentElementId) {
-      if (currentElement.isNew) {
-        appendDefaultElement();
-      }
-      setElement(currentElementId, { ...currentElement, isNew: false });
-      setData(currentElementId, modifiedData);
-      setCurrentElementId(null);
-      setModifiedData(DEFAULT_COMPONENT_FORM_DATA);
-    }
-  };
-
+const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
+  formError,
+  setFormError,
+  modifiedData,
+  setModifiedData,
+  resetAnimation,
+}) => {
   const onFileUpload = (file: File | null) => {
     if (!file) {
       return;
@@ -102,15 +52,15 @@ const ScrollyComponentForm: React.FC = () => {
           },
         });
       };
-      setFormError((prev) => ({
-        ...prev,
+      setFormError({
+        ...formError,
         file: '',
-      }));
+      });
     } else {
-      setFormError((prev) => ({
-        ...prev,
+      setFormError({
+        ...formError,
         file: `Only the following file extensions are allowed: ${ALLOW_EXTENSIONS.join(', ')}`,
-      }));
+      });
     }
   };
 
@@ -126,20 +76,17 @@ const ScrollyComponentForm: React.FC = () => {
   };
 
   return (
-    <Stack>
-      <Title order={2}>
-        {currentElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
-      </Title>
+    <>
       <Box>
         <Radio.Group
           value={`${modifiedData.type}`}
           onChange={(value) => {
             if (value === 'image' || value === 'text') {
-              setModifiedData((prev) => ({
-                ...prev,
+              setModifiedData({
+                ...modifiedData,
                 type: value,
                 metadata: undefined,
-              }));
+              });
             }
           }}
           label="Choose a component to create"
@@ -157,10 +104,10 @@ const ScrollyComponentForm: React.FC = () => {
           value={modifiedData.position}
           onChange={(value) => {
             if (value === 'center' || value === 'left' || value === 'right') {
-              setModifiedData((prev) => ({
-                ...prev,
+              setModifiedData({
+                ...modifiedData,
                 position: value,
-              }));
+              });
             }
           }}
           label="Choose a position"
@@ -197,40 +144,6 @@ const ScrollyComponentForm: React.FC = () => {
         </Box>
       )}
       <Box>
-        <Radio.Group
-          value={modifiedData.animation?.metadata.pin ? 'yes' : 'no'}
-          onChange={(value) => {
-            if (modifiedData.animation) {
-              setModifiedData({
-                ...modifiedData,
-                animation: {
-                  ...modifiedData.animation,
-                  metadata: {
-                    ...modifiedData.animation.metadata,
-                    pin: value === 'yes',
-                  },
-                },
-              });
-            } else {
-              setModifiedData({
-                ...modifiedData,
-                animation: {
-                  ...DEFAULT_ANIMATION_FORM_DATA,
-                  metadata: { ...DEFAULT_ANIMATION_FORM_DATA.metadata, pin: value === 'yes' },
-                },
-              });
-            }
-          }}
-          label="Pin content?"
-          description="Pinned content xxx"
-        >
-          <Group mt="xs">
-            <Radio label="Yes" value="yes" />
-            <Radio label="No" value="no" />
-          </Group>
-        </Radio.Group>
-      </Box>
-      <Box>
         <Select
           label="Type of transition"
           placeholder="Select a transition"
@@ -252,16 +165,7 @@ const ScrollyComponentForm: React.FC = () => {
                 },
               });
             } else {
-              setModifiedData({
-                ...modifiedData,
-                animation: {
-                  ...DEFAULT_ANIMATION_FORM_DATA,
-                  metadata: {
-                    ...DEFAULT_ANIMATION_FORM_DATA.metadata,
-                    transition: value ? value : '',
-                  },
-                },
-              });
+              resetAnimation({ transition: value ? value : '' });
             }
           }}
         />
@@ -284,16 +188,7 @@ const ScrollyComponentForm: React.FC = () => {
                     },
                   });
                 } else {
-                  setModifiedData({
-                    ...modifiedData,
-                    animation: {
-                      ...DEFAULT_ANIMATION_FORM_DATA,
-                      metadata: {
-                        ...DEFAULT_ANIMATION_FORM_DATA.metadata,
-                        duration: value ? value : 1000,
-                      },
-                    },
-                  });
+                  resetAnimation({ duration: value ? value : 1000 });
                 }
               }}
               min={1000}
@@ -322,15 +217,8 @@ const ScrollyComponentForm: React.FC = () => {
                     },
                   });
                 } else {
-                  setModifiedData({
-                    ...modifiedData,
-                    animation: {
-                      ...DEFAULT_ANIMATION_FORM_DATA,
-                      metadata: {
-                        ...DEFAULT_ANIMATION_FORM_DATA.metadata,
-                        duration: event.target.value ? Number(event.target.value) : 1000,
-                      },
-                    },
+                  resetAnimation({
+                    duration: event.target.value ? Number(event.target.value) : 1000,
                   });
                 }
               }}
@@ -342,12 +230,7 @@ const ScrollyComponentForm: React.FC = () => {
           </Box>
         </InputWrapper>
       </Box>
-      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
-        <Button disabled={formHasError} onClick={onSave}>
-          Save
-        </Button>
-      </Box>
-    </Stack>
+    </>
   );
 };
 

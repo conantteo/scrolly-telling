@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ScrollyComponent, ScrollyContainerElementProps } from '../types';
+import { ScrollyContainerElementProps, ScrollyPage } from '../types';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -8,8 +8,8 @@ interface ScrollyState {
   removeElement: (id: string) => void;
   setElement: (id: string, data: ScrollyContainerElementProps) => void;
   appendDefaultElement: () => void;
-  data: ScrollyComponent[];
-  setData: (id: string, data: ScrollyComponent) => void;
+  data: ScrollyPage[];
+  setData: (id: string, data: ScrollyPage) => void;
 }
 
 const INITIAL_COMPONENT: ScrollyContainerElementProps = {

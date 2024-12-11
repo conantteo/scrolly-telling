@@ -12,7 +12,9 @@ export type ScrollyArticle = {
 export type ScrollyPage = {
   pinnable: boolean;
   layout: ScrollyLayout;
-  componentGroups: ScrollyComponent[];
+  componentGroups: {
+    components: ScrollyComponent[];
+  }[];
 };
 
 export type ScrollyLayout = {
