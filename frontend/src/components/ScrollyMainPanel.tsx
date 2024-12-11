@@ -6,11 +6,11 @@ const ScrollyMainPanel: React.FC = () => {
   const data = useScrollyStore((state) => state.data);
 
   const renderContainerItem = (item: ScrollyComponent) => {
-    if (item.metadata.type === 'text') {
-      return <div dangerouslySetInnerHTML={{ __html: item.metadata.content }} />;
+    if (item.type === 'text') {
+      return <div dangerouslySetInnerHTML={{ __html: item.metadata?.htmlContent ?? '' }} />;
     }
-    if (item.metadata.type === 'image') {
-      return <Image src={item.metadata.fileBase64} />;
+    if (item.type === 'image') {
+      return <Image src={item.metadata?.fileBase64} />;
     }
   };
 

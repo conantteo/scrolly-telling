@@ -36,16 +36,13 @@ const ScrollyComponentForm: React.FC = () => {
   const existingElement = elements.find((element) => element.id === currentElementId);
   const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
     id: currentElementId ?? '',
-    type: 'component',
-    metadata: {
-      type: 'image',
-      position: 'center',
-    },
+    type: 'image',
+    position: 'center',
     animation: null,
   };
   const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
     id: `${currentElementId}-animation`,
-    type: 'animation',
+    type: 'fade-in',
     metadata: {
       pin: false,
       transition: '',
@@ -95,6 +92,7 @@ const ScrollyComponentForm: React.FC = () => {
         const base64 = reader.result as string;
         setModifiedData({
           ...modifiedData,
+          type: 'image',
           metadata: {
             ...modifiedData.metadata,
             fileBase64: base64,
@@ -116,12 +114,13 @@ const ScrollyComponentForm: React.FC = () => {
     }
   };
 
-  const onContentChange = (content: string) => {
+  const onContentChange = (htmlContent: string) => {
     setModifiedData({
       ...modifiedData,
+      type: 'text',
       metadata: {
         ...modifiedData.metadata,
-        content,
+        htmlContent,
       },
     });
   };
@@ -133,16 +132,16 @@ const ScrollyComponentForm: React.FC = () => {
       </Title>
       <Box>
         <Radio.Group
-          value={`${modifiedData.metadata.type}`}
-          onChange={(value) =>
-            setModifiedData((prev) => ({
-              ...prev,
-              metadata: {
-                ...prev.metadata,
+          value={`${modifiedData.type}`}
+          onChange={(value) => {
+            if (value === 'image' || value === 'text') {
+              setModifiedData((prev) => ({
+                ...prev,
                 type: value,
-              },
-            }))
-          }
+                metadata: undefined,
+              }));
+            }
+          }}
           label="Choose a component to create"
           description="Select either an image or text component"
           withAsterisk
@@ -155,15 +154,12 @@ const ScrollyComponentForm: React.FC = () => {
       </Box>
       <Box>
         <Radio.Group
-          value={modifiedData.metadata.position}
+          value={modifiedData.position}
           onChange={(value) => {
             if (value === 'center' || value === 'left' || value === 'right') {
               setModifiedData((prev) => ({
                 ...prev,
-                metadata: {
-                  ...prev.metadata,
-                  position: value,
-                },
+                position: value,
               }));
             }
           }}
@@ -178,7 +174,7 @@ const ScrollyComponentForm: React.FC = () => {
           </Group>
         </Radio.Group>
       </Box>
-      {modifiedData.metadata.type === 'image' && (
+      {modifiedData.type === 'image' && (
         <Box>
           <FileInput
             radius="xl"
@@ -191,11 +187,11 @@ const ScrollyComponentForm: React.FC = () => {
           />
         </Box>
       )}
-      {modifiedData.metadata.type === 'text' && (
+      {modifiedData.type === 'text' && (
         <Box>
           <InputLabel required>Enter content below</InputLabel>
           <ScrollyRichTextEditor
-            value={`${modifiedData.metadata.text ?? ''}`}
+            value={`${modifiedData.metadata?.htmlContent ?? ''}`}
             onChange={onContentChange}
           />
         </Box>
