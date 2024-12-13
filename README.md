@@ -82,7 +82,7 @@ Example request body
 | Parameter | Type | Description | Required  |
 | --- | --- | --- | --- |
 | id | string | The ID of the page. | :x: |
-| pinnable | boolean | Whether the page is pinnable. | :x: |
+| pinnable | boolean | Whether the page is pinnable. Defaults to false. | :x: |
 | layout | Layout | The layout of the page. | :heavy_check_mark: |
 | frames | Frame[] | List of frames in the page. | :heavy_check_mark: |
 
@@ -90,7 +90,7 @@ Example request body
 
 | Parameter | Type | Description | Required  |
 | --- | --- | --- | --- |
-| id | string | The ID of the page. | :x: |
+| id | string | The ID of the frame. | :x: |
 | components | Component[] | List of components in the frame. | :heavy_check_mark: |
 
 ### Component
@@ -109,10 +109,10 @@ Example request body
 | Parameter | Type | Description | Required  |
 | --- | --- | --- | --- |
 | template | string | The template of the layout. | :heavy_check_mark: |
-| heightTop | string | The height of the top of the layout. | :x: |
-| widthLeft | string | The width of the left side of the layout. | :x: |
-| heightBottom | string | The height of the bottom of the layout. | :x: |
-| widthRight | string | The width of the right side of the layout. | :x: |
+| heightTop | string | The height of the top of the layout. Defaults to XXX. | :x: |
+| widthLeft | string | The width of the left side of the layout. Defaults to XXX. | :x: |
+| heightBottom | string | The height of the bottom of the layout. Defaults to XXX. | :x: |
+| widthRight | string | The width of the right side of the layout. Defaults to XXX. | :x: |
 
 ## Repository Structure
 
