@@ -68,8 +68,6 @@ async def generate_website(request_body: Article) -> JSONResponse:
 
         message = process_pages(article_id, pages, title)
 
-        # Parse components to generate website
-        # message = parse_components(article_id, components, title)
         # # Copy from private bucket to public bucket
         # copy_files(f"{article_id}/")
 
