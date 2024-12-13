@@ -97,7 +97,7 @@ Example request body
 
 | Parameter | Type | Description | Required  |
 | --- | --- | --- | --- |
-| id | string | The ID of the component. | :x: |
+| id | string | The ID of the component. If you are re-using the same image or text, you should reuse the same id. | :heavy_check_mark: |
 | position | string | The position of the component. | :heavy_check_mark: |
 | animation | string | The animation of the component. | :heavy_check_mark: |
 | type | string | The type of the component. | :heavy_check_mark: |
