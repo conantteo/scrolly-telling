@@ -4,6 +4,116 @@
 
 This project contains a Flask server that generates websites with GSAP animations and uploads them to MinIO.
 
+## API Documentation
+
+`/api/generate-website` is used to generate websites with GSAP animations and upload them to MinIO.
+
+| Parameter | Type | Description | Required  |
+| --- | --- | --- | --- |
+| articleId | string | The ID of the article. | :x: |
+| title | string | The title of the website. | :heavy_check_mark: |
+| pages | Page[] | List of pages in the website. | :heavy_check_mark: |
+
+Example request body
+
+```json
+{
+   {
+    "articleId": "123",
+    "title": "Test",
+    "pages": [
+        {
+            "id": "001",
+            "pinnable": true,
+            "layout": {
+                "template": "left-right",
+                "heightTop": null,
+                "widthLeft": "50%",
+                "heightBottom": null,
+                "widthRight": "50%"
+            },
+            "frames": [
+                {
+                    "id": "001-1",
+                    "components": [
+                        {
+                            "id": "001-1-1",
+                            "type": "text",
+                            "position": "left",
+                            "animation": "fade",
+                            "contentHtml": "<html>hi</html>"
+                        },
+                        {
+                            "id": "001-1-3",
+                            "type": "image",
+                            "position": "right",
+                            "animation": "fade",
+                            "image": "001.png"
+                        }
+                    ]
+                },
+                {
+                    "id": "001-2",
+                    "components": [
+                        {
+                            "id": "001-1-1",
+                            "type": "text",
+                            "position": "left",
+                            "animation": "overlap",
+                            "contentHtml": "<html>hi</html>"
+                        },
+                        {
+                            "id": "001-2-2",
+                            "type": "image",
+                            "position": "right",
+                            "animation": "overlap",
+                            "image": "002.png"
+                        }
+                    ]
+                }
+            ]
+        },
+    ]
+}
+```
+
+### Page
+
+| Parameter | Type | Description | Required  |
+| --- | --- | --- | --- |
+| id | string | The ID of the page. | :x: |
+| pinnable | boolean | Whether the page is pinnable. Defaults to false. | :x: |
+| layout | Layout | The layout of the page. | :heavy_check_mark: |
+| frames | Frame[] | List of frames in the page. | :heavy_check_mark: |
+
+### Frame
+
+| Parameter | Type | Description | Required  |
+| --- | --- | --- | --- |
+| id | string | The ID of the frame. | :x: |
+| components | Component[] | List of components in the frame. | :heavy_check_mark: |
+
+### Component
+
+| Parameter | Type | Description | Required  |
+| --- | --- | --- | --- |
+| id | string | The ID of the component. If you are re-using the same image or text, you should reuse the same id. | :heavy_check_mark: |
+| position | string | The position of the component. | :heavy_check_mark: |
+| animation | string | The animation of the component. | :heavy_check_mark: |
+| type | string | The type of the component. | :heavy_check_mark: |
+| contentHtml | string | The HTML content of the component. Must be provided if type is of `text` | :x: |
+| image | string | The image of the component. Must be provided if type is of `image` | :x: |
+
+### Layout
+
+| Parameter | Type | Description | Required  |
+| --- | --- | --- | --- |
+| template | string | The template of the layout. | :heavy_check_mark: |
+| heightTop | string | The height of the top of the layout. Defaults to XXX. | :x: |
+| widthLeft | string | The width of the left side of the layout. Defaults to XXX. | :x: |
+| heightBottom | string | The height of the bottom of the layout. Defaults to XXX. | :x: |
+| widthRight | string | The width of the right side of the layout. Defaults to XXX. | :x: |
+
 ## Repository Structure
 
 ```

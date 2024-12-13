@@ -10,22 +10,28 @@ export type ScrollyArticle = {
 };
 
 export type ScrollyPage = {
+  id: string;
   pinnable: boolean;
   layout: ScrollyLayout;
-  componentGroups: ScrollyComponent[];
+  frames: ScrollyFrame[];
 };
 
 export type ScrollyLayout = {
-  template: string;
+  template: 'left-right' | 'top-bottom' | 'single';
   heightTop?: string;
   widthLeft?: WIDTH_TYPES;
   heightBottom?: string;
   widthRight?: WIDTH_TYPES;
 };
 
+export type ScrollyFrame = {
+  id: string;
+  components: ScrollyComponent[];
+};
+
 export type ScrollyComponent = {
   id: string;
-  position: 'center' | 'left' | 'right';
+  position: 'center' | 'left' | 'right' | 'top' | 'bottom';
   animation: ScrollyAnimation | null;
 } & (ScrollyImageComponent | ScrollyRichTextComponent);
 

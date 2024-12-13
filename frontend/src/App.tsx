@@ -11,7 +11,7 @@ const App: React.FC = () => {
       header={{ height: 60 }}
       padding="md"
       navbar={{ collapsed: { desktop: false }, width: 250, breakpoint: 'sm' }}
-      aside={{ collapsed: { desktop: false }, width: 750, breakpoint: 'sm' }}
+      aside={{ collapsed: { desktop: false }, width: 500, breakpoint: 'sm' }}
     >
       <AppShell.Header>
         <Flex justify="start" align="center" h="100%" ml={24}>

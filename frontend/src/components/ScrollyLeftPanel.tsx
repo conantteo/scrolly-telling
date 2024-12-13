@@ -1,4 +1,5 @@
 import { IconPlus } from '@tabler/icons-react';
+import _ from 'lodash';
 import { Box, Button, Center } from '@mantine/core';
 import { useScrollyStore } from '../store';
 import { ScrollyContainerElementProps } from '../types';
@@ -9,7 +10,7 @@ const ScrollyLeftPanel: React.FC = () => {
   const setElement = useScrollyStore((state) => state.setElement);
   const setCurrentElementId = useScrollyStore((state) => state.setCurrentElementId);
   const onCreateNew = (element: ScrollyContainerElementProps) => {
-    setElement(element.id, { ...element });
+    setElement(element.id, _.cloneDeep(element));
     setCurrentElementId(element.id);
   };
   return (
