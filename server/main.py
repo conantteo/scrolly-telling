@@ -65,11 +65,14 @@ async def generate_website(request_body: Article) -> JSONResponse:
         # Extract the values from the request body
         title = request_body.title if request_body.title is not None else "My Animated Website"
         scroll_trigger = request_body.scroll_trigger
-        components = request_body.components
+        pages = request_body.pages
         article_id = request_body.article_id
 
+        message = ""
+
         # Parse components to generate website
-        message = parse_components(article_id, components, title)
+        # message = parse_components(article_id, components, title)
+
         return JSONResponse(
             content={"message": f"Website generated successfully. The article can be found in {message}"},
             status_code=status.HTTP_201_CREATED,
