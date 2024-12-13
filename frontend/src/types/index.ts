@@ -10,17 +10,23 @@ export type ScrollyArticle = {
 };
 
 export type ScrollyPage = {
+  id: string;
   pinnable: boolean;
   layout: ScrollyLayout;
-  components: ScrollyComponent[];
+  frames: ScrollyFrame[];
 };
 
 export type ScrollyLayout = {
-  template: string;
+  template: 'left-right' | 'top-bottom' | 'single';
   heightTop?: string;
   widthLeft?: WIDTH_TYPES;
   heightBottom?: string;
   widthRight?: WIDTH_TYPES;
+};
+
+export type ScrollyFrame = {
+  id: string;
+  components: ScrollyComponent[];
 };
 
 export type ScrollyComponent = {

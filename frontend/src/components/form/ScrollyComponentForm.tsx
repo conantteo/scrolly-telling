@@ -1,4 +1,5 @@
 import React from 'react';
+import _ from 'lodash';
 import {
   Box,
   FileInput,
@@ -10,10 +11,11 @@ import {
   Slider,
   TextInput,
 } from '@mantine/core';
-import { ANIMATION_TYPES, ScrollyComponent } from '../types';
+import { ANIMATION_TYPES, ScrollyComponent } from '../../types';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 
 interface ScrollyComponentFormProps {
+  layoutTemplates: string[];
   formError: { type: string; file: string };
   setFormError: ({ type, file }: { type: string; file: string }) => void;
   modifiedData: ScrollyComponent;
@@ -24,6 +26,7 @@ interface ScrollyComponentFormProps {
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
 const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
+  layoutTemplates,
   formError,
   setFormError,
   modifiedData,
@@ -103,7 +106,13 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         <Radio.Group
           value={modifiedData.position}
           onChange={(value) => {
-            if (value === 'center' || value === 'left' || value === 'right') {
+            if (
+              value === 'center' ||
+              value === 'left' ||
+              value === 'right' ||
+              value === 'top' ||
+              value === 'bottom'
+            ) {
               setModifiedData({
                 ...modifiedData,
                 position: value,
@@ -115,9 +124,9 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           withAsterisk
         >
           <Group mt="xs">
-            <Radio label="Left" value="left" />
-            <Radio label="Center" value="center" />
-            <Radio label="Right" value="right" />
+            {layoutTemplates.map((value) => (
+              <Radio key={value} label={_.upperFirst(value)} value={value} />
+            ))}
           </Group>
         </Radio.Group>
       </Box>

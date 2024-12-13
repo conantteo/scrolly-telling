@@ -1,5 +1,5 @@
 import { useScrollyStore } from '../store';
-import ScrollyForm from './ScrollyForm';
+import ScrollyForm from './form/ScrollyForm';
 
 const ScrollyRightPanel: React.FC = () => {
   const currentElementId = useScrollyStore((state) => state.currentElementId);
