@@ -74,7 +74,7 @@ def parse_pinned_page_to_html(page: Page, article_id: str):
 
 
 def parse_page_to_html(page: Page, article_id: str):
-    section_wrapper = f'<section id="{page.id}" class="component-center">'
+    section_wrapper = f'<section id="{page.id}" class="page-center">'
 
     for frame_index, frame in enumerate(page.frames):
         component_class_name = page.id + "-center-component"
