@@ -1,3 +1,17 @@
+# import io
+# import shutil
+# from pathlib import Path
+#
+# from bs4 import BeautifulSoup
+# from jinja2 import Template
+#
+# from server.model.component import Component
+# from server.utilities.constants import IS_LOCAL
+# from server.utilities.constants import LOCAL_OUTPUT_DIR
+# from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
+# from server.utilities.constants import MINIO_CLIENT
+# from server.utilities.constants import MINIO_ENDPOINT
+#
 import io
 import shutil
 from pathlib import Path
@@ -9,7 +23,7 @@ from server.model.component import Component
 from server.model.page import Page
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
-from server.utilities.constants import MINIO_ARTICLE_BUCKET
+from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_CLIENT
 from server.utilities.constants import MINIO_ENDPOINT
 
@@ -191,13 +205,13 @@ def generate_html(article_id: str, body_content: str, title: str) -> None:
         Path(LOCAL_OUTPUT_DIR / article_id / "index.html").write_bytes(formatted_html_content.encode())
         return str(Path(LOCAL_OUTPUT_DIR / article_id / "index.html"))
     MINIO_CLIENT.put_object(
-        MINIO_ARTICLE_BUCKET,
+        MINIO_PRIVATE_ARTICLE_BUCKET,
         f"{article_id}/index.html",
         io.BytesIO(formatted_html_content.encode()),
         length=len(formatted_html_content),
         content_type="text/html",
     )
-    return f"{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_ARTICLE_BUCKET}/{article_id}/index.html"
+    return f"{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
 #
 #
 # def generate_css(article_id: str, styling_content: str) -> None:
@@ -214,7 +228,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> None:
 #         Path(LOCAL_OUTPUT_DIR / article_id / "css" / "styles.css").write_bytes(combined_css_content.encode())
 #     else:
 #         MINIO_CLIENT.put_object(
-#             MINIO_ARTICLE_BUCKET,
+#             MINIO_PRIVATE_ARTICLE_BUCKET,
 #             f"{article_id}/css/styles.css",
 #             io.BytesIO(combined_css_content.encode()),
 #             length=len(combined_css_content.encode()),

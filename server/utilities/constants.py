@@ -13,7 +13,8 @@ MINIO_ENDPOINT = os.getenv("S3_ENDPOINT", "localhost:9000")
 MINIO_ACCESS_KEY = os.getenv("S3_ACCESS_KEY", "minio")
 MINIO_SECRET_KEY = os.getenv("S3_SECRET_KEY", "minio123")
 MINIO_SECURE = os.getenv("S3_SECURE", "False").lower == "false"
-MINIO_ARTICLE_BUCKET = "articles"
+MINIO_PUBLIC_ARTICLE_BUCKET = "public-articles"
+MINIO_PRIVATE_ARTICLE_BUCKET = "private-articles"
 MINIO_CLIENT = None
 
 if IS_LOCAL:
