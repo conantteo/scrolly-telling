@@ -1,11 +1,30 @@
 # from server.content_generator import generate_css
-# from server.content_generator import generate_html
+from server.content_generator import generate_html
 # from server.content_generator import handle_component_content
 # from server.content_generator import handle_component_image
 # from server.content_generator import handle_pinned_component_content
 # from server.content_generator import handle_pinned_component_image
+from server.content_generator import parse_pinned_page_to_html, parse_page_to_html
 from server.model.component import Component
+from server.model.page import Page
 
+
+def process_pages(article_id: str, pages: list[Page], title: str) -> str:
+    html_output = ""
+    css_output = ""
+
+    for page in pages:
+        pinnable = page.pinnable
+        if pinnable:
+            html_page = parse_pinned_page_to_html(page, article_id)
+            html_output += html_page + "\n"
+
+        else:
+            html_page = parse_page_to_html()
+            html_output += html_page + "\n"
+
+    message = generate_html(article_id, html_output, title)
+    return message
 
 def parse_components(article_id: str, components: list[Component], title: str) -> str:
     # html_output = ""

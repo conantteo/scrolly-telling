@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
-from server.parser import parse_components
+from server.parser import parse_components, process_pages
 from server.utilities.constants import MINIO_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_ENDPOINT
 from server.utilities.utils import stage_file
@@ -64,11 +64,10 @@ async def generate_website(request_body: Article) -> JSONResponse:
     try:
         # Extract the values from the request body
         title = request_body.title if request_body.title is not None else "My Animated Website"
-        scroll_trigger = request_body.scroll_trigger
         pages = request_body.pages
-        article_id = request_body.article_id
+        article_id = request_body.articleId
 
-        message = ""
+        message = process_pages(article_id, pages, title)
 
         # Parse components to generate website
         # message = parse_components(article_id, components, title)

@@ -8,7 +8,6 @@ from server.model.page import Page
 class Article(BaseModel):
     articleId: str
     title: str
-    scrollTrigger: bool
     pages: List[Page]  # List of Page models
 
 
@@ -16,7 +15,6 @@ class Article(BaseModel):
 article_data = {
     "articleId": "123-abc",
     "title": "Sample Article",
-    "scrollTrigger": True,
     "pages": [
         {
             "id": "001",
