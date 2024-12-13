@@ -75,7 +75,6 @@ Example request body
         },
     ]
 }
-}
 ```
 
 ### Page
