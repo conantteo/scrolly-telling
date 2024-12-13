@@ -29,7 +29,7 @@ const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
 };
 const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
   id: `00`,
-  type: 'image',
+  type: 'text',
   position: 'left',
   animation: DEFAULT_ANIMATION_FORM_DATA,
 };
