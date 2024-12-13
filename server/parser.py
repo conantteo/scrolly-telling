@@ -19,7 +19,7 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
             html_output += html_page + "\n"
 
         else:
-            html_page = parse_page_to_html()
+            html_page = parse_page_to_html(page, article_id)
             html_output += html_page + "\n"
 
     message = generate_html(article_id, html_output, title)
@@ -73,8 +73,15 @@ def parse_pinned_page_to_html(page: Page, article_id: str):
     return pinned_section_wrapper
 
 
-def parse_page_to_html():
-    return ""
+def parse_page_to_html(page: Page, article_id: str):
+    section_wrapper = f'<section id="{page.id}" class="component-center">'
+
+    for frame_index, frame in enumerate(page.frames):
+        component_class_name = page.id + "-center-component"
+        for component in frame.components:
+            section_wrapper += generate_component_html(component, component_class_name, article_id, frame_index)
+    section_wrapper += '</section>'
+    return section_wrapper
 
 def parse_components(article_id: str, components: list[Component], title: str) -> str:
     # html_output = ""
