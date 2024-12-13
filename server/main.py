@@ -10,8 +10,7 @@ from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
 from server.parser import parse_components
-from server.utilities.constants import MINIO_ARTICLE_BUCKET
-from server.utilities.constants import MINIO_ENDPOINT
+from server.utilities.utils import copy_files
 from server.utilities.utils import stage_file
 
 logger = logging.getLogger(__name__)
@@ -28,10 +27,10 @@ app = FastAPI(title="ScrollyTelling server", version="0.0.1")
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
     },
 )
-async def upload_file(file: UploadFile, article_id: str) -> JSONResponse:
+async def upload_image(file: UploadFile, article_id: str) -> JSONResponse:
     try:
         path = stage_file(article_id, file.file, file.filename, file.size, file.content_type)
-        print({"message": f"{file.filename} uploaded successfully", "path": path})
+        logger.info({"message": f"{file.filename} uploaded successfully", "path": path})
         return JSONResponse(
             content={"message": f"{file.filename} uploaded successfully", "path": path},
             status_code=status.HTTP_201_CREATED,
@@ -72,6 +71,8 @@ async def generate_website(request_body: Article) -> JSONResponse:
 
         # Parse components to generate website
         # message = parse_components(article_id, components, title)
+        # # Copy from private bucket to public bucket
+        # copy_files(f"{article_id}/")
 
         return JSONResponse(
             content={"message": f"Website generated successfully. The article can be found in {message}"},
