@@ -44,7 +44,7 @@ Example request body
                             "contentHtml": "<html>hi</html>"
                         },
                         {
-                            "componentId": "001-1-3",
+                            "id": "001-1-3",
                             "type": "image",
                             "position": "right",
                             "animation": "fade",
@@ -53,17 +53,17 @@ Example request body
                     ]
                 },
                 {
-                    "componentGroupId": "001-2",
+                    "id": "001-2",
                     "components": [
                         {
-                            "componentId": "001-2-1",
+                            "id": "001-1-1",
                             "type": "text",
                             "position": "left",
                             "animation": "overlap",
                             "contentHtml": "<html>hi</html>"
                         },
                         {
-                            "componentId": "001-2-2",
+                            "id": "001-2-2",
                             "type": "image",
                             "position": "right",
                             "animation": "overlap",
