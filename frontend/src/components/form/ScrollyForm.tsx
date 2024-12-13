@@ -27,8 +27,9 @@ const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
     duration: 1000,
   },
 };
+
 const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
-  id: `00`,
+  id: `0`,
   type: 'text',
   position: 'left',
   animation: DEFAULT_ANIMATION_FORM_DATA,
