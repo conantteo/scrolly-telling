@@ -6,11 +6,16 @@ from bs4 import BeautifulSoup
 from jinja2 import Template
 
 from server.model.component import Component
+from server.model.layout import Layout
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_CLIENT
 from server.utilities.constants import MINIO_ENDPOINT
+
+#################################################################################################################
+################################################ HTML ###########################################################
+#################################################################################################################
 
 def generate_component_html(component, position_class_name, article_id, frame_index):
     """Helper function to generate the HTML for components."""
@@ -19,7 +24,6 @@ def generate_component_html(component, position_class_name, article_id, frame_in
     elif component.type == "image":
         return generate_image_component_as_html(component, position_class_name, article_id, frame_index)
     return ""
-
 
 
 # Wrap each component with class <page>-<position>-component so that it is identifiable by JS
@@ -33,7 +37,6 @@ def generate_text_component_as_html(component: Component, class_name: str):
 
 
 # Wrap each component with class <page>-<position>-component so that it is identifiable by JS
-
 def generate_image_component_as_html(component: Component, class_name: str, article_id: str, frame_index: int):
     # Indicate in class if image is in first frame with "first-image"
     additional_class = "first-image" if frame_index == 0 else ""
@@ -44,83 +47,6 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
 
     return div_wrapper
 
-
-# def handle_pinned_component_content(component: Component, class_name: str) -> tuple[str, str]:
-#     soup = BeautifulSoup(component.content, "html.parser")
-#     body_content = soup.body
-#     wrapper_div = soup.new_tag("div", id=component.id, class_=class_name)
-#
-#     for element in body_content.find_all(string=True):  # Find all text nodes inside body
-#         element.replace_with(element.strip())  # Strip leading/trailing whitespace
-#
-#     if body_content:
-#         # Move all non-empty children of body into the new section
-#         for child in body_content.children:
-#             if isinstance(child, str) and not child.strip():  # Skip empty string nodes (newlines)
-#                 continue
-#             wrapper_div.append(child.extract())
-#
-#     # Extract style content if it exists
-#     style_content = soup.style
-#     css_output = style_content.string.strip() if style_content else ""
-#
-#     # Handle css for making it pinned
-#
-#     return str(wrapper_div), str(css_output)
-#
-#
-# def handle_pinned_component_image(article_id: str, component: Component, class_name: str) -> str:
-#     image = component.image
-#     image_filename = f"{component.id}-{image.filename}"
-#     local_image_path = LOCAL_OUTPUT_DIR / article_id / "image" / image_filename
-#
-#     # Save the image to the local directory
-#     with local_image_path.open("wb") as image_file:
-#         shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
-#
-#     # Add the image HTML tag
-#     return (
-#         f'<div class="{class_name}">'
-#         f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
-#         f"</div>"
-#     )
-#
-#
-# def handle_component_image(article_id: str, component: Component) -> str:
-#     image = component.image
-#     image_filename = f"{component.id}-{image.filename}"
-#     local_image_path = LOCAL_OUTPUT_DIR / article_id / "image" / image_filename
-#
-#     # Save the image to the local directory
-#     with local_image_path.open("wb") as image_file:
-#         shutil.copyfileobj(image.file, image_file)  # Ensure image is saved in binary mode
-#
-#     # Add the image HTML tag
-#     return f'<img id="{component.id}" class="image" src="{local_image_path}" alt="Uploaded Image">'
-#
-#
-# # Returns html and css
-# def handle_component_content(component: Component) -> tuple[str, str]:
-#     soup = BeautifulSoup(component.content, "html.parser")
-#     body_content = soup.body
-#     wrapper_div = soup.new_tag("div", id=component.id)
-#
-#     for element in body_content.find_all(string=True):  # Find all text nodes inside body
-#         element.replace_with(element.strip())  # Strip leading/trailing whitespace
-#
-#     if body_content:
-#         # Move all non-empty children of body into the new section
-#         for child in body_content.children:
-#             if isinstance(child, str) and not child.strip():  # Skip empty string nodes (newlines)
-#                 continue
-#             wrapper_div.append(child.extract())
-#
-#     # Extract style content if it exists
-#     style_content = soup.style
-#     css_output = style_content.string.strip() if style_content else ""
-#
-#     return str(wrapper_div), str(css_output)
-#
 
 def generate_html(article_id: str, body_content: str, title: str) -> str:
     # Load HTML template
@@ -146,25 +72,145 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         content_type="text/html",
     )
     return f"{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
-#
-#
-# def generate_css(article_id: str, styling_content: str) -> None:
-#     # Load existing CSS content from the template file
-#     css_template_path = Path(__file__).parent / "templates" / "css" / "styles.css"
-#     with css_template_path.open(encoding="utf-8") as file:
-#         template_css_content = file.read()
-#
-#     # Concatenate the template CSS content with the provided styling content
-#     combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
-#
-#     if IS_LOCAL:
-#         Path.mkdir(LOCAL_OUTPUT_DIR / article_id / "css", parents=True, exist_ok=True)
-#         Path(LOCAL_OUTPUT_DIR / article_id / "css" / "styles.css").write_bytes(combined_css_content.encode())
-#     else:
-#         MINIO_CLIENT.put_object(
-#             MINIO_PRIVATE_ARTICLE_BUCKET,
-#             f"{article_id}/css/styles.css",
-#             io.BytesIO(combined_css_content.encode()),
-#             length=len(combined_css_content.encode()),
-#             content_type="text/css",
-#         )
+
+#################################################################################################################
+################################################ CSS STYLING ####################################################
+#################################################################################################################
+
+
+def generate_css_block(tag_id: str, rules: dict) -> str:
+    """Helper function to generate CSS blocks dynamically."""
+    css = f"#{tag_id} {{\n"
+    for property_name, value in rules.items():
+        css += f"    {property_name}: {value};\n"
+    css += "}\n"
+    return css
+
+def generate_left_right_css(tag_id: str, layout: Layout) -> str:
+    """Generate CSS for left-right template."""
+    left_width = layout.widthLeft if layout.widthLeft else "50%"
+    right_width = layout.widthRight if layout.widthRight else "50%"
+    css = ""
+
+    # Parent container
+    css += generate_css_block(tag_id, {
+        "display": "flex",
+        "justify-content": "space-around",
+        "align-items": "center",
+        "height": "100vh",
+        "background-color": "#fff",
+        "padding-left": "40px",
+        "padding-right": "40px"
+    })
+
+    # Left component
+    css += generate_css_block(f"{tag_id}-left", {
+        "display": "flex",
+        "flex-direction": "column",
+        "justify-content": "center",
+        "align-items": "center",
+        "position": "relative",
+        "width": left_width,
+        "height": "100vh"
+    })
+
+    # Right component
+    css += generate_css_block(f"{tag_id}-right", {
+        "display": "flex",
+        "flex-direction": "column",
+        "justify-content": "center",
+        "align-items": "center",
+        "position": "relative",
+        "width": right_width,
+        "height": "100vh"
+    })
+
+    return css
+
+def generate_top_bottom_css(tag_id: str, layout: Layout) -> str:
+    """Generate CSS for top-bottom template."""
+    top_height = layout.heightTop if layout.heightTop else "20%"
+    bottom_height = layout.heightBottom if layout.heightBottom else "80%"
+    css = ""
+
+    # Parent container
+    css += generate_css_block(tag_id, {
+        "display": "flex",
+        "flex-direction": "column",
+        "height": "100vh",
+        "background-color": "#fff",
+        "padding-left": "40px",
+        "padding-right": "40px"
+    })
+
+    # Top component
+    css += generate_css_block(f"{tag_id}-top", {
+        "display": "flex",
+        "justify-content": "center",
+        "align-items": "center",
+        "width": "100%",
+        "height": top_height,
+        "background-color": "transparent",
+        "position": "relative"
+    })
+
+    # Bottom component
+    css += generate_css_block(f"{tag_id}-bottom", {
+        "display": "flex",
+        "justify-content": "center",
+        "align-items": "center",
+        "width": "100%",
+        "height": bottom_height,
+        "background-color": "transparent",
+        "position": "relative"
+    })
+
+    return css
+
+def generate_single_css(tag_id_id: str) -> str:
+    """Generate CSS for single template."""
+    return generate_css_block(tag_id_id, {
+        "display": "flex",
+        "justify-content": "space-around",
+        "align-items": "center",
+        "height": "100vh",
+        "background-color": "#fff",
+        "padding-left": "40px",
+        "padding-right": "40px"
+    })
+
+
+def inject_pinned_page_css(layout: Layout, tag_id_id: str) -> str:
+    """Main function to generate CSS based on layout template."""
+    template = layout.template
+
+    if template == "left-right":
+        return generate_left_right_css(tag_id_id, layout)
+    elif template == "top-bottom":
+        return generate_top_bottom_css(tag_id_id, layout)
+    elif template == "single":
+        return generate_single_css(tag_id_id)
+    else:
+        return ""
+
+
+def generate_css(article_id: str, styling_content: str) -> None:
+    # Load existing CSS content from the template file
+    css_template_path = Path(__file__).parent / "templates" / "css" / "styles.css"
+    with css_template_path.open(encoding="utf-8") as file:
+        template_css_content = file.read()
+
+    # Concatenate the template CSS content with the provided styling content
+    combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
+
+    if IS_LOCAL:
+        Path.mkdir(LOCAL_OUTPUT_DIR / article_id / "css", parents=True, exist_ok=True)
+        Path(LOCAL_OUTPUT_DIR / article_id / "css" / "styles.css").write_bytes(combined_css_content.encode())
+    else:
+        MINIO_CLIENT.put_object(
+            MINIO_PRIVATE_ARTICLE_BUCKET,
+            f"{article_id}/css/styles.css",
+            io.BytesIO(combined_css_content.encode()),
+            length=len(combined_css_content.encode()),
+            content_type="text/css",
+        )

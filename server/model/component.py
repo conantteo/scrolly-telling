@@ -5,7 +5,7 @@ class Component(BaseModel):
     id: str
     type: str
     position: str
-    animation: str
+    animation: Optional[str] = None
     contentHtml: Optional[str] = None
     image: Optional[str] = None
 

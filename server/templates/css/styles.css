@@ -10,7 +10,7 @@ html {
     height: 100vh;
 }
 
-/* Center-align .component-center */
+/* Center-align .page-center */
 .page-center {
     display: flex;
     flex-direction: column;

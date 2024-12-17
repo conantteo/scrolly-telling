@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
-from server.parser import parse_components, process_pages
+from server.parser import process_pages
 from server.utilities.utils import copy_files
 from server.utilities.utils import stage_file
 
