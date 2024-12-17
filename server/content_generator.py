@@ -167,9 +167,9 @@ def generate_top_bottom_css(tag_id: str, layout: Layout) -> str:
 
     return css
 
-def generate_single_css(tag_id_id: str) -> str:
+def generate_single_css(tag_id: str) -> str:
     """Generate CSS for single template."""
-    return generate_css_block(tag_id_id, {
+    return generate_css_block(tag_id, {
         "display": "flex",
         "justify-content": "space-around",
         "align-items": "center",
@@ -180,19 +180,21 @@ def generate_single_css(tag_id_id: str) -> str:
     })
 
 
-def inject_pinned_page_css(layout: Layout, tag_id_id: str) -> str:
+def inject_pinned_page_css(layout: Layout, tag_id: str) -> str:
     """Main function to generate CSS based on layout template."""
     template = layout.template
 
     if template == "left-right":
-        return generate_left_right_css(tag_id_id, layout)
+        return generate_left_right_css(tag_id, layout)
     elif template == "top-bottom":
-        return generate_top_bottom_css(tag_id_id, layout)
+        return generate_top_bottom_css(tag_id, layout)
     elif template == "single":
-        return generate_single_css(tag_id_id)
+        return generate_single_css(tag_id)
     else:
         return ""
 
+def inject_component_css(tag_id):
+    return ""
 
 def generate_css(article_id: str, styling_content: str) -> None:
     # Load existing CSS content from the template file
