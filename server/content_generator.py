@@ -43,7 +43,7 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     # Indicate in class if image is in first frame with "first-image"
     additional_class = "first-image" if frame_index == 0 else ""
     div_wrapper = f'<div class="{class_name} {additional_class}" id="comp-{component.id}" >'
-    minio_url = "http://minio-url/articleId/1.png"
+    minio_url = f"http://{MINIO_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
     div_wrapper += f'<img src="{minio_url}" alt="Image" />'
     div_wrapper += '</div>'
 
