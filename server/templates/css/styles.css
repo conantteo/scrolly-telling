@@ -25,3 +25,12 @@ html {
     padding-top: 30px;
     padding-bottom: 30px;
 }
+
+img {
+    background-size: cover;
+    background-repeat: no-repeat;
+    z-index: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
+}

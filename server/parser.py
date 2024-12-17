@@ -1,4 +1,5 @@
-from server.content_generator import generate_html, generate_component_html, inject_pinned_page_css, generate_css
+from server.content_generator import generate_html, generate_component_html, inject_pinned_page_css, generate_css, \
+    inject_component_css
 from server.model.component import Component
 from server.model.page import Page
 
@@ -13,6 +14,7 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
             html_page = parse_pinned_page_to_html(page, article_id)
             html_output += html_page + "\n"
             css_output += inject_pinned_page_css(page.layout, page.id) + "\n"
+            css_output += inject_component_css(page.layout, page.frames, page.id) + "\n"
 
         else:
             html_page = parse_page_to_html(page, article_id)
@@ -24,7 +26,7 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
     return message
 
 def parse_pinned_page_to_html(page: Page, article_id: str):
-    pinned_section_wrapper = f'<section id="{page.id}">'
+    pinned_section_wrapper = f'<section id="page-{page.id}">'
 
     # left-right, top-bottom, single
     layout_template = page.layout.template
@@ -44,8 +46,8 @@ def parse_pinned_page_to_html(page: Page, article_id: str):
 
     # Helper function to build div HTML for left-right and top-bottom templates
     def build_section_html(position, position_components):
-        div_wrapper = f'<div id="{page.id}-{position}">'
-        component_class_name = page.id + "-" + position + "-component"
+        div_wrapper = f'<div id="page-{page.id}-{position}">'
+        component_class_name = "page-" + page.id + "-" + position + "-component"
         for component, frame_index in position_components:
             div_wrapper += generate_component_html(component, component_class_name, article_id, frame_index)
         div_wrapper += '</div>'
@@ -63,7 +65,7 @@ def parse_pinned_page_to_html(page: Page, article_id: str):
 
     elif layout_template == "single":
         position_components = components_by_position["center"]
-        component_class_name = page.id  + "-center-component"
+        component_class_name = "page-" + page.id  + "-center-component"
         for component, frame_index in position_components:
             pinned_section_wrapper += generate_component_html(component, component_class_name, article_id, frame_index)
 
@@ -72,10 +74,10 @@ def parse_pinned_page_to_html(page: Page, article_id: str):
 
 
 def parse_page_to_html(page: Page, article_id: str):
-    section_wrapper = f'<section id="{page.id}" class="page-center">'
+    section_wrapper = f'<section id="page-{page.id}" class="page-center">'
 
     for frame_index, frame in enumerate(page.frames):
-        component_class_name = page.id + "-center-component"
+        component_class_name = "page-" + page.id + "-center-component"
         for component in frame.components:
             section_wrapper += generate_component_html(component, component_class_name, article_id, frame_index)
     section_wrapper += '</section>'
