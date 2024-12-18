@@ -35,11 +35,11 @@ class AnimationScrollTrigger:
                 }},
                 onEnterBack: () => {{
                     console.log("Entering back {self.page_id}-{self.frame_id}");
-                    {self.animation_script.get_enter_js("comp-"+self.component_id)}
+                    {self.animation_script.get_enter_back_js("comp-"+self.component_id)}
                 }},
                 onLeaveBack: () => {{
                     console.log("Leaving back {self.page_id}-{self.frame_id}");
-                    {self.animation_script.get_exit_js("comp-"+self.component_id)}
+                    {self.animation_script.get_exit_back_js("comp-"+self.component_id)}
                 }},
                 toggleActions: "play none reverse none",
                 invalidateOnRefresh: true,

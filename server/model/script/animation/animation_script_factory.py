@@ -3,6 +3,7 @@ from server.model.script.animation.animation_scripts.fade_animation_script impor
 from server.model.script.animation.animation_scripts.fly_in_bottom_animation_script import FlyInBottomAnimationScript
 from server.model.script.animation.animation_scripts.fly_in_left_animation_script import FlyInLeftAnimationScript
 from server.model.script.animation.animation_scripts.fly_in_right_animation_script import FlyInRightAnimationScript
+from server.model.script.animation.animation_scripts.overlap_animation_script import OverlapAnimationScript
 from server.model.script.animation.animation_scripts.zoom_animation_script import ZoomAnimationScript
 
 
@@ -19,5 +20,7 @@ class AnimationScriptFactory:
             return FlyInLeftAnimationScript(start_as_visible)
         if animation_name == "fly-in-right":
             return FlyInRightAnimationScript(start_as_visible)
+        if animation_name == "overlap":
+            return OverlapAnimationScript(start_as_visible)
 
         return AnimationScript()
