@@ -216,7 +216,6 @@ def generate_left_right_component_css(page_id: str, first_frame_components: List
                 "max-width": "500px",
                 "height": "100%",
                 "text-align": "center",
-                "transform": "translateY(100%)",
                 "opacity": "1",
                 "z-index": "1",
                 "background-color": "transparent",
@@ -270,6 +269,13 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
         if component.type == "image":
             css += generate_css_class_block(f"page-{page_id}-center-component", {
                 "position": "absolute",
+            })
+
+            # Set max width to image
+            css += generate_css_class_block(f"page-{page_id}-center-component img", {
+                "width": "800px",
+                "max-width": "100%",
+                "height": "auto",
             })
 
     return css
