@@ -2,6 +2,7 @@ from server.content_generator import generate_html, generate_component_html, inj
     inject_component_css
 from server.model.component import Component
 from server.model.page import Page
+from server.model.script.script_generator import ScriptGenerator
 
 
 def process_pages(article_id: str, pages: list[Page], title: str) -> str:
@@ -22,7 +23,8 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
 
     message = generate_html(article_id, html_output, title)
     generate_css(article_id, css_output)
-
+    script_generator = ScriptGenerator(pages, article_id)
+    script_generator.generate_and_export()
     return message
 
 def parse_pinned_page_to_html(page: Page, article_id: str):

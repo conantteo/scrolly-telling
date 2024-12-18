@@ -23,4 +23,4 @@ component_data = {
 component_instance = Component(**component_data)
 
 # Printing the component instance
-print(component_instance)
+# print(component_instance)
