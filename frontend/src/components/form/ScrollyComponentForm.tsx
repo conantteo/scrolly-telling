@@ -1,26 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import _ from 'lodash';
-import {
-  Box,
-  FileInput,
-  Group,
-  InputLabel,
-  InputWrapper,
-  Radio,
-  Select,
-  Slider,
-  TextInput,
-} from '@mantine/core';
-import { ANIMATION_TYPES, ScrollyComponent } from '../../types';
+import { Box, FileInput, Group, InputLabel, Radio } from '@mantine/core';
+import { Positions, ScrollyComponent } from '../../types';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 
 interface ScrollyComponentFormProps {
-  layoutTemplates: string[];
+  layoutTemplates: readonly Positions[];
   formError: { type: string; file: string };
   setFormError: ({ type, file }: { type: string; file: string }) => void;
-  modifiedData: ScrollyComponent;
-  setModifiedData: (data: ScrollyComponent) => void;
-  resetAnimation: (animationData: { [key: string]: string | number | boolean }) => void;
+  component: ScrollyComponent;
+  setComponent: (data: ScrollyComponent) => void;
 }
 
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
@@ -29,9 +18,8 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   layoutTemplates,
   formError,
   setFormError,
-  modifiedData,
-  setModifiedData,
-  resetAnimation,
+  component,
+  setComponent,
 }) => {
   const onFileUpload = (file: File | null) => {
     if (!file) {
@@ -43,11 +31,11 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
       reader.readAsDataURL(file);
       reader.onload = () => {
         const base64 = reader.result as string;
-        setModifiedData({
-          ...modifiedData,
+        setComponent({
+          ...component,
           type: 'image',
           metadata: {
-            ...modifiedData.metadata,
+            ...component.metadata,
             fileBase64: base64,
             fileName: file.name,
             fileExtension,
@@ -68,25 +56,34 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   };
 
   const onContentChange = (htmlContent: string) => {
-    setModifiedData({
-      ...modifiedData,
+    setComponent({
+      ...component,
       type: 'text',
       metadata: {
-        ...modifiedData.metadata,
+        ...component.metadata,
         htmlContent,
       },
     });
   };
 
+  useEffect(() => {
+    if (!layoutTemplates.includes(component.position)) {
+      setComponent({
+        ...component,
+        position: layoutTemplates[0],
+      });
+    }
+  }, [component, layoutTemplates]);
+
   return (
     <>
       <Box>
         <Radio.Group
-          value={`${modifiedData.type}`}
+          value={`${component.type}`}
           onChange={(value) => {
             if (value === 'image' || value === 'text') {
-              setModifiedData({
-                ...modifiedData,
+              setComponent({
+                ...component,
                 type: value,
                 metadata: undefined,
               });
@@ -104,7 +101,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
       </Box>
       <Box>
         <Radio.Group
-          value={modifiedData.position}
+          value={component.position}
           onChange={(value) => {
             if (
               value === 'center' ||
@@ -113,8 +110,8 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
               value === 'top' ||
               value === 'bottom'
             ) {
-              setModifiedData({
-                ...modifiedData,
+              setComponent({
+                ...component,
                 position: value,
               });
             }
@@ -130,7 +127,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           </Group>
         </Radio.Group>
       </Box>
-      {modifiedData.type === 'image' && (
+      {component.type === 'image' && (
         <Box>
           <FileInput
             radius="xl"
@@ -143,102 +140,15 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           />
         </Box>
       )}
-      {modifiedData.type === 'text' && (
+      {component.type === 'text' && (
         <Box>
           <InputLabel required>Enter content below</InputLabel>
           <ScrollyRichTextEditor
-            value={`${modifiedData.metadata?.htmlContent ?? ''}`}
+            value={`${component.metadata?.htmlContent ?? ''}`}
             onChange={onContentChange}
           />
         </Box>
       )}
-      <Box>
-        <Select
-          label="Type of transition"
-          placeholder="Select a transition"
-          description="Transitions allow you to animate the appearance of your current content"
-          data={ANIMATION_TYPES}
-          searchable
-          clearable
-          value={modifiedData.animation?.metadata.transition ?? ''}
-          onChange={(value) => {
-            if (modifiedData.animation) {
-              setModifiedData({
-                ...modifiedData,
-                animation: {
-                  ...modifiedData.animation,
-                  metadata: {
-                    ...modifiedData.animation.metadata,
-                    transition: value ? value : '',
-                  },
-                },
-              });
-            } else {
-              resetAnimation({ transition: value ? value : '' });
-            }
-          }}
-        />
-      </Box>
-      <Box>
-        <InputWrapper label="Enter duration (ms)" description="Duration XXX">
-          <Box mt="sm">
-            <Slider
-              value={modifiedData.animation?.metadata.duration ?? 1000}
-              onChange={(value) => {
-                if (modifiedData.animation) {
-                  setModifiedData({
-                    ...modifiedData,
-                    animation: {
-                      ...modifiedData.animation,
-                      metadata: {
-                        ...modifiedData.animation.metadata,
-                        duration: value ? value : 1000,
-                      },
-                    },
-                  });
-                } else {
-                  resetAnimation({ duration: value ? value : 1000 });
-                }
-              }}
-              min={1000}
-              max={10000}
-              step={100}
-              marks={[
-                { value: 1000, label: '1s' },
-                { value: 5000, label: '5s' },
-                { value: 10000, label: '10s' },
-              ]}
-            />
-          </Box>
-          <Box mt="xl">
-            <TextInput
-              value={modifiedData.animation?.metadata.duration ?? 1000}
-              onChange={(event) => {
-                if (modifiedData.animation) {
-                  setModifiedData({
-                    ...modifiedData,
-                    animation: {
-                      ...modifiedData.animation,
-                      metadata: {
-                        ...modifiedData.animation.metadata,
-                        duration: event.target.value ? Number(event.target.value) : 1000,
-                      },
-                    },
-                  });
-                } else {
-                  resetAnimation({
-                    duration: event.target.value ? Number(event.target.value) : 1000,
-                  });
-                }
-              }}
-              type="number"
-              min={1000}
-              max={10000}
-              placeholder="Enter duration between 1000-10000 ms"
-            />
-          </Box>
-        </InputWrapper>
-      </Box>
     </>
   );
 };

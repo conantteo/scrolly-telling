@@ -35,7 +35,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
 
   const cardDisplay = (
     <>
-      <Text>Component {id}</Text>
+      <Text>Frame {id}</Text>
       <Space h="lg" />
       <Center>
         <Button.Group>
@@ -64,7 +64,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
         centered
         opened={isModalOpened}
         onClose={close}
-        title={`Are you sure you want to delete component ${id}? The animation (if any) will be removed as well`}
+        title={`Are you sure you want to delete frame ${id}? All the components within this frame will be removed.`}
       >
         <Button
           color="red"

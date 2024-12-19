@@ -1,18 +1,18 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Anchor, Box, Breadcrumbs } from '@mantine/core';
 
-const MOCK_UUID = uuidv4();
+interface HeaderProps {
+  articleId: string;
+}
 
-const items = [
-  { title: 'Articles', href: '#' },
-  { title: `${MOCK_UUID}`, href: `${MOCK_UUID}` },
-].map((item, index) => (
-  <Anchor href={item.href} key={index}>
-    {item.title}
-  </Anchor>
-));
-
-const Header = () => {
+const Header: React.FC<HeaderProps> = ({ articleId }) => {
+  const items = [
+    { title: 'Articles', href: '#' },
+    { title: `${articleId}`, href: `${articleId}` },
+  ].map((item, index) => (
+    <Anchor href={item.href} key={index}>
+      {item.title}
+    </Anchor>
+  ));
   return (
     <Box>
       <Breadcrumbs>{items}</Breadcrumbs>

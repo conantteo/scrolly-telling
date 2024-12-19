@@ -1,6 +1,6 @@
 import { AspectRatio, Box, Card, Group, Image, Space, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
-import { ScrollyComponent, ScrollyPage } from '../types';
+import { ScrollyComponent, ScrollyFrame, ScrollyPage } from '../types';
 
 const LEFT_RIGHT_ORDER_MAP = {
   left: 0,
@@ -48,25 +48,34 @@ const ScrollyMainPanel: React.FC = () => {
     });
   };
 
-  const renderPage = (item: ScrollyPage) => {
-    if (!item.frames) {
-      return null;
-    }
-    const flattenedComponents = item.frames.map((frame) => frame.components).flat();
-    const reorderedComponents = reorderComponents(flattenedComponents, item.layout.template);
-    return item.layout.template === 'top-bottom' ? (
+  const renderFrame = (frame: ScrollyFrame, layoutTemplate: string) => {
+    const components = reorderComponents(frame.components, layoutTemplate);
+    return layoutTemplate === 'top-bottom' ? (
       <Stack align="stretch" justify="center" gap="xs">
-        {reorderedComponents.map((component, componentIndex) => (
+        {components.map((component, componentIndex) => (
           <Box key={componentIndex}>{renderComponent(component)}</Box>
         ))}
       </Stack>
     ) : (
       <Group grow>
-        {flattenedComponents.map((component, componentIndex) => (
+        {components.map((component, componentIndex) => (
           <Box key={componentIndex}>{renderComponent(component)}</Box>
         ))}
       </Group>
     );
+  };
+
+  const renderPage = (page: ScrollyPage) => {
+    if (!page.frames) {
+      return null;
+    }
+    return page.frames.map((frame, frameIndex) => (
+      <Box key={frameIndex} pt={4} pb={4}>
+        <Card withBorder shadow="xl">
+          {renderFrame(frame, page.layout.template)}
+        </Card>
+      </Box>
+    ));
   };
 
   return (

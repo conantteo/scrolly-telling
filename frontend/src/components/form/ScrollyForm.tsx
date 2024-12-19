@@ -1,21 +1,27 @@
 import { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Box, Button, Group, Radio, Select, Stack, Title } from '@mantine/core';
+import { Accordion, Box, Button, Group, Radio, Select, Space, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../../store';
 import {
   ScrollyAnimation,
   ScrollyComponent,
   ScrollyContainerElementProps,
+  ScrollyFrame,
   ScrollyPage,
 } from '../../types';
 import ScrollyComponentForm from './ScrollyComponentForm';
 
-const LAYOUTS = ['left-right', 'top-bottom', 'single'];
+const PINNABLE_LAYOUTS = ['left-right', 'top-bottom'];
+const DEFAULT_LAYOUTS = ['single'];
+
+const LEFT_RIGHT_TEMPLATE = ['left', 'right'] as const;
+const TOP_BOTTOM_TEMPLATE = ['top', 'bottom'] as const;
+const SINGLE_TEMPLATE = ['center'] as const;
 
 const LAYOUT_TEMPLATES = {
-  'left-right': ['left', 'right'],
-  'top-bottom': ['top', 'bottom'],
-  single: ['left', 'center', 'right'],
+  'left-right': LEFT_RIGHT_TEMPLATE,
+  'top-bottom': TOP_BOTTOM_TEMPLATE,
+  single: SINGLE_TEMPLATE,
 };
 
 const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
@@ -28,13 +34,6 @@ const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
   },
 };
 
-const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
-  id: `0`,
-  type: 'text',
-  position: 'left',
-  animation: DEFAULT_ANIMATION_FORM_DATA,
-};
-
 const ScrollyForm: React.FC = () => {
   const currentElementId = useScrollyStore((state) => state.currentElementId);
   const setCurrentElementId = useScrollyStore((state) => state.setCurrentElementId);
@@ -43,7 +42,6 @@ const ScrollyForm: React.FC = () => {
   const setElement = useScrollyStore((state) => state.setElement);
   const pages = useScrollyStore((state) => state.pages);
   const setPage = useScrollyStore((state) => state.setPage);
-  const addComponentToFrame = useScrollyStore((state) => state.addComponentToFrame);
 
   const existingElement = elements.find((element) => element.id === currentElementId);
   const currentElement: ScrollyContainerElementProps = existingElement ?? {
@@ -51,23 +49,38 @@ const ScrollyForm: React.FC = () => {
     isNew: true,
   };
 
-  const DEFAULT_PAGE_FORM_DATA: ScrollyPage = {
+  const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
+    id: `0`,
+    type: 'text',
+    position: LAYOUT_TEMPLATES.single[0],
+    animation: DEFAULT_ANIMATION_FORM_DATA,
+  };
+
+  const DEFAULT_FRAME_FORM_DATA: ScrollyFrame = {
+    id: `0`,
+    components: [DEFAULT_COMPONENT_FORM_DATA],
+  };
+
+  const DEFAULT_PINNED_FRAME_FORM_DATA: ScrollyFrame = {
+    id: `0`,
+    components: [
+      { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][0] },
+      { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][1] },
+    ],
+  };
+
+  const DEFAULT_SINGLE_PAGE_FORM_DATA: ScrollyPage = {
     id: currentElement.id,
     pinnable: false,
     layout: {
       template: 'single',
     },
-    frames: [
-      {
-        id: `0`,
-        components: [DEFAULT_COMPONENT_FORM_DATA],
-      },
-    ],
+    frames: [DEFAULT_FRAME_FORM_DATA],
   };
 
   const [currentFrameId, setCurrentFrameId] = useState(0);
   const [modifiedPage, setModifiedPage] = useState<ScrollyPage>({
-    ...DEFAULT_PAGE_FORM_DATA,
+    ...DEFAULT_SINGLE_PAGE_FORM_DATA,
   });
   const [formError, setFormError] = useState({ type: '', file: '' });
   const formHasError = Object.keys(formError).every(
@@ -77,14 +90,11 @@ const ScrollyForm: React.FC = () => {
   useEffect(() => {
     if (currentElementId) {
       const page =
-        pages.find((_d, index) => index === Number(currentElement.id)) ?? DEFAULT_PAGE_FORM_DATA;
+        pages.find((_d, index) => index === Number(currentElement.id)) ??
+        DEFAULT_SINGLE_PAGE_FORM_DATA;
       setModifiedPage(_.cloneDeep(page));
     }
   }, [pages, currentElementId]);
-
-  useEffect(() => {
-    console.log({ pages });
-  });
 
   const onReset = () => {
     if (currentElementId) {
@@ -94,7 +104,7 @@ const ScrollyForm: React.FC = () => {
       }
     }
     setCurrentElementId(null);
-    setModifiedPage(_.cloneDeep(DEFAULT_PAGE_FORM_DATA));
+    setModifiedPage(_.cloneDeep(DEFAULT_SINGLE_PAGE_FORM_DATA));
   };
 
   const onSave = () => {
@@ -105,43 +115,60 @@ const ScrollyForm: React.FC = () => {
     onReset();
   };
 
-  const onNext = () => {
-    if (currentElementId) {
-      const updatedPage = _.cloneDeep(modifiedPage);
-      setPage(currentElementId, updatedPage);
-      addComponentToFrame(
-        currentElementId,
-        currentFrameId,
-        _.cloneDeep(DEFAULT_COMPONENT_FORM_DATA)
-      );
-      setCurrentFrameId(modifiedPage.frames.length);
+  const onNextFrame = () => {
+    const updatedPage = _.cloneDeep(modifiedPage);
+    if (updatedPage.layout.template === 'single') {
+      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA);
+    } else {
+      updatedPage.frames.push(DEFAULT_PINNED_FRAME_FORM_DATA);
+    }
+    setModifiedPage(updatedPage);
+    setCurrentFrameId(updatedPage.frames.length - 1);
+  };
+
+  const onPinnedValueChanged = (value: string) => {
+    const updatedPage = _.cloneDeep(modifiedPage);
+    if (value === 'yes') {
+      updatedPage.frames = [DEFAULT_PINNED_FRAME_FORM_DATA];
+      setModifiedPage({
+        ...updatedPage,
+        pinnable: true,
+        layout: {
+          template: 'left-right',
+        },
+      });
+    } else {
+      updatedPage.frames = [DEFAULT_FRAME_FORM_DATA];
+      setModifiedPage({ ...updatedPage, pinnable: false, layout: { template: 'single' } });
     }
   };
 
+  useEffect(() => {
+    console.log({ currentElementId, currentFrameId, modifiedPage });
+  });
+
   return (
     <Stack>
-      <Title order={2}>
-        {currentElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
-      </Title>
+      {modifiedPage.pinnable ? (
+        <Group justify="space-between">
+          <Title order={2}>
+            {currentElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
+          </Title>
+          <Box>
+            <Button onClick={onNextFrame}>Add</Button>
+          </Box>
+        </Group>
+      ) : (
+        <Title order={2}>
+          {currentElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
+        </Title>
+      )}
       <Box>
         <Radio.Group
           label="Do you want to pin multiple content on the same view?"
           description="Contents that are pinned in the same group will be animated together until all content is scrolled past"
           value={modifiedPage.pinnable ? 'yes' : 'no'}
-          onChange={(value) => {
-            const updatedPage = _.cloneDeep(modifiedPage);
-            if (value === 'yes') {
-              setModifiedPage({
-                ...updatedPage,
-                pinnable: true,
-              });
-            } else {
-              setModifiedPage({
-                ...updatedPage,
-                pinnable: false,
-              });
-            }
-          }}
+          onChange={onPinnedValueChanged}
         >
           <Group mt="xs">
             <Radio label="Yes" value="yes" />
@@ -153,7 +180,7 @@ const ScrollyForm: React.FC = () => {
         label="Type of layout"
         placeholder="Select a layout"
         description="Layout determines how your text or images are placed"
-        data={LAYOUTS}
+        data={modifiedPage.pinnable ? PINNABLE_LAYOUTS : DEFAULT_LAYOUTS}
         searchable
         clearable
         value={modifiedPage.layout.template ?? ''}
@@ -172,50 +199,41 @@ const ScrollyForm: React.FC = () => {
           }
         }}
       />
-      {modifiedPage.frames.map((frame, frameIndex) => (
-        <Stack key={frameIndex}>
-          <Title size="h3">The following components are in the same frame</Title>
-          {frame.components.map((component, componentIndex) => (
-            <Box key={componentIndex}>
-              <Title size="h4">
-                {_.upperFirst(component.type)} component ({component.position})
-              </Title>
-              <ScrollyComponentForm
-                layoutTemplates={LAYOUT_TEMPLATES[modifiedPage.layout.template]}
-                formError={formError}
-                setFormError={setFormError}
-                modifiedData={component}
-                setModifiedData={(componentData) => {
-                  const updatedPage = _.cloneDeep(modifiedPage);
-                  updatedPage.frames[frameIndex].components[componentIndex] = componentData;
-                  setModifiedPage(updatedPage);
-                }}
-                resetAnimation={(animationData) => {
-                  const updatedPage = _.cloneDeep(modifiedPage);
-                  const component = updatedPage.frames[frameIndex].components[componentIndex];
-                  if (component.animation) {
-                    const updatedComponent = {
-                      ...component,
-                      animation: {
-                        ...component.animation,
-                        metadata: { ...component.animation?.metadata, ...animationData },
-                      },
-                    };
-                    updatedPage.frames[frameIndex].components[componentIndex] = updatedComponent;
-                    setModifiedPage(updatedPage);
-                  }
-                }}
-              />
-            </Box>
-          ))}
-        </Stack>
-      ))}
-      {modifiedPage.pinnable ? (
-        <Box>
-          <Button onClick={onNext}>Add</Button>
-        </Box>
-      ) : null}
-      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '12px' }}>
+      <Accordion defaultValue="0" value={`${currentFrameId}`}>
+        {modifiedPage.frames.map((frame, frameIndex) => (
+          <Accordion.Item
+            key={frameIndex}
+            value={`${frameIndex}`}
+            onClick={() => setCurrentFrameId(currentFrameId)}
+          >
+            <Accordion.Control>{`Frame ${frameIndex + 1}`}</Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {frame.components.map((component, componentIndex) => (
+                  <Box key={componentIndex}>
+                    <Space h="xs" />
+                    <Title size="h4">
+                      {_.upperFirst(component.type)} component ({component.position})
+                    </Title>
+                    <ScrollyComponentForm
+                      layoutTemplates={LAYOUT_TEMPLATES[modifiedPage.layout.template]}
+                      formError={formError}
+                      setFormError={setFormError}
+                      component={component}
+                      setComponent={(componentData) => {
+                        const updatedPage = _.cloneDeep(modifiedPage);
+                        updatedPage.frames[frameIndex].components[componentIndex] = componentData;
+                        setModifiedPage(updatedPage);
+                      }}
+                    />
+                  </Box>
+                ))}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        ))}
+      </Accordion>
+      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '24px' }}>
         <Button disabled={formHasError} onClick={onSave}>
           Save
         </Button>

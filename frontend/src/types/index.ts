@@ -29,9 +29,11 @@ export type ScrollyFrame = {
   components: ScrollyComponent[];
 };
 
+export type Positions = 'center' | 'left' | 'right' | 'top' | 'bottom';
+
 export type ScrollyComponent = {
   id: string;
-  position: 'center' | 'left' | 'right' | 'top' | 'bottom';
+  position: Positions;
   animation: ScrollyAnimation | null;
 } & (ScrollyImageComponent | ScrollyRichTextComponent);
 
