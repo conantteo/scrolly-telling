@@ -1,7 +1,10 @@
 import { FC } from 'react';
-import { Button, Card, Center, Modal, Space, Text } from '@mantine/core';
+import _ from 'lodash';
+import { Button, Card, Center, Modal } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useScrollyStore } from '../store';
+import { useScrollyStore } from '../../store';
+import CardBody from './CardBody';
+import CardLabel from './CardLabel';
 
 interface ScrollyComponentCardProps {
   id: string;
@@ -34,31 +37,28 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   };
 
   const cardDisplay = (
-    <>
-      <Text>Frame {id}</Text>
-      <Space h="lg" />
-      <Center>
-        <Button.Group>
-          <Button
-            onClick={() => {
-              setCurrentElementId(id);
-            }}
-            variant="gradient"
-            gradient={getGradient()}
-          >
-            Edit
-          </Button>
-          <Button variant="subtle" color="red" onClick={open}>
-            Delete
-          </Button>
-        </Button.Group>
-      </Center>
-    </>
+    <Center mt={8}>
+      <Button.Group>
+        <Button
+          onClick={() => {
+            setCurrentElementId(id);
+          }}
+          variant="gradient"
+          gradient={getGradient()}
+        >
+          Edit
+        </Button>
+        <Button variant="subtle" color="red" onClick={open}>
+          Delete
+        </Button>
+      </Button.Group>
+    </Center>
   );
   return (
     <>
       <Card withBorder shadow="xl">
-        {cardDisplay}
+        <CardLabel label={`Page ${_.toNumber(id) + 1}`} />
+        <CardBody>{cardDisplay}</CardBody>
       </Card>
       <Modal
         centered

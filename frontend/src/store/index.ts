@@ -1,6 +1,11 @@
-import _ from 'lodash';
+import _, { isNumber } from 'lodash';
 import { create } from 'zustand';
-import { ScrollyContainerElementProps, ScrollyPage } from '../types';
+import {
+  ScrollyComponent,
+  ScrollyContainerElementProps,
+  ScrollyFocusElement,
+  ScrollyPage,
+} from '../types';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -10,8 +15,9 @@ interface ScrollyState {
   setElement: (id: string, data: ScrollyContainerElementProps) => void;
   appendDefaultElement: () => void;
   pages: ScrollyPage[];
-  removeComponentFromFrame: (pageIndex: string, frameIndex: number, componentIndex: number) => void;
   setPage: (pageIndex: string, data: ScrollyPage) => void;
+  currentScrollyFocusElement: ScrollyFocusElement | null;
+  setScrollyFocusElement: (component: ScrollyComponent | null) => void;
 }
 
 const INITIAL_COMPONENT: ScrollyContainerElementProps = {
@@ -23,6 +29,7 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   elements: [INITIAL_COMPONENT],
   pages: [],
   currentElementId: null,
+  currentScrollyFocusElement: null,
   setCurrentElementId: (id) => {
     set(() => {
       return {
@@ -50,18 +57,15 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       const updatedData = _.cloneDeep(state.pages);
       const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
       updatedData[indexToSet] = page;
-      return { pages: updatedData };
-    });
-  },
-  removeComponentFromFrame: (pageIndex, frameIndex, componentIndex) => {
-    set((state) => {
-      const updatedData = _.cloneDeep(state.pages);
-      const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
-      if (frameIndex >= 0) {
-        const frame = updatedData[indexToSet].frames[frameIndex];
-        frame.components.splice(componentIndex, 1);
-        return { pages: updatedData };
-      }
+      updatedData.forEach((page, pageIndex) => {
+        page.frames.forEach((frame, frameIndex) => {
+          frame.pageIndex = pageIndex;
+          frame.components.forEach((component) => {
+            component.pageIndex = pageIndex;
+            component.frameIndex = frameIndex;
+          });
+        });
+      });
       return { pages: updatedData };
     });
   },
@@ -75,9 +79,29 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   },
   appendDefaultElement: () => {
     set((state) => {
-      const updatedElemenets = _.cloneDeep(state.elements);
-      updatedElemenets.push({ ...INITIAL_COMPONENT, id: `${updatedElemenets.length}` });
-      return { elements: updatedElemenets };
+      const updatedElements = _.cloneDeep(state.elements);
+      updatedElements.push({ ...INITIAL_COMPONENT, id: `${updatedElements.length}` });
+      return { elements: updatedElements };
+    });
+  },
+  setScrollyFocusElement: (component) => {
+    set((state) => {
+      const updatedFocusElement = _.cloneDeep(state.currentScrollyFocusElement);
+      if (component === null) {
+        console.log('Unfocus component: ', component);
+        return { currentScrollyFocusElement: null };
+      } else if (component && isNumber(component.pageIndex) && isNumber(component.frameIndex)) {
+        console.log('Focus component: ', component);
+        return {
+          currentScrollyFocusElement: {
+            ...updatedFocusElement,
+            pageIndex: component.pageIndex ?? 0,
+            frameIndex: component.frameIndex ?? 0,
+          },
+        };
+      }
+      console.log('No change on focus component: ', component);
+      return state;
     });
   },
 }));

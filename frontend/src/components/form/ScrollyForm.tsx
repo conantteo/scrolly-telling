@@ -1,6 +1,19 @@
 import { useEffect, useState } from 'react';
+import { IconDeviceFloppy, IconPlaylistAdd } from '@tabler/icons-react';
 import _ from 'lodash';
-import { Accordion, Box, Button, Group, Radio, Select, Space, Stack, Title } from '@mantine/core';
+import {
+  Accordion,
+  Box,
+  Button,
+  Divider,
+  Group,
+  Radio,
+  Select,
+  Space,
+  Stack,
+  Title,
+  Tooltip,
+} from '@mantine/core';
 import { useScrollyStore } from '../../store';
 import {
   ScrollyAnimation,
@@ -9,6 +22,7 @@ import {
   ScrollyFrame,
   ScrollyPage,
 } from '../../types';
+import FrameControl from '../FrameControl';
 import ScrollyComponentForm from './ScrollyComponentForm';
 
 const PINNABLE_LAYOUTS = ['left-right', 'top-bottom'];
@@ -61,11 +75,16 @@ const ScrollyForm: React.FC = () => {
     components: [DEFAULT_COMPONENT_FORM_DATA],
   };
 
+  const DEFAULT_COMPONENT_FORM_DATA_IN_FRAME = [
+    { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][0] },
+    { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][1] },
+  ];
+
   const DEFAULT_PINNED_FRAME_FORM_DATA: ScrollyFrame = {
     id: `0`,
     components: [
-      { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][0] },
-      { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][1] },
+      { ...DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[0] },
+      { ...DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[1] },
     ],
   };
 
@@ -115,6 +134,16 @@ const ScrollyForm: React.FC = () => {
     onReset();
   };
 
+  const onRemoveFrame = (frameIndex: number) => {
+    const updatedPage = _.cloneDeep(modifiedPage);
+    const frames = updatedPage.frames;
+    if (frameIndex >= 0 && frameIndex < frames.length) {
+      _.pullAt(frames, [frameIndex]);
+    }
+    setModifiedPage(updatedPage);
+    setCurrentFrameId(0);
+  };
+
   const onNextFrame = () => {
     const updatedPage = _.cloneDeep(modifiedPage);
     if (updatedPage.layout.template === 'single') {
@@ -143,30 +172,26 @@ const ScrollyForm: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    console.log({ currentElementId, currentFrameId, modifiedPage });
-  });
-
   return (
-    <Stack>
-      {modifiedPage.pinnable ? (
-        <Group justify="space-between">
-          <Title order={2}>
-            {currentElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
-          </Title>
-          <Box>
-            <Button onClick={onNextFrame}>Add</Button>
-          </Box>
-        </Group>
-      ) : (
+    <Stack gap="xs">
+      <Group justify="space-between">
         <Title order={2}>
-          {currentElement.isNew ? `Create new component` : `Edit component ${currentElementId}`}
+          {currentElement.isNew ? `Create new page` : `Edit page ${currentElementId}`}
         </Title>
-      )}
+        {modifiedPage.pinnable ? (
+          <Box>
+            <Tooltip label="Add multiple frames to one page to view them sequentially">
+              <Button leftSection={<IconPlaylistAdd />} color="teal" onClick={onNextFrame}>
+                Add Frame
+              </Button>
+            </Tooltip>
+          </Box>
+        ) : null}
+      </Group>
       <Box>
         <Radio.Group
-          label="Do you want to pin multiple content on the same view?"
-          description="Contents that are pinned in the same group will be animated together until all content is scrolled past"
+          label="Do you want to pin multiple frames on the same page?"
+          description="Frames are content shown sequentially as you scroll. Having multiple frames pinned together will make it look as though all the content are animated on the same page."
           value={modifiedPage.pinnable ? 'yes' : 'no'}
           onChange={onPinnedValueChanged}
         >
@@ -179,7 +204,7 @@ const ScrollyForm: React.FC = () => {
       <Select
         label="Type of layout"
         placeholder="Select a layout"
-        description="Layout determines how your text or images are placed"
+        description="Layout determines how your content are placed. If you want multiple content in the same frame, you can choose to pin your frame above."
         data={modifiedPage.pinnable ? PINNABLE_LAYOUTS : DEFAULT_LAYOUTS}
         searchable
         clearable
@@ -199,44 +224,58 @@ const ScrollyForm: React.FC = () => {
           }
         }}
       />
-      <Accordion defaultValue="0" value={`${currentFrameId}`}>
+      <Accordion defaultValue="0" value={`${currentFrameId}`} variant="contained">
         {modifiedPage.frames.map((frame, frameIndex) => (
-          <Accordion.Item
-            key={frameIndex}
-            value={`${frameIndex}`}
-            onClick={() => setCurrentFrameId(currentFrameId)}
-          >
-            <Accordion.Control>{`Frame ${frameIndex + 1}`}</Accordion.Control>
+          <Accordion.Item key={frameIndex} value={`${frameIndex}`}>
+            <FrameControl
+              frameIndex={frameIndex}
+              currentFrameId={currentFrameId}
+              currentFrames={modifiedPage.frames}
+              setCurrentFrameId={setCurrentFrameId}
+              onRemoveFrame={onRemoveFrame}
+            />
             <Accordion.Panel>
               <Stack>
                 {frame.components.map((component, componentIndex) => (
-                  <Box key={componentIndex}>
-                    <Space h="xs" />
-                    <Title size="h4">
-                      {_.upperFirst(component.type)} component ({component.position})
-                    </Title>
-                    <ScrollyComponentForm
-                      layoutTemplates={LAYOUT_TEMPLATES[modifiedPage.layout.template]}
-                      formError={formError}
-                      setFormError={setFormError}
-                      component={component}
-                      setComponent={(componentData) => {
-                        const updatedPage = _.cloneDeep(modifiedPage);
-                        updatedPage.frames[frameIndex].components[componentIndex] = componentData;
-                        setModifiedPage(updatedPage);
-                      }}
-                    />
-                  </Box>
+                  <>
+                    <Box key={componentIndex}>
+                      <Space h="xs" />
+                      <Title size="h5">
+                        {_.upperFirst(component.position)}: {_.upperFirst(component.type)}
+                      </Title>
+                      <ScrollyComponentForm
+                        layoutTemplates={LAYOUT_TEMPLATES[modifiedPage.layout.template]}
+                        formError={formError}
+                        setFormError={setFormError}
+                        component={component}
+                        setComponent={(componentData) => {
+                          const updatedPage = _.cloneDeep(modifiedPage);
+                          updatedPage.frames[frameIndex].components[componentIndex] = componentData;
+                          setModifiedPage(updatedPage);
+                        }}
+                        defaultComponent={
+                          modifiedPage.layout.template === 'single'
+                            ? DEFAULT_COMPONENT_FORM_DATA
+                            : componentIndex === 0
+                              ? DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[0]
+                              : DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[1]
+                        }
+                      />
+                    </Box>
+                    <Divider />
+                  </>
                 ))}
               </Stack>
             </Accordion.Panel>
           </Accordion.Item>
         ))}
       </Accordion>
-      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '24px' }}>
-        <Button disabled={formHasError} onClick={onSave}>
-          Save
-        </Button>
+      <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '24px', zIndex: 1 }}>
+        <Tooltip label="Click here to save your changes for current page. You can still edit afterwards.">
+          <Button leftSection={<IconDeviceFloppy />} disabled={formHasError} onClick={onSave}>
+            Save Page
+          </Button>
+        </Tooltip>
       </Box>
     </Stack>
   );

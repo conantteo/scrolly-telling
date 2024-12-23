@@ -18,15 +18,12 @@ export type ScrollyPage = {
 
 export type ScrollyLayout = {
   template: 'left-right' | 'top-bottom' | 'single';
-  heightTop?: string;
-  widthLeft?: WIDTH_TYPES;
-  heightBottom?: string;
-  widthRight?: WIDTH_TYPES;
 };
 
 export type ScrollyFrame = {
   id: string;
   components: ScrollyComponent[];
+  pageIndex?: number;
 };
 
 export type Positions = 'center' | 'left' | 'right' | 'top' | 'bottom';
@@ -35,6 +32,8 @@ export type ScrollyComponent = {
   id: string;
   position: Positions;
   animation: ScrollyAnimation | null;
+  pageIndex?: number;
+  frameIndex?: number;
 } & (ScrollyImageComponent | ScrollyRichTextComponent);
 
 export type ScrollyImageComponent = {
@@ -68,37 +67,10 @@ export type ScrollyAnimation = {
     duration: number;
     pin: boolean;
     [key: string]: string | number | boolean;
-    // pinnedSectionId?: string;
-    // _pinnedContainer?: string;
-    // _animation?: 'tween' | 'timeline'
-    // _start?: string;
-    // _end?: string;
   };
 };
 
-export type WIDTH_TYPES = '25%' | '50%' | '75%' | '100%';
-
-export const ANIMATION_TYPES = [
-  'fade-in',
-  'overlap',
-  // 'fade-up',
-  // 'fade-down',
-  // 'fade-left',
-  // 'fade-right',
-  // 'scale',
-  // 'scale-y',
-  // 'scale-x',
-  // 'skew-up',
-  // 'skew-down',
-  // 'rotate-left',
-  // 'rotate-right',
-  // 'slide-down',
-  'slide-up',
-  // 'slide-left',
-  // 'slide-right',
-  // 'pop',
-  // 'pop-bottom-left',
-  // 'pop-bottom-right',
-  // 'pop-top-left',
-  // 'pop-top-right',
-];
+export type ScrollyFocusElement = {
+  pageIndex: number;
+  frameIndex: number;
+};

@@ -18,7 +18,6 @@ Example request body
 
 ```json
 {
-   {
     "articleId": "123",
     "title": "Test",
     "pages": [
@@ -74,7 +73,6 @@ Example request body
             ]
         },
     ]
-}
 }
 ```
 

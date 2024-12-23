@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import _ from 'lodash';
-import { Box, FileInput, Group, InputLabel, Radio } from '@mantine/core';
+import { Box, FileInput, Group, InputLabel, Radio, Stack } from '@mantine/core';
 import { Positions, ScrollyComponent } from '../../types';
+import ScrollyComponentSelect from './ScrollyComponentSelect';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 
 interface ScrollyComponentFormProps {
@@ -10,6 +11,7 @@ interface ScrollyComponentFormProps {
   setFormError: ({ type, file }: { type: string; file: string }) => void;
   component: ScrollyComponent;
   setComponent: (data: ScrollyComponent) => void;
+  defaultComponent: ScrollyComponent;
 }
 
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
@@ -20,6 +22,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   setFormError,
   component,
   setComponent,
+  defaultComponent,
 }) => {
   const onFileUpload = (file: File | null) => {
     if (!file) {
@@ -75,8 +78,39 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
     }
   }, [component, layoutTemplates]);
 
+  const onComponentChanged = (componentSelected: ScrollyComponent | null) => {
+    if (
+      componentSelected &&
+      component.type === 'text' &&
+      component.type === componentSelected.type
+    ) {
+      setComponent({
+        ...component,
+        ...componentSelected,
+        type: 'text',
+      });
+    } else if (
+      componentSelected &&
+      component.type === 'image' &&
+      component.type === componentSelected.type
+    ) {
+      setComponent({
+        ...component,
+        ...componentSelected,
+        type: 'image',
+      });
+    } else {
+      setComponent({ ...defaultComponent });
+    }
+  };
+
   return (
-    <>
+    <Stack gap="xs">
+      <Box>
+        <ScrollyComponentSelect
+          onComponentChanged={(componentSelected) => onComponentChanged(componentSelected)}
+        />
+      </Box>
       <Box>
         <Radio.Group
           value={`${component.type}`}
@@ -94,8 +128,8 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           withAsterisk
         >
           <Group mt="xs">
-            <Radio label="Image" value="image" />
             <Radio label="Text" value="text" />
+            <Radio label="Image" value="image" />
           </Group>
         </Radio.Group>
       </Box>
@@ -149,7 +183,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           />
         </Box>
       )}
-    </>
+    </Stack>
   );
 };
 

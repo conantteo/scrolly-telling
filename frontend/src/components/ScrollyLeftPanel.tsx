@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { Box, Button, Center } from '@mantine/core';
 import { useScrollyStore } from '../store';
 import { ScrollyContainerElementProps } from '../types';
-import ScrollyComponentCard from './ScrollyComponentCard';
+import ScrollyComponentCard from './card/ScrollyComponentCard';
 
 const ScrollyLeftPanel: React.FC = () => {
   const elements = useScrollyStore((state) => state.elements);
