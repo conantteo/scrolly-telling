@@ -41,7 +41,7 @@ const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({ onCompo
 
   useEffect(() => {
     setScrollyFocusElement(focusValue);
-  }, [focusValue]);
+  }, [focusValue, setScrollyFocusElement]);
 
   return (
     <Select

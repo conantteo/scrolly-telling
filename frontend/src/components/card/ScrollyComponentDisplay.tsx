@@ -19,7 +19,7 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
         <div dangerouslySetInnerHTML={{ __html: componentInProp.metadata?.htmlContent ?? '' }} />
       );
     if (isFocused) {
-      return <Box style={{ backgroundColor: 'red', minHeight: 25 }}>{componentToRender}</Box>;
+      return <Box style={{ backgroundColor: '#d0ebff', minHeight: 25 }}>{componentToRender}</Box>;
     }
     return <Box style={{ minHeight: 25 }}>{componentToRender}</Box>;
   };
