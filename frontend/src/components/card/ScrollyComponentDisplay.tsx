@@ -28,8 +28,6 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
     currentScrollyFocusElement?.pageIndex === component.pageIndex &&
     currentScrollyFocusElement?.frameIndex === component.frameIndex;
 
-  console.log({ isFocused, component, currentScrollyFocusElement });
-
   return (
     <>
       {isFocused
