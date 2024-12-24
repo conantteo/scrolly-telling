@@ -7,24 +7,47 @@ import { ScrollyComponent } from '../../types';
 
 interface ScrollyComponentSelectProps {
   onComponentChanged: (component: ScrollyComponent | null) => void;
+  currentComponents: ScrollyComponent[];
 }
 
-const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({ onComponentChanged }) => {
+const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({
+  onComponentChanged,
+  currentComponents,
+}) => {
   const [value, setValue] = useState('');
   const [focusValue, setFocusValue] = useDebouncedState<ScrollyComponent | null>(null, 500);
-  const data = useScrollyStore((state) => state.pages);
+  const pages = useScrollyStore((state) => state.pages);
   const setScrollyFocusElement = useScrollyStore((state) => state.setScrollyFocusElement);
-  const components = data.flatMap((page) => page.frames.flatMap((frame) => frame.components || []));
-  const selectData = components.map((component, componentIndex) => ({
-    label: `[Page ${_.toNumber(component.pageIndex) + 1} - Frame ${_.toNumber(component.frameIndex) + 1}] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
-    value: `${componentIndex}`,
-    metadata: { ...component },
-  }));
+  const components = pages.flatMap((page) =>
+    page.frames.flatMap((frame) => frame.components || [])
+  );
+  const allComponents = [...components, ...currentComponents];
+  const selectData = allComponents
+    .filter(
+      (component) =>
+        (component.type === 'image' && component.metadata?.fileBase64) ||
+        (component.type === 'text' && component.metadata?.htmlContent)
+    )
+    .map((component, componentIndex) => {
+      if (!component.pageIndex || !component.frameIndex) {
+        return {
+          label: `[Current page] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
+          value: `${componentIndex}`,
+          metadata: { ...component },
+        };
+      }
+      return {
+        label: `[Page ${_.toNumber(component.pageIndex) + 1} - Frame ${_.toNumber(component.frameIndex) + 1}] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
+        value: `${componentIndex}`,
+        metadata: { ...component },
+      };
+    });
 
   const onComponentSelect = (componentIndex: string | null) => {
+    console.log({ componentIndex, component: allComponents[Number(componentIndex)] });
     if (componentIndex) {
       setValue(componentIndex);
-      onComponentChanged(components[Number(componentIndex)]);
+      onComponentChanged(allComponents[Number(componentIndex)]);
     } else {
       onComponentChanged(null);
     }
@@ -32,7 +55,7 @@ const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({ onCompo
 
   const renderSelectOption: SelectProps['renderOption'] = ({ option }) => (
     <Group
-      onMouseEnter={() => setFocusValue({ ...components[Number(option.value)] })}
+      onMouseEnter={() => setFocusValue({ ...allComponents[Number(option.value)] })}
       onMouseLeave={() => setFocusValue(null)}
     >
       {option.label}
@@ -52,6 +75,7 @@ const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({ onCompo
       data={selectData}
       searchable
       clearable
+      allowDeselect={false}
       onChange={(value) => onComponentSelect(value)}
       value={value}
       renderOption={renderSelectOption}

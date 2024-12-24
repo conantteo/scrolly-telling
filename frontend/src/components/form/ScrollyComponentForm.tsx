@@ -12,6 +12,7 @@ interface ScrollyComponentFormProps {
   component: ScrollyComponent;
   setComponent: (data: ScrollyComponent) => void;
   defaultComponent: ScrollyComponent;
+  currentComponents: ScrollyComponent[];
 }
 
 const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
@@ -23,6 +24,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   component,
   setComponent,
   defaultComponent,
+  currentComponents,
 }) => {
   const onFileUpload = (file: File | null) => {
     if (!file) {
@@ -109,6 +111,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
       <Box>
         <ScrollyComponentSelect
           onComponentChanged={(componentSelected) => onComponentChanged(componentSelected)}
+          currentComponents={currentComponents}
         />
       </Box>
       <Box>

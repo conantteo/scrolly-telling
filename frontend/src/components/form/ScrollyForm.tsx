@@ -248,6 +248,9 @@ const ScrollyForm: React.FC = () => {
                         formError={formError}
                         setFormError={setFormError}
                         component={component}
+                        currentComponents={modifiedPage.frames.flatMap(
+                          (frame) => frame.components || []
+                        )}
                         setComponent={(componentData) => {
                           const updatedPage = _.cloneDeep(modifiedPage);
                           updatedPage.frames[frameIndex].components[componentIndex] = componentData;
