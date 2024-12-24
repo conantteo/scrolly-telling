@@ -144,7 +144,7 @@ scrolly-telling/
 
 4. `README.md`: Contains project information and setup instructions.
 
-5. `requirements.txt`: Lists all Python dependencies for the project.
+5. `pyproject.toml`: Lists all Python dependencies for the project.
 
 ## Setup Instructions
 
