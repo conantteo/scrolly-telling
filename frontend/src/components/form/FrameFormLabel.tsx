@@ -1,8 +1,8 @@
 import { IconTrash } from '@tabler/icons-react';
 import { Accordion, ActionIcon, Center, Group, Text } from '@mantine/core';
-import { ScrollyFrame } from '../types';
+import { ScrollyFrame } from '../../types';
 
-interface FrameControlProps {
+interface FrameFormLabelProps {
   frameIndex: number;
   currentFrameId: number;
   currentFrames: ScrollyFrame[];
@@ -10,7 +10,7 @@ interface FrameControlProps {
   onRemoveFrame: (frameIndex: number) => void;
 }
 
-const FrameControl: React.FC<FrameControlProps> = ({
+const FrameFormLabel: React.FC<FrameFormLabelProps> = ({
   frameIndex,
   currentFrameId,
   currentFrames,
@@ -33,4 +33,4 @@ const FrameControl: React.FC<FrameControlProps> = ({
   </Center>
 );
 
-export default FrameControl;
+export default FrameFormLabel;

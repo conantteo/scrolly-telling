@@ -22,7 +22,7 @@ import {
   ScrollyFrame,
   ScrollyPage,
 } from '../../types';
-import FrameControl from '../FrameControl';
+import FrameFormLabel from './FrameFormLabel';
 import ScrollyComponentForm from './ScrollyComponentForm';
 
 const PINNABLE_LAYOUTS = ['left-right', 'top-bottom'];
@@ -227,7 +227,7 @@ const ScrollyForm: React.FC = () => {
       <Accordion defaultValue="0" value={`${currentFrameId}`} variant="contained">
         {modifiedPage.frames.map((frame, frameIndex) => (
           <Accordion.Item key={frameIndex} value={`${frameIndex}`}>
-            <FrameControl
+            <FrameFormLabel
               frameIndex={frameIndex}
               currentFrameId={currentFrameId}
               currentFrames={modifiedPage.frames}
