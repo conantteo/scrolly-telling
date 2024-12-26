@@ -88,10 +88,8 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
     set((state) => {
       const updatedFocusElement = _.cloneDeep(state.currentScrollyFocusElement);
       if (component === null) {
-        console.log('Unfocus component: ', component);
         return { currentScrollyFocusElement: null };
       } else if (component && isNumber(component.pageIndex) && isNumber(component.frameIndex)) {
-        console.log('Focus component: ', component);
         return {
           currentScrollyFocusElement: {
             ...updatedFocusElement,
@@ -100,7 +98,6 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
           },
         };
       }
-      console.log('No change on focus component: ', component);
       return state;
     });
   },

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import _ from 'lodash';
-import { Group, Select, SelectProps } from '@mantine/core';
+import { ComboboxLikeRenderOptionInput, Group, Select, SelectProps } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { useScrollyStore } from '../../store';
 import { ScrollyComponent } from '../../types';
@@ -29,38 +29,56 @@ const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({
         (component.type === 'text' && component.metadata?.htmlContent)
     )
     .map((component, componentIndex) => {
-      if (!component.pageIndex || !component.frameIndex) {
+      if (
+        component.frameIndex !== undefined &&
+        component.frameIndex >= 0 &&
+        component.pageIndex !== undefined &&
+        component.pageIndex >= 0
+      ) {
         return {
-          label: `[Current page] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
+          label: `[Page ${_.toNumber(component.pageIndex) + 1} - Frame ${_.toNumber(component.frameIndex) + 1}] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
           value: `${componentIndex}`,
-          metadata: { ...component },
+          data: component,
         };
       }
       return {
-        label: `[Page ${_.toNumber(component.pageIndex) + 1} - Frame ${_.toNumber(component.frameIndex) + 1}] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
+        label: `[New] ${_.upperFirst(component.type)} (${_.upperFirst(component.position)})`,
         value: `${componentIndex}`,
-        metadata: { ...component },
+        data: component,
       };
     });
 
-  const onComponentSelect = (componentIndex: string | null) => {
-    console.log({ componentIndex, component: allComponents[Number(componentIndex)] });
+  const onComponentSelect = (
+    componentIndex: string | null,
+    option: { label: string; value: string; data?: ScrollyComponent }
+  ) => {
     if (componentIndex) {
       setValue(componentIndex);
-      onComponentChanged(allComponents[Number(componentIndex)]);
+      if (option.data) {
+        const component = option.data;
+        onComponentChanged(_.cloneDeep(component));
+      }
     } else {
       onComponentChanged(null);
     }
   };
 
-  const renderSelectOption: SelectProps['renderOption'] = ({ option }) => (
-    <Group
-      onMouseEnter={() => setFocusValue({ ...allComponents[Number(option.value)] })}
-      onMouseLeave={() => setFocusValue(null)}
-    >
-      {option.label}
-    </Group>
-  );
+  const renderSelectOption: SelectProps['renderOption'] = ({
+    option,
+  }: ComboboxLikeRenderOptionInput<{ label: string; value: string; data?: ScrollyComponent }>) => {
+    if (option.data) {
+      const component = option.data;
+      return (
+        <Group
+          onMouseOver={() => setFocusValue(_.cloneDeep(component))}
+          onMouseLeave={() => setFocusValue(null)}
+          w="100%"
+        >
+          {option.label}
+        </Group>
+      );
+    }
+  };
 
   useEffect(() => {
     setScrollyFocusElement(focusValue);
@@ -76,7 +94,7 @@ const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({
       searchable
       clearable
       allowDeselect={false}
-      onChange={(value) => onComponentSelect(value)}
+      onChange={onComponentSelect}
       value={value}
       renderOption={renderSelectOption}
     />

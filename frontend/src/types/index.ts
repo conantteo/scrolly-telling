@@ -57,6 +57,7 @@ export type ScrollyImage = {
   fileName: string;
   fileExtension: string;
   fileSize: string;
+  file: File;
 };
 
 export type ScrollyAnimation = {

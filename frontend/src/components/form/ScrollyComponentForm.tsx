@@ -45,6 +45,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
             fileName: file.name,
             fileExtension,
             fileSize: `${file.size}`,
+            file,
           },
         });
       };
@@ -81,28 +82,20 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   }, [component, layoutTemplates]);
 
   const onComponentChanged = (componentSelected: ScrollyComponent | null) => {
-    if (
-      componentSelected &&
-      component.type === 'text' &&
-      component.type === componentSelected.type
-    ) {
+    if (componentSelected && componentSelected.type === 'image') {
       setComponent({
         ...component,
-        ...componentSelected,
-        type: 'text',
+        type: componentSelected.type,
+        metadata: _.cloneDeep(componentSelected.metadata),
       });
-    } else if (
-      componentSelected &&
-      component.type === 'image' &&
-      component.type === componentSelected.type
-    ) {
+    } else if (componentSelected && componentSelected.type === 'text') {
       setComponent({
         ...component,
-        ...componentSelected,
-        type: 'image',
+        type: componentSelected.type,
+        metadata: _.cloneDeep(componentSelected.metadata),
       });
     } else {
-      setComponent({ ...defaultComponent });
+      setComponent(_.cloneDeep(defaultComponent));
     }
   };
 
@@ -173,6 +166,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
             description="Accepts .png, .jpg, .jpeg"
             error={formError.file ? formError.file : null}
             placeholder="Select an image"
+            value={component.metadata?.file ? component.metadata?.file : null}
             onChange={onFileUpload}
           />
         </Box>

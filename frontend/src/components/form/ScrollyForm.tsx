@@ -64,14 +64,14 @@ const ScrollyForm: React.FC = () => {
   };
 
   const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
-    id: `0`,
+    id: `-1`,
     type: 'text',
     position: LAYOUT_TEMPLATES.single[0],
     animation: DEFAULT_ANIMATION_FORM_DATA,
   };
 
   const DEFAULT_FRAME_FORM_DATA: ScrollyFrame = {
-    id: `0`,
+    id: `-1`,
     components: [DEFAULT_COMPONENT_FORM_DATA],
   };
 
@@ -81,7 +81,7 @@ const ScrollyForm: React.FC = () => {
   ];
 
   const DEFAULT_PINNED_FRAME_FORM_DATA: ScrollyFrame = {
-    id: `0`,
+    id: `-1`,
     components: [
       { ...DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[0] },
       { ...DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[1] },
@@ -237,8 +237,8 @@ const ScrollyForm: React.FC = () => {
             <Accordion.Panel>
               <Stack>
                 {frame.components.map((component, componentIndex) => (
-                  <>
-                    <Box key={componentIndex}>
+                  <Box key={componentIndex}>
+                    <Box>
                       <Space h="xs" />
                       <Title size="h5">
                         {_.upperFirst(component.position)}: {_.upperFirst(component.type)}
@@ -266,7 +266,7 @@ const ScrollyForm: React.FC = () => {
                       />
                     </Box>
                     <Divider />
-                  </>
+                  </Box>
                 ))}
               </Stack>
             </Accordion.Panel>
