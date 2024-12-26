@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import _ from 'lodash';
 import { Box, FileInput, Group, InputLabel, Radio, Stack } from '@mantine/core';
+import { useUploadImage } from '../../hooks/useUploadImage';
+import { useScrollyStore } from '../../store';
 import { Positions, ScrollyComponent } from '../../types';
 import ScrollyComponentSelect from './ScrollyComponentSelect';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
@@ -26,12 +28,15 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   defaultComponent,
   currentComponents,
 }) => {
+  const articleId = useScrollyStore((state) => state.articleId);
+  const { mutate: uploadFile } = useUploadImage();
   const onFileUpload = (file: File | null) => {
     if (!file) {
       return;
     }
     const fileExtension = file.name.split('.').pop();
     if (fileExtension && ALLOW_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
+      uploadFile({ file, articleId });
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => {

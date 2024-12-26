@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppShell, Flex } from '@mantine/core';
 import DownloadButton from './components/button/DownloadButton';
@@ -6,10 +6,16 @@ import Header from './components/Header';
 import ScrollyLeftPanel from './components/ScrollyLeftPanel';
 import ScrollyMainPanel from './components/ScrollyMainPanel';
 import ScrollyRightPanel from './components/ScrollyRightPanel';
-
-const ARTICLE_ID = uuidv4();
+import { useScrollyStore } from './store';
 
 const App: React.FC = () => {
+  const articleId = useScrollyStore((state) => state.articleId);
+  const setArticleId = useScrollyStore((state) => state.setArticleId);
+
+  useEffect(() => {
+    setArticleId(uuidv4());
+  }, []);
+
   return (
     <AppShell
       header={{ height: 60 }}
@@ -19,8 +25,8 @@ const App: React.FC = () => {
     >
       <AppShell.Header>
         <Flex justify="space-between" align="center" h="100%" ml={24} mr={24}>
-          <Header articleId={ARTICLE_ID} />
-          <DownloadButton articleId={ARTICLE_ID} title="default" />
+          <Header articleId={articleId} />
+          <DownloadButton articleId={articleId} title="default" />
         </Flex>
       </AppShell.Header>
       <AppShell.Navbar

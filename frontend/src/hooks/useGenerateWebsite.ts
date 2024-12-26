@@ -29,7 +29,6 @@ const setIdInData = (data: PostWebsiteRequest) => {
   return updatedDataWithId;
 };
 
-// Use React Query's mutation hook for POST requests
 export const useGenerateWebsite = () => {
   return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
