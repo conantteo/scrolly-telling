@@ -1,26 +1,37 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { AppShell, Flex } from '@mantine/core';
+import DownloadButton from './components/button/DownloadButton';
 import Header from './components/Header';
 import ScrollyLeftPanel from './components/ScrollyLeftPanel';
 import ScrollyMainPanel from './components/ScrollyMainPanel';
 import ScrollyRightPanel from './components/ScrollyRightPanel';
+import { useScrollyStore } from './store';
 
 const App: React.FC = () => {
+  const articleId = useScrollyStore((state) => state.articleId);
+  const setArticleId = useScrollyStore((state) => state.setArticleId);
+
+  useEffect(() => {
+    setArticleId(uuidv4());
+  }, []);
+
   return (
     <AppShell
       header={{ height: 60 }}
       padding="md"
       navbar={{ collapsed: { desktop: false }, width: 250, breakpoint: 'sm' }}
-      aside={{ collapsed: { desktop: false }, width: 500, breakpoint: 'sm' }}
+      aside={{ collapsed: { desktop: false }, width: 750, breakpoint: 'sm' }}
     >
       <AppShell.Header>
-        <Flex justify="start" align="center" h="100%" ml={24}>
-          <Header />
+        <Flex justify="space-between" align="center" h="100%" ml={24} mr={24}>
+          <Header articleId={articleId} />
+          <DownloadButton articleId={articleId} title="default" />
         </Flex>
       </AppShell.Header>
       <AppShell.Navbar
         withBorder
-        p={8}
+        p={16}
         style={{
           overflowY: 'scroll',
           scrollbarWidth: 'none',
@@ -39,7 +50,7 @@ const App: React.FC = () => {
         <ScrollyMainPanel />
       </AppShell.Main>
       <AppShell.Aside
-        p={8}
+        p={24}
         style={{
           overflowY: 'scroll',
           overflowX: 'hidden',

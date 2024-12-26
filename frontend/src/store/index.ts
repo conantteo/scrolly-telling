@@ -1,6 +1,11 @@
-import _ from 'lodash';
+import _, { isNumber } from 'lodash';
 import { create } from 'zustand';
-import { ScrollyComponent, ScrollyContainerElementProps, ScrollyPage } from '../types';
+import {
+  ScrollyComponent,
+  ScrollyContainerElementProps,
+  ScrollyFocusElement,
+  ScrollyPage,
+} from '../types';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -10,21 +15,11 @@ interface ScrollyState {
   setElement: (id: string, data: ScrollyContainerElementProps) => void;
   appendDefaultElement: () => void;
   pages: ScrollyPage[];
-  // setComponentInFrame: (
-  //   pageIndex: string,
-  //   frameIndex: number,
-  //   componentIndex: number,
-  //   data: ScrollyComponent
-  // ) => void;
-  addComponentToFrame: (pageIndex: string, frameIndex: number, data: ScrollyComponent) => void;
-  removeComponentFromFrame: (pageIndex: string, frameIndex: number, componentIndex: number) => void;
-  // setAnimationInComponent: (
-  //   pageIndex: string,
-  //   frameIndex: number,
-  //   componentIndex: number,
-  //   data: { [key: string]: string | number | boolean }
-  // ) => void;
   setPage: (pageIndex: string, data: ScrollyPage) => void;
+  currentScrollyFocusElement: ScrollyFocusElement | null;
+  setScrollyFocusElement: (component: ScrollyComponent | null) => void;
+  articleId: string;
+  setArticleId: (id: string) => void;
 }
 
 const INITIAL_COMPONENT: ScrollyContainerElementProps = {
@@ -33,9 +28,18 @@ const INITIAL_COMPONENT: ScrollyContainerElementProps = {
 };
 
 export const useScrollyStore = create<ScrollyState>((set) => ({
+  articleId: '',
   elements: [INITIAL_COMPONENT],
   pages: [],
   currentElementId: null,
+  currentScrollyFocusElement: null,
+  setArticleId: (id) => {
+    set(() => {
+      return {
+        articleId: id,
+      };
+    });
+  },
   setCurrentElementId: (id) => {
     set(() => {
       return {
@@ -63,66 +67,18 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       const updatedData = _.cloneDeep(state.pages);
       const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
       updatedData[indexToSet] = page;
+      updatedData.forEach((page, pageIndex) => {
+        page.frames.forEach((frame, frameIndex) => {
+          frame.pageIndex = pageIndex;
+          frame.components.forEach((component) => {
+            component.pageIndex = pageIndex;
+            component.frameIndex = frameIndex;
+          });
+        });
+      });
       return { pages: updatedData };
     });
   },
-  // setComponentInFrame: (pageIndex, frameIndex, componentIndex, component) => {
-  //   set((state) => {
-  //     const updatedData = [...state.pages];
-  //     const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
-  //     if (updatedData[indexToSet] && frameIndex >= 0 && componentIndex >= 0) {
-  //       updatedData[indexToSet].frames[frameIndex].components[componentIndex] = component;
-  //       return { pages: updatedData };
-  //     }
-  //     return state;
-  //   });
-  // },
-  addComponentToFrame: (pageIndex, frameIndex, component) => {
-    set((state) => {
-      const updatedData = _.cloneDeep(state.pages);
-      const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
-      if (frameIndex >= 0) {
-        const frame = updatedData[indexToSet].frames[frameIndex];
-        frame.components.push(component);
-        return { pages: updatedData };
-      }
-      return state;
-    });
-  },
-  removeComponentFromFrame: (pageIndex, frameIndex, componentIndex) => {
-    set((state) => {
-      const updatedData = _.cloneDeep(state.pages);
-      const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
-      if (frameIndex >= 0) {
-        const frame = updatedData[indexToSet].frames[frameIndex];
-        frame.components.splice(componentIndex, 1);
-        return { pages: updatedData };
-      }
-      return { pages: updatedData };
-    });
-  },
-  // setAnimationInComponent: (pageIndex, frameIndex, componentIndex, animationData) => {
-  //   set((state) => {
-  //     const updatedData = [...state.pages];
-  //     const indexToSet = Number(pageIndex) < 0 ? 0 : Number(pageIndex);
-  //     if (frameIndex >= 0 && componentIndex >= 0) {
-  //       const component = updatedData[indexToSet].frames[frameIndex].components[componentIndex];
-  //       if (component.animation) {
-  //         const updatedComponent = {
-  //           ...component,
-  //           animation: {
-  //             ...component.animation,
-  //             metadata: { ...component.animation?.metadata, ...animationData },
-  //           },
-  //         };
-  //         updatedData[indexToSet].frames[frameIndex].components[componentIndex] = updatedComponent;
-  //         return { pages: updatedData };
-  //       }
-  //       return state;
-  //     }
-  //     return state;
-  //   });
-  // },
   setElement: (index, data) => {
     set((state) => {
       const updatedElement = _.cloneDeep(state.elements);
@@ -133,9 +89,26 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   },
   appendDefaultElement: () => {
     set((state) => {
-      const updatedElemenets = _.cloneDeep(state.elements);
-      updatedElemenets.push({ ...INITIAL_COMPONENT, id: `${updatedElemenets.length}` });
-      return { elements: updatedElemenets };
+      const updatedElements = _.cloneDeep(state.elements);
+      updatedElements.push({ ...INITIAL_COMPONENT, id: `${updatedElements.length}` });
+      return { elements: updatedElements };
+    });
+  },
+  setScrollyFocusElement: (component) => {
+    set((state) => {
+      const updatedFocusElement = _.cloneDeep(state.currentScrollyFocusElement);
+      if (component === null) {
+        return { currentScrollyFocusElement: null };
+      } else if (component && isNumber(component.pageIndex) && isNumber(component.frameIndex)) {
+        return {
+          currentScrollyFocusElement: {
+            ...updatedFocusElement,
+            pageIndex: component.pageIndex ?? 0,
+            frameIndex: component.frameIndex ?? 0,
+          },
+        };
+      }
+      return state;
     });
   },
 }));

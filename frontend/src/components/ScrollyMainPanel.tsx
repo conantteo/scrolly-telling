@@ -1,6 +1,10 @@
-import { AspectRatio, Box, Card, Group, Image, Space, Stack, Title } from '@mantine/core';
+import _ from 'lodash';
+import { Box, Card, Group, Space, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
-import { ScrollyComponent, ScrollyPage } from '../types';
+import { ScrollyComponent, ScrollyFrame, ScrollyPage } from '../types';
+import CardBody from './card/CardBody';
+import CardLabel from './card/CardLabel';
+import ScrollyComponentDisplay from './card/ScrollyComponentDisplay';
 
 const LEFT_RIGHT_ORDER_MAP = {
   left: 0,
@@ -19,20 +23,7 @@ const SINGLE_ORDER_MAP = {
 };
 
 const ScrollyMainPanel: React.FC = () => {
-  const data = useScrollyStore((state) => state.pages);
-
-  const renderComponent = (component: ScrollyComponent) => {
-    if (component.type === 'text') {
-      return <div dangerouslySetInnerHTML={{ __html: component.metadata?.htmlContent ?? '' }} />;
-    }
-    if (component.type === 'image') {
-      return (
-        <AspectRatio ratio={1080 / 720} maw={500} mx="auto">
-          <Image src={component.metadata?.fileBase64} />
-        </AspectRatio>
-      );
-    }
-  };
+  const pages = useScrollyStore((state) => state.pages);
 
   const reorderComponents = (components: ScrollyComponent[], layoutTemplate: string) => {
     let orderMap: { [key: string]: number } = {};
@@ -48,35 +39,57 @@ const ScrollyMainPanel: React.FC = () => {
     });
   };
 
-  const renderPage = (item: ScrollyPage) => {
-    if (!item.frames) {
-      return null;
-    }
-    const flattenedComponents = item.frames.map((frame) => frame.components).flat();
-    const reorderedComponents = reorderComponents(flattenedComponents, item.layout.template);
-    return item.layout.template === 'top-bottom' ? (
+  const renderFrame = (frame: ScrollyFrame, layoutTemplate: string) => {
+    const components = reorderComponents(frame.components, layoutTemplate);
+    return layoutTemplate === 'top-bottom' ? (
       <Stack align="stretch" justify="center" gap="xs">
-        {reorderedComponents.map((component, componentIndex) => (
-          <Box key={componentIndex}>{renderComponent(component)}</Box>
+        {components.map((component, componentIndex) => (
+          <ScrollyComponentDisplay key={componentIndex} component={component} />
         ))}
       </Stack>
     ) : (
       <Group grow>
-        {flattenedComponents.map((component, componentIndex) => (
-          <Box key={componentIndex}>{renderComponent(component)}</Box>
+        {components.map((component, componentIndex) => (
+          <ScrollyComponentDisplay key={componentIndex} component={component} />
         ))}
       </Group>
     );
   };
 
+  const renderPage = (page: ScrollyPage) => {
+    if (!page.frames) {
+      return null;
+    }
+    return page.frames.map((frame, frameIndex) => (
+      <Box key={frameIndex} mt={8}>
+        <Card withBorder shadow="xl">
+          <CardLabel label={`Frame ${_.toNumber(frameIndex) + 1}`} />
+          <CardBody>{renderFrame(frame, page.layout.template)}</CardBody>
+        </Card>
+      </Box>
+    ));
+  };
+
+  const components = pages.flatMap((page) =>
+    page.frames.flatMap((frame) => frame.components || [])
+  );
+  const imageComponents = components.filter((component) => component.type === 'image');
+  const textComponents = components.filter((component) => component.type === 'text');
+
   return (
     <>
-      <Title order={1}>Showing {data.length} storyboard items:</Title>
-      <Space h="xl" />
+      <Group justify="space-between">
+        <Title order={2}>Showing {pages.length} pages</Title>
+        <Title order={5}>
+          {imageComponents.length} images + {textComponents.length} text content
+        </Title>
+      </Group>
+      <Space h="md" />
       <Stack align="stretch" justify="center" gap="xs">
-        {data.map((element) => (
-          <Card key={element.id} withBorder shadow="xl">
-            {renderPage(element)}
+        {pages.map((page) => (
+          <Card key={page.id} withBorder shadow="xl">
+            <CardLabel label={`Page ${_.toNumber(page.id) + 1}`} />
+            <CardBody>{renderPage(page)}</CardBody>
           </Card>
         ))}
       </Stack>
