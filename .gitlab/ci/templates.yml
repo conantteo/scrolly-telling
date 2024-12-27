@@ -1,0 +1,97 @@
+# SCRIPTS
+.container_registry_variable_check_script:
+  &container_registry_variable_check_script
+  - "[[ ! -z $ARTIFACTORY_USER ]]"
+  - "[[ ! -z $ARTIFACTORY_PASS ]]"
+
+### TEMPLATES
+
+.ruff_template:
+  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
+  stage: lint
+  script:
+    - pip install --root-user-action=ignore --progress-bar off --upgrade ruff
+    # when ruff prints diffs, it ignores errors for which there are no diffs
+    # this is a known bug/feature in ruff
+    - python3 -m ruff check ${CI_PROJECT_DIR}/requests_rapid --diff
+    # if there are no errors for which we can print diffs, then try again without printing diffs
+    - python3 -m ruff check ${CI_PROJECT_DIR}/requests_rapid
+    - echo "ruff passed!"
+
+.mypy_template:
+  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
+  stage: lint
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - pip install --root-user-action=ignore --progress-bar off -r ./requirements-ci.txt
+    - pip install --root-user-action=ignore --progress-bar off --upgrade mypy
+    - python3 -m mypy
+      --show-error-codes
+      --ignore-missing-imports
+      --install-types --non-interactive
+      -p requests_rapid
+    - echo "mypy passed!"
+
+
+.kaniko:
+  image:
+    name: docker.artifact.${NETWORK_DOMAIN}/infra/devops/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    # Check variables are defined
+    - \[ ! -z "${CI_REGISTRY}" ] # CI_REGISTRY is provided by GitLab
+    - \[ ! -z "${CI_REGISTRY_USER}" ] # CI_REGISTRY_USER is provided by GitLab
+    - \[ ! -z "${CI_REGISTRY_PASSWORD}" ] # CI_REGISTRY_PASSWORD is provided by GitLab
+    # Configure Kaniko
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
+    - echo "{\"auths\":{\"docker.artifact.${NETWORK_DOMAIN}\":{\"username\":\"${ARTIFACTORY_USER}\",\"password\":\"${ARTIFACTORY_PASS}\"}}}" > /kaniko/.docker/config.json
+    # Install certificate
+    - wget --no-check-certificate https://artifact.${NETWORK_DOMAIN}/artifactory/generic-infra-internal/certificates/ca.${NETWORK_DOMAIN}.crt -O - >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
+  stage: build
+  environment:
+    name: build
+  tags:
+    - k8s
+    - highmem
+  script:
+    # Disable cache otherwise will 404 when retrieving wrong cached main.x.chunk.js filename
+    # Flags to reduce memory usage below
+    # Disable compressed caching to prevent tar compression for cached layers
+    # Use experimental run implementation for detecting changes without requiring file system snapshots
+    # Clean the file system at the end of the build
+    - /kaniko/executor
+      --cache=false
+      --compressed-caching=false
+      --use-new-run
+      --cleanup
+      --context $CI_PROJECT_DIR/frontend/
+      --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile
+      --destination $FRONTEND_DEV_IMAGE
+      --destination $FRONTEND_LATEST_IMAGE
+      --target deploy
+      --build-arg=APP_VERSION=$CI_COMMIT_SHORT_SHA
+      --build-arg=RAPID_SUPPORT_URL=$RAPID_SUPPORT_URL
+      --build-arg NETWORK_DOMAIN=$NETWORK_DOMAIN
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      changes:
+        - frontend/**/* # only run when frontend changes because the craco build is super slow
+
+.deploy_template:
+  stage: deploy
+  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/alpine/k8s:1.21.2
+  before_script:
+    - *secrets_variable_check_script
+    - *set_kubectl_context
+  script:
+    - echo "Deploying ${APP_ENV}"
+    - *create_configmaps
+    - *create_secrets
+    - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/rapid/base/app.yaml
+    - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/rapid/base/ui.yaml
+    - kubectl -n $NAMESPACE apply -k $CI_PROJECT_DIR/deployment/rapid/${NETWORK}/${APP_ENV}
+    - kubectl -n $NAMESPACE rollout restart deployment backend frontend
+    - kubectl -n $NAMESPACE rollout status deployment backend
+    - kubectl -n $NAMESPACE rollout status deployment frontend
+

@@ -1,0 +1,15 @@
+.common_tags:
+  tags:
+    - shared
+    - docker
+
+# CI jobs that run on any environment
+#mypy:
+#  extends: [.common_tags, .mypy_template]
+#ruff:
+#  extends: [.common_tags, .ruff_template]
+build:
+  extends: [.common_tags, .kaniko]
+deploy:
+  extends: [.common_tags, .deploy_template]
+

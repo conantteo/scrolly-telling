@@ -1,0 +1,24 @@
+# ---------------------
+# From https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Workflows/Branch-Pipelines.gitlab-ci.yml
+# Not via import to ensure this is always applied in case of issues with imported templates
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH
+
+stages:
+  - build
+  - deploy
+
+include:
+  # ----- Templates -----
+  # Internal template
+  - local: .gitlab/ci/templates.yml
+  # ----- Jobs -----
+  # Common variables configuration
+  - local: .gitlab/ci/common.yml
+  # Network-specific configuration
+  - local: .gitlab/ci/${NETWORK_DOMAIN}.yml
+    rules:
+      - exists:
+          - .gitlab/ci/${NETWORK_DOMAIN}.yml
