@@ -1,4 +1,4 @@
-FROM docker.artifact.${NETWORK_DOMAIN}/infra/devops/node:23-bookworm AS deploy
+FROM docker.artifact.${NETWORK_DOMAIN}/infra/devops/node:22-bookworm AS deploy
 
 # RUN apk add --update --no-cache python3=3.12 python3-pip
 RUN apt-get install -y python3 python3-pip && ln -sf python3 /usr/bin/python
