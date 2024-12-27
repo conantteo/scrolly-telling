@@ -6,32 +6,31 @@
 
 ### TEMPLATES
 
-.ruff_template:
-  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
-  stage: lint
-  script:
-    - pip install --root-user-action=ignore --progress-bar off --upgrade ruff
-    # when ruff prints diffs, it ignores errors for which there are no diffs
-    # this is a known bug/feature in ruff
-    - python3 -m ruff check ${CI_PROJECT_DIR}/requests_rapid --diff
-    # if there are no errors for which we can print diffs, then try again without printing diffs
-    - python3 -m ruff check ${CI_PROJECT_DIR}/requests_rapid
-    - echo "ruff passed!"
-
-.mypy_template:
-  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
-  stage: lint
-  script:
-    - cd ${CI_PROJECT_DIR}
-    - pip install --root-user-action=ignore --progress-bar off -r ./requirements-ci.txt
-    - pip install --root-user-action=ignore --progress-bar off --upgrade mypy
-    - python3 -m mypy
-      --show-error-codes
-      --ignore-missing-imports
-      --install-types --non-interactive
-      -p requests_rapid
-    - echo "mypy passed!"
-
+#.ruff_template:
+#  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
+#  stage: lint
+#  script:
+#    - pip install --root-user-action=ignore --progress-bar off --upgrade ruff
+#    # when ruff prints diffs, it ignores errors for which there are no diffs
+#    # this is a known bug/feature in ruff
+#    - python3 -m ruff check ${CI_PROJECT_DIR}/server --diff
+#    # if there are no errors for which we can print diffs, then try again without printing diffs
+#    - python3 -m ruff check ${CI_PROJECT_DIR}/server
+#    - echo "ruff passed!"
+#
+#.mypy_template:
+#  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
+#  stage: lint
+#  script:
+#    - cd ${CI_PROJECT_DIR}
+#    - pip install --root-user-action=ignore --progress-bar off -r ./requirements-ci.txt
+#    - pip install --root-user-action=ignore --progress-bar off --upgrade mypy
+#    - python3 -m mypy
+#      --show-error-codes
+#      --ignore-missing-imports
+#      --install-types --non-interactive
+#      -p server
+#    - echo "mypy passed!"
 
 .kaniko:
   image:
@@ -45,15 +44,11 @@
     # Configure Kaniko
     - mkdir -p /kaniko/.docker
     - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"username\":\"${CI_REGISTRY_USER}\",\"password\":\"${CI_REGISTRY_PASSWORD}\"}}}" > /kaniko/.docker/config.json
-    - echo "{\"auths\":{\"docker.artifact.${NETWORK_DOMAIN}\":{\"username\":\"${ARTIFACTORY_USER}\",\"password\":\"${ARTIFACTORY_PASS}\"}}}" > /kaniko/.docker/config.json
-    # Install certificate
-    - wget --no-check-certificate https://artifact.${NETWORK_DOMAIN}/artifactory/generic-infra-internal/certificates/ca.${NETWORK_DOMAIN}.crt -O - >> /kaniko/ssl/certs/additional-ca-cert-bundle.crt
   stage: build
   environment:
     name: build
   tags:
     - k8s
-    - highmem
   script:
     # Disable cache otherwise will 404 when retrieving wrong cached main.x.chunk.js filename
     # Flags to reduce memory usage below
@@ -65,18 +60,14 @@
       --compressed-caching=false
       --use-new-run
       --cleanup
-      --context $CI_PROJECT_DIR/frontend/
-      --dockerfile $CI_PROJECT_DIR/frontend/Dockerfile
-      --destination $FRONTEND_DEV_IMAGE
-      --destination $FRONTEND_LATEST_IMAGE
+      --context $CI_PROJECT_DIR
+      --dockerfile $CI_PROJECT_DIR/Dockerfile-deploy
+      --destination ${CI_REGISTRY}/${CI_PROJECT_PATH}/scrollytelling:$CI_COMMIT_SHORT_SHA
+      --destination ${CI_REGISTRY}/${CI_PROJECT_PATH}/scrollytelling:latest
       --target deploy
-      --build-arg=APP_VERSION=$CI_COMMIT_SHORT_SHA
-      --build-arg=RAPID_SUPPORT_URL=$RAPID_SUPPORT_URL
       --build-arg NETWORK_DOMAIN=$NETWORK_DOMAIN
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push"
-      changes:
-        - frontend/**/* # only run when frontend changes because the craco build is super slow
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 .deploy_template:
   stage: deploy

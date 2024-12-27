@@ -10,6 +10,6 @@
 #  extends: [.common_tags, .ruff_template]
 build:
   extends: [.common_tags, .kaniko]
-deploy:
-  extends: [.common_tags, .deploy_template]
+#deploy:
+#  extends: [.common_tags, .deploy_template]
 
