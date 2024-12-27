@@ -72,13 +72,13 @@
 .deploy_template:
   stage: deploy
   image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/alpine/k8s:1.21.2
-  before_script:
-    - *secrets_variable_check_script
-    - *set_kubectl_context
+#  before_script:
+#    - *secrets_variable_check_script
+#    - *set_kubectl_context
   script:
     - echo "Deploying ${APP_ENV}"
-    - *create_configmaps
-    - *create_secrets
+#    - *create_configmaps
+#    - *create_secrets
     - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/rapid/base/app.yaml
     - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/rapid/base/ui.yaml
     - kubectl -n $NAMESPACE apply -k $CI_PROJECT_DIR/deployment/rapid/${NETWORK}/${APP_ENV}
