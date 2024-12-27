@@ -176,7 +176,9 @@ const ScrollyForm: React.FC = () => {
     <Stack gap="xs">
       <Group justify="space-between">
         <Title order={2}>
-          {currentElement.isNew ? `Create new page` : `Edit page ${currentElementId}`}
+          {currentElement.isNew
+            ? `Create new page`
+            : `Edit page ${_.toNumber(currentElementId) + 1}`}
         </Title>
         {modifiedPage.pinnable ? (
           <Box>
