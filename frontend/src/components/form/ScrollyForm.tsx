@@ -16,7 +16,6 @@ import {
 } from '@mantine/core';
 import { useScrollyStore } from '../../store';
 import {
-  ScrollyAnimation,
   ScrollyComponent,
   ScrollyContainerElementProps,
   ScrollyFrame,
@@ -25,7 +24,7 @@ import {
 import FrameFormLabel from './FrameFormLabel';
 import ScrollyComponentForm from './ScrollyComponentForm';
 
-const PINNABLE_LAYOUTS = ['left-right', 'top-bottom'];
+const PINNABLE_LAYOUTS = ['single', 'left-right', 'top-bottom'];
 const DEFAULT_LAYOUTS = ['single'];
 
 const LEFT_RIGHT_TEMPLATE = ['left', 'right'] as const;
@@ -38,15 +37,7 @@ const LAYOUT_TEMPLATES = {
   single: SINGLE_TEMPLATE,
 };
 
-const DEFAULT_ANIMATION_FORM_DATA: ScrollyAnimation = {
-  id: `0`,
-  type: 'fade-in',
-  metadata: {
-    pin: false,
-    transition: '',
-    duration: 1000,
-  },
-};
+const DEFAULT_ANIMATION_FORM_DATA = 'fade';
 
 const ScrollyForm: React.FC = () => {
   const currentElementId = useScrollyStore((state) => state.currentElementId);
@@ -75,17 +66,9 @@ const ScrollyForm: React.FC = () => {
     components: [DEFAULT_COMPONENT_FORM_DATA],
   };
 
-  const DEFAULT_COMPONENT_FORM_DATA_IN_FRAME = [
-    { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][0] },
-    { ...DEFAULT_COMPONENT_FORM_DATA, position: LAYOUT_TEMPLATES['left-right'][1] },
-  ];
-
   const DEFAULT_PINNED_FRAME_FORM_DATA: ScrollyFrame = {
     id: `-1`,
-    components: [
-      { ...DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[0] },
-      { ...DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[1] },
-    ],
+    components: [DEFAULT_COMPONENT_FORM_DATA],
   };
 
   const DEFAULT_SINGLE_PAGE_FORM_DATA: ScrollyPage = {
@@ -163,7 +146,7 @@ const ScrollyForm: React.FC = () => {
         ...updatedPage,
         pinnable: true,
         layout: {
-          template: 'left-right',
+          template: 'single',
         },
       });
     } else {
@@ -258,13 +241,7 @@ const ScrollyForm: React.FC = () => {
                           updatedPage.frames[frameIndex].components[componentIndex] = componentData;
                           setModifiedPage(updatedPage);
                         }}
-                        defaultComponent={
-                          modifiedPage.layout.template === 'single'
-                            ? DEFAULT_COMPONENT_FORM_DATA
-                            : componentIndex === 0
-                              ? DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[0]
-                              : DEFAULT_COMPONENT_FORM_DATA_IN_FRAME[1]
-                        }
+                        defaultComponent={DEFAULT_COMPONENT_FORM_DATA}
                       />
                     </Box>
                     <Divider />

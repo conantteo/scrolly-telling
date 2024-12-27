@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import _ from 'lodash';
-import { Box, FileInput, Group, InputLabel, Radio, Stack } from '@mantine/core';
+import { Box, FileInput, Group, InputLabel, Radio, Select, Stack } from '@mantine/core';
 import { useUploadImage } from '../../hooks/useUploadImage';
 import { useScrollyStore } from '../../store';
 import { Positions, ScrollyComponent } from '../../types';
@@ -46,8 +46,8 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           type: 'image',
           metadata: {
             ...component.metadata,
+            image: file.name,
             fileBase64: base64,
-            fileName: file.name,
             fileExtension,
             fileSize: `${file.size}`,
             file,
@@ -162,6 +162,22 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           </Group>
         </Radio.Group>
       </Box>
+      <Select
+        label="Choose an animation"
+        placeholder="Select an animation"
+        description="Animation affects how your content will appear on the screen"
+        data={['fade', 'overlap']}
+        searchable
+        value={component.animation}
+        onChange={(value) => {
+          if (value) {
+            setComponent({
+              ...component,
+              animation: value,
+            });
+          }
+        }}
+      />
       {component.type === 'image' && (
         <Box>
           <FileInput

@@ -31,7 +31,7 @@ export type Positions = 'center' | 'left' | 'right' | 'top' | 'bottom';
 export type ScrollyComponent = {
   id: string;
   position: Positions;
-  animation: ScrollyAnimation | null;
+  animation: string;
   pageIndex?: number;
   frameIndex?: number;
 } & (ScrollyImageComponent | ScrollyRichTextComponent);
@@ -54,21 +54,10 @@ export type ScrollyRichText = {
 
 export type ScrollyImage = {
   fileBase64: string;
-  fileName: string;
+  image: string;
   fileExtension: string;
   fileSize: string;
   file: File;
-};
-
-export type ScrollyAnimation = {
-  id: string;
-  type: 'fade-in' | 'overlap' | 'slide-up';
-  metadata: {
-    transition: string;
-    duration: number;
-    pin: boolean;
-    [key: string]: string | number | boolean;
-  };
 };
 
 export type ScrollyFocusElement = {
