@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import _ from 'lodash';
 import { Box, FileInput, Group, InputLabel, Radio, Select, Stack } from '@mantine/core';
+import { useAnimationOptions } from '../../hooks/useAnimationOptions';
 import { useUploadImage } from '../../hooks/useUploadImage';
 import { useScrollyStore } from '../../store';
 import { Positions, ScrollyComponent } from '../../types';
@@ -17,7 +18,7 @@ interface ScrollyComponentFormProps {
   currentComponents: ScrollyComponent[];
 }
 
-const ALLOW_EXTENSIONS = ['png', 'jpg', 'jpeg'];
+const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg'];
 
 const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   layoutTemplates,
@@ -30,12 +31,13 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
 }) => {
   const articleId = useScrollyStore((state) => state.articleId);
   const { mutate: uploadFile } = useUploadImage();
+  const { data: animationOptions } = useAnimationOptions();
   const onFileUpload = (file: File | null) => {
     if (!file) {
       return;
     }
     const fileExtension = file.name.split('.').pop();
-    if (fileExtension && ALLOW_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
+    if (fileExtension && ALLOWED_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
       uploadFile({ file, articleId });
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -61,7 +63,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
     } else {
       setFormError({
         ...formError,
-        file: `Only the following file extensions are allowed: ${ALLOW_EXTENSIONS.join(', ')}`,
+        file: `Only the following file extensions are allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
       });
     }
   };
@@ -166,7 +168,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         label="Choose an animation"
         placeholder="Select an animation"
         description="Animation affects how your content will appear on the screen"
-        data={['fade', 'overlap']}
+        data={animationOptions}
         searchable
         value={component.animation}
         onChange={(value) => {
