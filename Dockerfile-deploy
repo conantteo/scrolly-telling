@@ -3,11 +3,16 @@ FROM docker.artifact.${NETWORK_DOMAIN}/infra/devops/node:22-bookworm AS deploy
 # RUN apk add --update --no-cache python3=3.12 python3-pip
 RUN apt-get install -y python3 python3-pip python3-venv && ln -sf python3 /usr/bin/python
 
+# env var
+ARG NETWORK_DOMAIN
+ENV NETWORK_DOMAIN=${NETWORK_DOMAIN}
+
 # Configure and upgrade pip, with workaround for weak certificates
 RUN pip config --global set global.index https://artifact.${NETWORK_DOMAIN}/artifactory/api/pypi/pypi/simple && \
     pip config --global set global.index-url https://artifact.${NETWORK_DOMAIN}/artifactory/api/pypi/pypi/simple && \
     pip config --global set global.cert /etc/ssl/certs/ca-certificates.crt && \
-    pip config --global set global.trusted-host artifact.${NETWORK_DOMAIN}
+    pip config --global set global.trusted-host artifact.${NETWORK_DOMAIN} && \
+    pip config --global set global.disable-pip-version-check true
 
 # Set environment variables for Python libraries to use system CA bundle
 ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt \
