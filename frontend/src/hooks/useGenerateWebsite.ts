@@ -14,27 +14,27 @@ interface PostWebsiteResponse {
   url: string;
 }
 
-const setIdInData = (data: PostWebsiteRequest) => {
+const prepareDataForPost = (data: PostWebsiteRequest) => {
   const updatedData = _.cloneDeep(data);
-  const updatedDataWithId = updatedData.pages.map((page, pageIndex) => {
-    const updatedPage = page.frames.map((frame, frameIndex) => {
-      const updatedFrame = frame.components.map((component, componentIndex) => ({
+  const updatedPages = updatedData.pages.map((page, pageIndex) => {
+    const updatedFrames = page.frames.map((frame, frameIndex) => {
+      const updatedComponents = frame.components.map((component, componentIndex) => ({
         ...component,
         id: `${pageIndex}-${frameIndex}-${componentIndex}`,
         image: component.type === 'image' ? component.metadata?.image : undefined,
         htmlContent: component.type === 'text' ? component.metadata?.htmlContent : undefined,
       }));
-      return { ...updatedFrame, id: `${pageIndex}-${frameIndex}` };
+      return { ...frame, components: updatedComponents, id: `${pageIndex}-${frameIndex}` };
     });
-    return { ...updatedPage, id: `${pageIndex}` };
+    return { ...page, frames: updatedFrames, id: `${pageIndex}` };
   });
-  return updatedDataWithId;
+  return { ...updatedData, pages: updatedPages };
 };
 
 export const useGenerateWebsite = () => {
   return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
-      const dataForPost = setIdInData(data);
+      const dataForPost = prepareDataForPost(data);
       const response = await axios.post<PostWebsiteResponse>(
         'http://localhost:8001/api/generate-website',
         dataForPost
