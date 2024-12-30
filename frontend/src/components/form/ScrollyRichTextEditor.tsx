@@ -1,3 +1,4 @@
+import { useCallback, useEffect } from 'react';
 import { Color } from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
 import SubScript from '@tiptap/extension-subscript';
@@ -7,6 +8,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { debounce } from 'lodash';
 import { Link, RichTextEditor } from '@mantine/tiptap';
 
 interface ScrollyRichTextEditorProps {
@@ -37,6 +39,13 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
   onChange,
   readOnly = false,
 }) => {
+  const debouncedOnChange = useCallback(
+    debounce((newHtml) => {
+      onChange(newHtml);
+    }, 500),
+    []
+  );
+
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -51,10 +60,14 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      debouncedOnChange(editor.getHTML());
     },
     editable: !readOnly,
   });
+
+  useEffect(() => {
+    editor?.commands.setContent(value);
+  }, [value]);
 
   return (
     <RichTextEditor editor={editor}>
