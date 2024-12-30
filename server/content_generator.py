@@ -1,5 +1,4 @@
 import io
-import shutil
 from pathlib import Path
 from typing import List
 
@@ -11,13 +10,15 @@ from server.model.frame import Frame
 from server.model.layout import Layout
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
-from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_CLIENT
 from server.utilities.constants import MINIO_ENDPOINT
+from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
+from server.utilities.constants import MINIO_SCHEME
 
 #################################################################################################################
 ################################################ HTML ###########################################################
 #################################################################################################################
+
 
 def generate_component_html(component, position_class_name, article_id, frame_index):
     """Helper function to generate the HTML for components."""
@@ -43,9 +44,11 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     # Indicate in class if image is in first frame with "first-image"
     additional_class = "first-image" if frame_index == 0 else ""
     div_wrapper = f'<div class="{class_name} {additional_class}" id="comp-{component.id}" >'
-    minio_url = f"http://{MINIO_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
+    minio_url = (
+        f"{MINIO_SCHEME}://{MINIO_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
+    )
     div_wrapper += f'<img src="{minio_url}" alt="Image" />'
-    div_wrapper += '</div>'
+    div_wrapper += "</div>"
 
     return div_wrapper
 
@@ -73,7 +76,8 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         length=len(formatted_html_content),
         content_type="text/html",
     )
-    return f"{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+    return f"{MINIO_SCHEME}://{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+
 
 #################################################################################################################
 ################################################ CSS STYLING ####################################################
@@ -88,6 +92,7 @@ def generate_css_id_block(tag_class: str, rules: dict) -> str:
     css += "}\n"
     return css
 
+
 def generate_css_class_block(tag_id: str, rules: dict) -> str:
     """Helper function to generate CSS blocks dynamically."""
     css = f".{tag_id} {{\n"
@@ -96,6 +101,7 @@ def generate_css_class_block(tag_id: str, rules: dict) -> str:
     css += "}\n"
     return css
 
+
 def generate_left_right_css(tag_id: str, layout: Layout) -> str:
     """Generate CSS for left-right template."""
     left_width = layout.widthLeft if layout.widthLeft else "50%"
@@ -103,39 +109,49 @@ def generate_left_right_css(tag_id: str, layout: Layout) -> str:
     css = ""
 
     # Parent container
-    css += generate_css_id_block(f"page-{tag_id}", {
-        "display": "flex",
-        "justify-content": "space-around",
-        "align-items": "center",
-        "height": "100vh",
-        "background-color": "#fff",
-        "padding-left": "40px",
-        "padding-right": "40px"
-    })
+    css += generate_css_id_block(
+        f"page-{tag_id}",
+        {
+            "display": "flex",
+            "justify-content": "space-around",
+            "align-items": "center",
+            "height": "100vh",
+            "background-color": "#fff",
+            "padding-left": "40px",
+            "padding-right": "40px",
+        },
+    )
 
     # Left section
-    css += generate_css_id_block(f"page-{tag_id}-left", {
-        "display": "flex",
-        "flex-direction": "column",
-        "justify-content": "center",
-        "align-items": "center",
-        "position": "relative",
-        "width": left_width,
-        "height": "100vh"
-    })
+    css += generate_css_id_block(
+        f"page-{tag_id}-left",
+        {
+            "display": "flex",
+            "flex-direction": "column",
+            "justify-content": "center",
+            "align-items": "center",
+            "position": "relative",
+            "width": left_width,
+            "height": "100vh",
+        },
+    )
 
     # Right section
-    css += generate_css_id_block(f"page-{tag_id}-right", {
-        "display": "flex",
-        "flex-direction": "column",
-        "justify-content": "center",
-        "align-items": "center",
-        "position": "relative",
-        "width": right_width,
-        "height": "100vh"
-    })
+    css += generate_css_id_block(
+        f"page-{tag_id}-right",
+        {
+            "display": "flex",
+            "flex-direction": "column",
+            "justify-content": "center",
+            "align-items": "center",
+            "position": "relative",
+            "width": right_width,
+            "height": "100vh",
+        },
+    )
 
     return css
+
 
 def generate_top_bottom_css(page_id: str, layout: Layout) -> str:
     """Generate CSS for top-bottom template."""
@@ -144,50 +160,63 @@ def generate_top_bottom_css(page_id: str, layout: Layout) -> str:
     css = ""
 
     # Parent container
-    css += generate_css_id_block(f"page-{page_id}", {
-        "display": "flex",
-        "flex-direction": "column",
-        "height": "100vh",
-        "background-color": "#fff",
-        "padding-left": "40px",
-        "padding-right": "40px"
-    })
+    css += generate_css_id_block(
+        f"page-{page_id}",
+        {
+            "display": "flex",
+            "flex-direction": "column",
+            "height": "100vh",
+            "background-color": "#fff",
+            "padding-left": "40px",
+            "padding-right": "40px",
+        },
+    )
 
     # Top section
-    css += generate_css_id_block(f"page-{page_id}-top", {
-        "display": "flex",
-        "justify-content": "center",
-        "align-items": "center",
-        "width": "100%",
-        "height": top_height,
-        "background-color": "transparent",
-        "position": "relative"
-    })
+    css += generate_css_id_block(
+        f"page-{page_id}-top",
+        {
+            "display": "flex",
+            "justify-content": "center",
+            "align-items": "center",
+            "width": "100%",
+            "height": top_height,
+            "background-color": "transparent",
+            "position": "relative",
+        },
+    )
 
     # Bottom section
-    css += generate_css_id_block(f"page-{page_id}-bottom", {
-        "display": "flex",
-        "justify-content": "center",
-        "align-items": "center",
-        "width": "100%",
-        "height": bottom_height,
-        "background-color": "transparent",
-        "position": "relative"
-    })
+    css += generate_css_id_block(
+        f"page-{page_id}-bottom",
+        {
+            "display": "flex",
+            "justify-content": "center",
+            "align-items": "center",
+            "width": "100%",
+            "height": bottom_height,
+            "background-color": "transparent",
+            "position": "relative",
+        },
+    )
 
     return css
 
+
 def generate_single_css(page_id: str) -> str:
     """Generate CSS for single template."""
-    return generate_css_id_block(f"page-{page_id}", {
-        "display": "flex",
-        "justify-content": "space-around",
-        "align-items": "center",
-        "height": "100vh",
-        "background-color": "#fff",
-        "padding-left": "40px",
-        "padding-right": "40px"
-    })
+    return generate_css_id_block(
+        f"page-{page_id}",
+        {
+            "display": "flex",
+            "justify-content": "space-around",
+            "align-items": "center",
+            "height": "100vh",
+            "background-color": "#fff",
+            "padding-left": "40px",
+            "padding-right": "40px",
+        },
+    )
 
 
 def inject_pinned_page_css(layout: Layout, page_id: str) -> str:
@@ -210,29 +239,35 @@ def generate_left_right_component_css(page_id: str, first_frame_components: List
     # Assume there is always a pair of text and image in opposing sides
     for component in first_frame_components:
         if component.type == "text":
-            css += generate_css_class_block(f"page-{page_id}-{component.position}-component", {
-                "position": "absolute",
-                "width": "70%",
-                "max-width": "500px",
-                "height": "100%",
-                "text-align": "center",
-                "opacity": "1",
-                "z-index": "1",
-                "background-color": "transparent",
-                "display": "flex",  # Ensure it's a flex container
-                "justify-content": "center",
-                "align-items": "center"
-            })
+            css += generate_css_class_block(
+                f"page-{page_id}-{component.position}-component",
+                {
+                    "position": "absolute",
+                    "width": "70%",
+                    "max-width": "500px",
+                    "height": "100%",
+                    "text-align": "center",
+                    "opacity": "1",
+                    "z-index": "1",
+                    "background-color": "transparent",
+                    "display": "flex",  # Ensure it's a flex container
+                    "justify-content": "center",
+                    "align-items": "center",
+                },
+            )
         else:
-            css += generate_css_class_block(f"page-{page_id}-{component.position}-component", {
-                "position": "absolute",
-                "width": "100%",
-                "height": "100%",
-                "display": "flex",
-                "justify-content": "center",
-                "align-items": "center",
-                "opacity": "1"
-            })
+            css += generate_css_class_block(
+                f"page-{page_id}-{component.position}-component",
+                {
+                    "position": "absolute",
+                    "width": "100%",
+                    "height": "100%",
+                    "display": "flex",
+                    "justify-content": "center",
+                    "align-items": "center",
+                    "opacity": "1",
+                },
+            )
 
     return css
 
@@ -243,42 +278,52 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
     # Assume there is always a pair of text and image in opposing sides
     for component in first_frame_components:
         if component.type == "text":
-            css += generate_css_class_block(f"page-{page_id}-{component.position}-component", {
-                "text-align": "center",
-                "line-height": "1.5",
-                "position": "absolute"
-            })
+            css += generate_css_class_block(
+                f"page-{page_id}-{component.position}-component",
+                {"text-align": "center", "line-height": "1.5", "position": "absolute"},
+            )
         else:
-            css += generate_css_class_block(f"page-{page_id}-{component.position}-component", {
-                "position": "absolute",
-                "width": "100%",
-                "height": "100%",
-                "display": "flex",
-                "justify-content": "center",
-                "align-items": "center",
-                "opacity": "1"
-            })
+            css += generate_css_class_block(
+                f"page-{page_id}-{component.position}-component",
+                {
+                    "position": "absolute",
+                    "width": "100%",
+                    "height": "100%",
+                    "display": "flex",
+                    "justify-content": "center",
+                    "align-items": "center",
+                    "opacity": "1",
+                },
+            )
 
     return css
+
 
 def generate_center_component_css(page_id: str, first_frame_components: List[Component]):
     css = ""
 
-     # Assume there is only one image per frame for each page
+    # Assume there is only one image per frame for each page
     for component in first_frame_components:
         if component.type == "image":
-            css += generate_css_class_block(f"page-{page_id}-center-component", {
-                "position": "absolute",
-            })
+            css += generate_css_class_block(
+                f"page-{page_id}-center-component",
+                {
+                    "position": "absolute",
+                },
+            )
 
             # Set max width to image
-            css += generate_css_class_block(f"page-{page_id}-center-component img", {
-                "width": "800px",
-                "max-width": "100%",
-                "height": "auto",
-            })
+            css += generate_css_class_block(
+                f"page-{page_id}-center-component img",
+                {
+                    "width": "800px",
+                    "max-width": "100%",
+                    "height": "auto",
+                },
+            )
 
     return css
+
 
 # Assumes in left-right / top-bottom template, there will always be one image and one text in either section for each frame
 def inject_component_css(layout: Layout, frames: List[Frame], page_id: str):
@@ -295,6 +340,7 @@ def inject_component_css(layout: Layout, frames: List[Frame], page_id: str):
         return generate_center_component_css(page_id, first_frame_components)
     else:
         return ""
+
 
 def generate_css(article_id: str, styling_content: str) -> None:
     # Load existing CSS content from the template file

@@ -1,14 +1,18 @@
 import { IconSun } from '@tabler/icons-react';
 import { Box, Button, Group, Modal, Stack, Title, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useGenerateWebsite } from '../../hooks/useGenerateWebsite';
+import {
+  useGenerateAndDownloadWebsite,
+  useGenerateAndPreviewWebsite,
+} from '../../hooks/useGenerateWebsite';
 import { useScrollyStore } from '../../store';
 
 const DownloadButton: React.FC = () => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
   const articleId = useScrollyStore((state) => state.articleId);
   const title = useScrollyStore((state) => state.articleTitle);
-  const { mutate: generateWebsite } = useGenerateWebsite();
+  const { mutate: generateAndDownloadWebsite } = useGenerateAndDownloadWebsite();
+  const { mutate: generateAndPreviewWebsite } = useGenerateAndPreviewWebsite();
   const pages = useScrollyStore((state) => state.pages);
 
   return (
@@ -37,7 +41,7 @@ const DownloadButton: React.FC = () => {
                 size="sm"
                 variant="subtle"
                 onClick={() => {
-                  generateWebsite({ articleId, title, pages });
+                  generateAndDownloadWebsite({ articleId, title, pages });
                   close();
                 }}
               >
@@ -46,7 +50,7 @@ const DownloadButton: React.FC = () => {
               <Button
                 size="sm"
                 onClick={() => {
-                  generateWebsite({ articleId, title, pages });
+                  generateAndPreviewWebsite({ articleId, title, pages });
                   close();
                 }}
               >

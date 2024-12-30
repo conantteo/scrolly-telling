@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -14,6 +15,7 @@ from server.utilities.constants import MINIO_CLIENT
 from server.utilities.constants import MINIO_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_PUBLIC_ARTICLE_BUCKET
+from server.utilities.constants import MINIO_SCHEME
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +68,20 @@ def copy_files(
     src_obj: str,
     src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET,
     dest_bucket: str = MINIO_PUBLIC_ARTICLE_BUCKET,
-) -> None:
+) -> str:
+    if IS_LOCAL:
+        return str(Path(LOCAL_OUTPUT_DIR / src_obj / "index.html"))
     objs = MINIO_CLIENT.list_objects(src_bucket, src_obj, True)  # noqa: FBT003
     for obj in objs:
         MINIO_CLIENT.copy_object(dest_bucket, obj.object_name, CopySource(src_bucket, obj.object_name))
+    return f"{MINIO_SCHEME}://{MINIO_ENDPOINT.replace('minio', 'localhost')}/{dest_bucket}/{src_obj}/index.html"
+
+
+def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET) -> str:
+    if not IS_LOCAL:
+        Path.mkdir(LOCAL_OUTPUT_DIR / src_obj, parents=True, exist_ok=True)
+        objs = MINIO_CLIENT.list_objects(src_bucket, src_obj, True)  # noqa: FBT003
+        for obj in objs:
+            MINIO_CLIENT.fget_object(src_bucket, obj.object_name, str(LOCAL_OUTPUT_DIR / obj.object_name))
+    shutil.make_archive(LOCAL_OUTPUT_DIR / src_obj, "zip", LOCAL_OUTPUT_DIR / src_obj)
+    return f"{LOCAL_OUTPUT_DIR / src_obj}.zip"
