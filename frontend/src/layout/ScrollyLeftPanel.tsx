@@ -21,6 +21,7 @@ const ScrollyLeftPanel: React.FC = () => {
             <Center key={element.id}>
               <Tooltip label="Add new page">
                 <Button
+                  size="sm"
                   leftSection={<IconPlus />}
                   onClick={() => onCreateNew(element)}
                   color="blue"

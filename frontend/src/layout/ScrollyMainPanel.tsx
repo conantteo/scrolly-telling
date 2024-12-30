@@ -79,7 +79,7 @@ const ScrollyMainPanel: React.FC = () => {
   return (
     <>
       <Group justify="space-between">
-        <Title order={2}>Showing {pages.length} pages</Title>
+        <Title order={5}>Showing {pages.length} pages</Title>
         <Title order={5}>
           {imageComponents.length} images + {textComponents.length} text content
         </Title>

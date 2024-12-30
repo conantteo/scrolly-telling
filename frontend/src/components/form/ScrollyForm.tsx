@@ -294,7 +294,12 @@ const ScrollyForm: React.FC = () => {
       </Accordion>
       <Box style={{ position: 'fixed', bottom: 0, right: 0, padding: '24px', zIndex: 1 }}>
         <Tooltip label="Click here to save your changes for current page. You can still edit afterwards.">
-          <Button leftSection={<IconDeviceFloppy />} disabled={formHasError} onClick={onSave}>
+          <Button
+            size="sm"
+            leftSection={<IconDeviceFloppy />}
+            disabled={formHasError}
+            onClick={onSave}
+          >
             Save Page
           </Button>
         </Tooltip>

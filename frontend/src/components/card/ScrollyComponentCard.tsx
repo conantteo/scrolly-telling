@@ -48,6 +48,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
       <Button.Group>
         <Tooltip label="Edit this page">
           <Button
+            size="sm"
             onClick={() => {
               setCurrentElementId(id);
             }}
@@ -58,7 +59,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
           </Button>
         </Tooltip>
         <Tooltip label="Delete this page">
-          <Button variant="subtle" color="red" onClick={open}>
+          <Button size="sm" variant="subtle" color="red" onClick={open}>
             Delete
           </Button>
         </Tooltip>
@@ -96,6 +97,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
         title={`Are you sure you want to delete page ${id}? All the frames/components within this page will be removed.`}
       >
         <Button
+          size="sm"
           color="red"
           onClick={() => {
             close();
@@ -105,6 +107,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
           Delete
         </Button>
         <Button
+          size="sm"
           variant="subtle"
           onClick={() => {
             close();

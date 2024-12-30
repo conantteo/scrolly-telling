@@ -26,7 +26,7 @@ const FrameFormLabel: React.FC<FrameFormLabelProps> = ({
       </Group>
     </Accordion.Control>
     {currentFrames.length > 1 ? (
-      <Tooltip label="Delete this frame">
+      <Tooltip label="Delete this frame. Other frames will be unaffected.">
         <ActionIcon size="lg" variant="subtle" color="red">
           <IconTrash onClick={() => onRemoveFrame(frameIndex)} />
         </ActionIcon>
