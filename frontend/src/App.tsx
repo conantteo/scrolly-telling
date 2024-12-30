@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppShell, Flex } from '@mantine/core';
 import DownloadButton from './components/button/DownloadButton';
-import Header from './components/Header';
-import ScrollyLeftPanel from './components/ScrollyLeftPanel';
-import ScrollyMainPanel from './components/ScrollyMainPanel';
-import ScrollyRightPanel from './components/ScrollyRightPanel';
+import Header from './layout/Header';
+import ScrollyLeftPanel from './layout/ScrollyLeftPanel';
+import ScrollyMainPanel from './layout/ScrollyMainPanel';
+import ScrollyRightPanel from './layout/ScrollyRightPanel';
 import { useScrollyStore } from './store';
 
 const App: React.FC = () => {

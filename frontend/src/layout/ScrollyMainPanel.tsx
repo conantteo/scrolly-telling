@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Box, Card, Group, Space, Stack, Title } from '@mantine/core';
+import CardBody from '../components/card/CardBody';
+import CardLabel from '../components/card/CardLabel';
+import ScrollyComponentDisplay from '../components/card/ScrollyComponentDisplay';
 import { useScrollyStore } from '../store';
 import { LEFT_RIGHT, ScrollyComponent, ScrollyFrame, ScrollyPage, TOP_BOTTOM } from '../types';
-import CardBody from './card/CardBody';
-import CardLabel from './card/CardLabel';
-import ScrollyComponentDisplay from './card/ScrollyComponentDisplay';
 
 const LEFT_RIGHT_ORDER_MAP = {
   left: 0,

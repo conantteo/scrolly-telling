@@ -1,9 +1,9 @@
 import { IconPlus } from '@tabler/icons-react';
 import _ from 'lodash';
 import { Box, Button, Center, Tooltip } from '@mantine/core';
+import ScrollyComponentCard from '../components/card/ScrollyComponentCard';
 import { useScrollyStore } from '../store';
 import { ScrollyContainerElementProps } from '../types';
-import ScrollyComponentCard from './card/ScrollyComponentCard';
 
 const ScrollyLeftPanel: React.FC = () => {
   const elements = useScrollyStore((state) => state.elements);
