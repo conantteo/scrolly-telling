@@ -16,8 +16,12 @@ export type ScrollyPage = {
   frames: ScrollyFrame[];
 };
 
+export const LEFT_RIGHT = 'left-right';
+export const TOP_BOTTOM = 'top-bottom';
+export const SINGLE = 'single';
+
 export type ScrollyLayout = {
-  template: 'left-right' | 'top-bottom' | 'single';
+  template: typeof LEFT_RIGHT | typeof TOP_BOTTOM | typeof SINGLE;
 };
 
 export type ScrollyFrame = {

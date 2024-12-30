@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import { Box, Card, Group, Space, Stack, Title } from '@mantine/core';
 import { useScrollyStore } from '../store';
-import { ScrollyComponent, ScrollyFrame, ScrollyPage } from '../types';
+import { LEFT_RIGHT, ScrollyComponent, ScrollyFrame, ScrollyPage, TOP_BOTTOM } from '../types';
 import CardBody from './card/CardBody';
 import CardLabel from './card/CardLabel';
 import ScrollyComponentDisplay from './card/ScrollyComponentDisplay';
@@ -27,9 +27,9 @@ const ScrollyMainPanel: React.FC = () => {
 
   const reorderComponents = (components: ScrollyComponent[], layoutTemplate: string) => {
     let orderMap: { [key: string]: number } = {};
-    if (layoutTemplate === 'left-right') {
+    if (layoutTemplate === LEFT_RIGHT) {
       orderMap = LEFT_RIGHT_ORDER_MAP;
-    } else if (layoutTemplate === 'top-bottom') {
+    } else if (layoutTemplate === TOP_BOTTOM) {
       orderMap = TOP_BOTTOM_ORDER_MAP;
     } else {
       orderMap = SINGLE_ORDER_MAP;
@@ -41,7 +41,7 @@ const ScrollyMainPanel: React.FC = () => {
 
   const renderFrame = (frame: ScrollyFrame, layoutTemplate: string) => {
     const components = reorderComponents(frame.components, layoutTemplate);
-    return layoutTemplate === 'top-bottom' ? (
+    return layoutTemplate === TOP_BOTTOM ? (
       <Stack align="stretch" justify="center" gap="xs">
         {components.map((component, componentIndex) => (
           <ScrollyComponentDisplay key={componentIndex} component={component} />

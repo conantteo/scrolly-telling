@@ -16,25 +16,28 @@ import {
 } from '@mantine/core';
 import { useScrollyStore } from '../../store';
 import {
+  LEFT_RIGHT,
   ScrollyComponent,
   ScrollyContainerElementProps,
   ScrollyFrame,
   ScrollyPage,
+  SINGLE,
+  TOP_BOTTOM,
 } from '../../types';
 import FrameFormLabel from './FrameFormLabel';
 import ScrollyComponentForm from './ScrollyComponentForm';
 
-const PINNABLE_LAYOUTS = ['single', 'left-right', 'top-bottom'];
-const DEFAULT_LAYOUTS = ['single'];
+const PINNABLE_LAYOUTS = [SINGLE, LEFT_RIGHT, TOP_BOTTOM];
+const DEFAULT_LAYOUTS = [SINGLE];
 
-const LEFT_RIGHT_TEMPLATE = ['left', 'right'] as const;
-const TOP_BOTTOM_TEMPLATE = ['top', 'bottom'] as const;
-const SINGLE_TEMPLATE = ['center'] as const;
+const LEFT_RIGHT_TEMPLATE_ORDER = ['left', 'right'] as const;
+const TOP_BOTTOM_TEMPLATE_ORDER = ['top', 'bottom'] as const;
+const SINGLE_TEMPLATE_ORDER = ['center'] as const;
 
 const LAYOUT_TEMPLATES = {
-  'left-right': LEFT_RIGHT_TEMPLATE,
-  'top-bottom': TOP_BOTTOM_TEMPLATE,
-  single: SINGLE_TEMPLATE,
+  [LEFT_RIGHT]: LEFT_RIGHT_TEMPLATE_ORDER,
+  [TOP_BOTTOM]: TOP_BOTTOM_TEMPLATE_ORDER,
+  [SINGLE]: SINGLE_TEMPLATE_ORDER,
 };
 
 const DEFAULT_ANIMATION_FORM_DATA = 'fade';
@@ -54,15 +57,17 @@ const ScrollyForm: React.FC = () => {
     isNew: true,
   };
 
+  const UNASSIGNED_ID = `-1`;
+
   const DEFAULT_COMPONENT_FORM_DATA: ScrollyComponent = {
-    id: `-1`,
+    id: UNASSIGNED_ID,
     type: 'text',
     position: LAYOUT_TEMPLATES.single[0],
     animation: DEFAULT_ANIMATION_FORM_DATA,
   };
 
   const DEFAULT_FRAME_FORM_DATA_FOR_LEFT_RIGHT: ScrollyFrame = {
-    id: `-1`,
+    id: UNASSIGNED_ID,
     components: [
       { ...DEFAULT_COMPONENT_FORM_DATA, position: 'left' },
       { ...DEFAULT_COMPONENT_FORM_DATA, position: 'right' },
@@ -70,7 +75,7 @@ const ScrollyForm: React.FC = () => {
   };
 
   const DEFAULT_FRAME_FORM_DATA_FOR_TOP_BOTTOM: ScrollyFrame = {
-    id: `-1`,
+    id: UNASSIGNED_ID,
     components: [
       { ...DEFAULT_COMPONENT_FORM_DATA, position: 'top' },
       { ...DEFAULT_COMPONENT_FORM_DATA, position: 'bottom' },
@@ -78,12 +83,7 @@ const ScrollyForm: React.FC = () => {
   };
 
   const DEFAULT_FRAME_FORM_DATA_FOR_SINGLE: ScrollyFrame = {
-    id: `-1`,
-    components: [DEFAULT_COMPONENT_FORM_DATA],
-  };
-
-  const DEFAULT_PINNED_FRAME_FORM_DATA: ScrollyFrame = {
-    id: `-1`,
+    id: UNASSIGNED_ID,
     components: [DEFAULT_COMPONENT_FORM_DATA],
   };
 
@@ -91,7 +91,7 @@ const ScrollyForm: React.FC = () => {
     id: currentElement.id,
     pinnable: false,
     layout: {
-      template: 'single',
+      template: SINGLE,
     },
     frames: [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE],
   };
@@ -145,10 +145,12 @@ const ScrollyForm: React.FC = () => {
 
   const onNextFrame = () => {
     const updatedPage = _.cloneDeep(modifiedPage);
-    if (updatedPage.layout.template === 'single') {
-      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA_FOR_SINGLE);
+    if (updatedPage.layout.template === LEFT_RIGHT) {
+      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA_FOR_LEFT_RIGHT);
+    } else if (updatedPage.layout.template === TOP_BOTTOM) {
+      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA_FOR_TOP_BOTTOM);
     } else {
-      updatedPage.frames.push(DEFAULT_PINNED_FRAME_FORM_DATA);
+      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA_FOR_SINGLE);
     }
     setModifiedPage(updatedPage);
     setCurrentFrameId(updatedPage.frames.length - 1);
@@ -157,17 +159,17 @@ const ScrollyForm: React.FC = () => {
   const onPinnedValueChanged = (value: string) => {
     const updatedPage = _.cloneDeep(modifiedPage);
     if (value === 'yes') {
-      updatedPage.frames = [DEFAULT_PINNED_FRAME_FORM_DATA];
+      updatedPage.frames = [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE];
       setModifiedPage({
         ...updatedPage,
         pinnable: true,
         layout: {
-          template: 'single',
+          template: SINGLE,
         },
       });
     } else {
       updatedPage.frames = [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE];
-      setModifiedPage({ ...updatedPage, pinnable: false, layout: { template: 'single' } });
+      setModifiedPage({ ...updatedPage, pinnable: false, layout: { template: SINGLE } });
     }
   };
 
@@ -212,13 +214,13 @@ const ScrollyForm: React.FC = () => {
         value={modifiedPage.layout.template ?? ''}
         onChange={(value) => {
           const updatedPage = _.cloneDeep(modifiedPage);
-          if (value === 'top-bottom') {
+          if (value === TOP_BOTTOM) {
             setModifiedPage({
               ...updatedPage,
               frames: [DEFAULT_FRAME_FORM_DATA_FOR_TOP_BOTTOM],
               layout: { ...updatedPage.layout, template: value },
             });
-          } else if (value === 'left-right' || value === 'top-bottom') {
+          } else if (value === LEFT_RIGHT) {
             setModifiedPage({
               ...updatedPage,
               frames: [DEFAULT_FRAME_FORM_DATA_FOR_LEFT_RIGHT],
@@ -230,7 +232,7 @@ const ScrollyForm: React.FC = () => {
               frames: [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE],
               layout: {
                 ...updatedPage.layout,
-                template: 'single',
+                template: SINGLE,
               },
             });
           }

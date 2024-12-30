@@ -54,7 +54,6 @@ const App: React.FC = () => {
         style={{
           overflowY: 'scroll',
           overflowX: 'hidden',
-          scrollbarWidth: 'none',
         }}
       >
         <ScrollyRightPanel />
