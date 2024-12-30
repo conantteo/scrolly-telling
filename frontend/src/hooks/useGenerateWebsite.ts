@@ -14,13 +14,16 @@ interface PostWebsiteResponse {
   url: string;
 }
 
-const setIdInData = (data: PostWebsiteRequest) => {
+const setDataForServer = (data: PostWebsiteRequest) => {
   const updatedData = _.cloneDeep(data);
   const updatedDataWithId = updatedData.pages.map((page, pageIndex) => {
     const updatedPage = page.frames.map((frame, frameIndex) => {
       const updatedFrame = frame.components.map((component, componentIndex) => ({
         ...component,
         id: `${pageIndex}-${frameIndex}-${componentIndex}`,
+        animation: component.animation?.type,
+        image: component.type === 'image' ? component.metadata?.file : null,
+        contentHtml: component.type === 'text' ? component.metadata?.htmlContent : null,
       }));
       return { ...updatedFrame, id: `${pageIndex}-${frameIndex}` };
     });
@@ -32,7 +35,7 @@ const setIdInData = (data: PostWebsiteRequest) => {
 export const useGenerateWebsite = () => {
   return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
-      const dataForPost = setIdInData(data);
+      const dataForPost = setDataForServer(data);
       const response = await axios.post<PostWebsiteResponse>(
         'http://localhost:8001/api/generate-website',
         dataForPost
