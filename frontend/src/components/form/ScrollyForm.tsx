@@ -61,7 +61,23 @@ const ScrollyForm: React.FC = () => {
     animation: DEFAULT_ANIMATION_FORM_DATA,
   };
 
-  const DEFAULT_FRAME_FORM_DATA: ScrollyFrame = {
+  const DEFAULT_FRAME_FORM_DATA_FOR_LEFT_RIGHT: ScrollyFrame = {
+    id: `-1`,
+    components: [
+      { ...DEFAULT_COMPONENT_FORM_DATA, position: 'left' },
+      { ...DEFAULT_COMPONENT_FORM_DATA, position: 'right' },
+    ],
+  };
+
+  const DEFAULT_FRAME_FORM_DATA_FOR_TOP_BOTTOM: ScrollyFrame = {
+    id: `-1`,
+    components: [
+      { ...DEFAULT_COMPONENT_FORM_DATA, position: 'top' },
+      { ...DEFAULT_COMPONENT_FORM_DATA, position: 'bottom' },
+    ],
+  };
+
+  const DEFAULT_FRAME_FORM_DATA_FOR_SINGLE: ScrollyFrame = {
     id: `-1`,
     components: [DEFAULT_COMPONENT_FORM_DATA],
   };
@@ -77,7 +93,7 @@ const ScrollyForm: React.FC = () => {
     layout: {
       template: 'single',
     },
-    frames: [DEFAULT_FRAME_FORM_DATA],
+    frames: [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE],
   };
 
   const [currentFrameId, setCurrentFrameId] = useState(0);
@@ -130,7 +146,7 @@ const ScrollyForm: React.FC = () => {
   const onNextFrame = () => {
     const updatedPage = _.cloneDeep(modifiedPage);
     if (updatedPage.layout.template === 'single') {
-      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA);
+      updatedPage.frames.push(DEFAULT_FRAME_FORM_DATA_FOR_SINGLE);
     } else {
       updatedPage.frames.push(DEFAULT_PINNED_FRAME_FORM_DATA);
     }
@@ -150,7 +166,7 @@ const ScrollyForm: React.FC = () => {
         },
       });
     } else {
-      updatedPage.frames = [DEFAULT_FRAME_FORM_DATA];
+      updatedPage.frames = [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE];
       setModifiedPage({ ...updatedPage, pinnable: false, layout: { template: 'single' } });
     }
   };
@@ -196,15 +212,26 @@ const ScrollyForm: React.FC = () => {
         value={modifiedPage.layout.template ?? ''}
         onChange={(value) => {
           const updatedPage = _.cloneDeep(modifiedPage);
-          if (value === 'left-right' || value === 'top-bottom' || value === 'single') {
+          if (value === 'top-bottom') {
             setModifiedPage({
               ...updatedPage,
+              frames: [DEFAULT_FRAME_FORM_DATA_FOR_TOP_BOTTOM],
+              layout: { ...updatedPage.layout, template: value },
+            });
+          } else if (value === 'left-right' || value === 'top-bottom') {
+            setModifiedPage({
+              ...updatedPage,
+              frames: [DEFAULT_FRAME_FORM_DATA_FOR_LEFT_RIGHT],
               layout: { ...updatedPage.layout, template: value },
             });
           } else {
             setModifiedPage({
               ...updatedPage,
-              layout: { ...updatedPage.layout, template: 'single' },
+              frames: [DEFAULT_FRAME_FORM_DATA_FOR_SINGLE],
+              layout: {
+                ...updatedPage.layout,
+                template: 'single',
+              },
             });
           }
         }}
