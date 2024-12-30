@@ -1,21 +1,31 @@
 import logging
+from typing import Annotated
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi import Form
 from fastapi import UploadFile
 from fastapi import status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
 from server.parser import process_pages
-from server.utilities.utils import copy_files
 from server.utilities.utils import stage_file
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ScrollyTelling server", version="0.0.1")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post(
@@ -27,7 +37,7 @@ app = FastAPI(title="ScrollyTelling server", version="0.0.1")
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
     },
 )
-async def upload_image(file: UploadFile, article_id: str) -> JSONResponse:
+async def upload_image(file: UploadFile, article_id: Annotated[str, Form()]) -> JSONResponse:
     try:
         path = stage_file(article_id, file.file, file.filename, file.size, file.content_type)
         logger.info({"message": f"{file.filename} uploaded successfully", "path": path})

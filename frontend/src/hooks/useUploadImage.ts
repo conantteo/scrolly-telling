@@ -14,7 +14,7 @@ type UploadImageResponse = {
 const uploadImage = async ({ articleId, file }: UploadImageRequest) => {
   const formData = new FormData();
 
-  formData.append('articleId', articleId);
+  formData.append('article_id', articleId);
   formData.append('file', file);
 
   const response = await axios.post<UploadImageResponse>(
