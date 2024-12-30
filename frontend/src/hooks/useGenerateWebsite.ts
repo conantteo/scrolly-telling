@@ -21,6 +21,8 @@ const setIdInData = (data: PostWebsiteRequest) => {
       const updatedFrame = frame.components.map((component, componentIndex) => ({
         ...component,
         id: `${pageIndex}-${frameIndex}-${componentIndex}`,
+        image: component.type === 'image' ? component.metadata?.image : undefined,
+        htmlContent: component.type === 'text' ? component.metadata?.htmlContent : undefined,
       }));
       return { ...updatedFrame, id: `${pageIndex}-${frameIndex}` };
     });

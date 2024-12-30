@@ -175,8 +175,8 @@ const ScrollyForm: React.FC = () => {
       </Group>
       <Box>
         <Radio.Group
-          label="Do you want to pin multiple frames on the same page?"
-          description="Frames are content shown sequentially as you scroll. Having multiple frames pinned together will make it look as though all the content are animated on the same page."
+          label="Add multiple frames to this page for scrolly content?"
+          description="Stack multiple frames to create scrolly content."
           value={modifiedPage.pinnable ? 'yes' : 'no'}
           onChange={onPinnedValueChanged}
         >
