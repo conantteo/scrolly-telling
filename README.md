@@ -270,3 +270,6 @@ All the files will be output in a local directory under `server/output`. Refer t
 ## License
 
 Distributed under the MIT License. See `LICENSE` file for more information.
+
+## Bugs
+1. On edit, text disappeared

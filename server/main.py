@@ -4,18 +4,26 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi import UploadFile
 from fastapi import status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
 from server.parser import process_pages
-from server.utilities.utils import copy_files
 from server.utilities.utils import stage_file
 
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ScrollyTelling server", version="0.0.1")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.post(
