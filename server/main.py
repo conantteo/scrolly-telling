@@ -1,7 +1,9 @@
 import logging
+from typing import Annotated
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi import Form
 from fastapi import UploadFile
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,7 +37,7 @@ app.add_middleware(
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
     },
 )
-async def upload_image(file: UploadFile, article_id: str) -> JSONResponse:
+async def upload_image(file: UploadFile, article_id: Annotated[str, Form()]) -> JSONResponse:
     try:
         path = stage_file(article_id, file.file, file.filename, file.size, file.content_type)
         logger.info({"message": f"{file.filename} uploaded successfully", "path": path})
