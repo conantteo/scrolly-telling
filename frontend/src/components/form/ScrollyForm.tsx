@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { IconDeviceFloppy, IconPlaylistAdd } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconPlaylistAdd, IconX } from '@tabler/icons-react';
 import _ from 'lodash';
 import {
   Accordion,
+  ActionIcon,
   Box,
   Button,
   Divider,
@@ -181,15 +182,25 @@ const ScrollyForm: React.FC = () => {
             ? `Create new page`
             : `Edit page ${_.toNumber(currentElementId) + 1}`}
         </Title>
-        {modifiedPage.pinnable ? (
-          <Box>
+        <Group>
+          {modifiedPage.pinnable ? (
             <Tooltip label="Add multiple frames to one page to view them sequentially">
-              <Button leftSection={<IconPlaylistAdd />} color="teal" onClick={onNextFrame}>
+              <Button
+                size="xs"
+                leftSection={<IconPlaylistAdd />}
+                color="teal"
+                onClick={onNextFrame}
+              >
                 Add Frame
               </Button>
             </Tooltip>
-          </Box>
-        ) : null}
+          ) : null}
+          <Tooltip label="Close this form without saving">
+            <ActionIcon size="lg" variant="subtle" color="red">
+              <IconX onClick={() => setCurrentElementId(null)} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
       </Group>
       <Box>
         <Radio.Group

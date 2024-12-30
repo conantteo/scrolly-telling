@@ -20,6 +20,8 @@ interface ScrollyState {
   setScrollyFocusElement: (component: ScrollyComponent | null) => void;
   articleId: string;
   setArticleId: (id: string) => void;
+  articleTitle: string;
+  setArticleTitle: (id: string) => void;
 }
 
 const INITIAL_COMPONENT: ScrollyContainerElementProps = {
@@ -29,10 +31,18 @@ const INITIAL_COMPONENT: ScrollyContainerElementProps = {
 
 export const useScrollyStore = create<ScrollyState>((set) => ({
   articleId: '',
+  articleTitle: '',
   elements: [INITIAL_COMPONENT],
   pages: [],
   currentElementId: null,
   currentScrollyFocusElement: null,
+  setArticleTitle: (title) => {
+    set(() => {
+      return {
+        articleTitle: title,
+      };
+    });
+  },
   setArticleId: (id) => {
     set(() => {
       return {

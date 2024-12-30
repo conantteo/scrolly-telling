@@ -1,5 +1,5 @@
 import { IconTrash } from '@tabler/icons-react';
-import { Accordion, ActionIcon, Center, Group, Text } from '@mantine/core';
+import { Accordion, ActionIcon, Center, Group, Text, Tooltip } from '@mantine/core';
 import { ScrollyFrame } from '../../types';
 
 interface FrameFormLabelProps {
@@ -26,9 +26,11 @@ const FrameFormLabel: React.FC<FrameFormLabelProps> = ({
       </Group>
     </Accordion.Control>
     {currentFrames.length > 1 ? (
-      <ActionIcon size="lg" variant="subtle" color="red">
-        <IconTrash onClick={() => onRemoveFrame(frameIndex)} />
-      </ActionIcon>
+      <Tooltip label="Delete this frame">
+        <ActionIcon size="lg" variant="subtle" color="red">
+          <IconTrash onClick={() => onRemoveFrame(frameIndex)} />
+        </ActionIcon>
+      </Tooltip>
     ) : null}
   </Center>
 );

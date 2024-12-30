@@ -1,6 +1,7 @@
 import { FC } from 'react';
+import { IconInfoSquare } from '@tabler/icons-react';
 import _ from 'lodash';
-import { Button, Card, Center, Modal } from '@mantine/core';
+import { Box, Button, Card, Center, Modal, Stack, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useScrollyStore } from '../../store';
 import CardBody from './CardBody';
@@ -16,6 +17,12 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   const setCurrentElementId = useScrollyStore((state) => state.setCurrentElementId);
   const removeElement = useScrollyStore((state) => state.removeElement);
   const isCurrent = currentElementId === id;
+  const pages = useScrollyStore((state) => state.pages);
+  const pageItem = pages[_.toNumber(id)];
+  const frames = pageItem.frames;
+  const components = frames.flatMap((frame) => frame.components || []);
+  const imageComponents = components.filter((component) => component.type === 'image');
+  const textComponents = components.filter((component) => component.type === 'text');
 
   const getGradient = () => {
     if (isCurrent) {
@@ -39,18 +46,22 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   const cardDisplay = (
     <Center mt={8}>
       <Button.Group>
-        <Button
-          onClick={() => {
-            setCurrentElementId(id);
-          }}
-          variant="gradient"
-          gradient={getGradient()}
-        >
-          Edit
-        </Button>
-        <Button variant="subtle" color="red" onClick={open}>
-          Delete
-        </Button>
+        <Tooltip label="Edit this page">
+          <Button
+            onClick={() => {
+              setCurrentElementId(id);
+            }}
+            variant="gradient"
+            gradient={getGradient()}
+          >
+            Edit
+          </Button>
+        </Tooltip>
+        <Tooltip label="Delete this page">
+          <Button variant="subtle" color="red" onClick={open}>
+            Delete
+          </Button>
+        </Tooltip>
       </Button.Group>
     </Center>
   );
@@ -58,13 +69,31 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
     <>
       <Card withBorder shadow="xl">
         <CardLabel label={`Page ${_.toNumber(id) + 1}`} />
+        <CardLabel
+          label={
+            <Tooltip
+              label={
+                <Stack gap={0}>
+                  <Box>{frames.length} Frame(s)</Box>
+                  <Box>{textComponents.length} Text(s)</Box>
+                  <Box>{imageComponents.length} Image(s)</Box>
+                </Stack>
+              }
+              position="right"
+            >
+              <IconInfoSquare />
+            </Tooltip>
+          }
+          position="right"
+          background={false}
+        />
         <CardBody>{cardDisplay}</CardBody>
       </Card>
       <Modal
         centered
         opened={isModalOpened}
         onClose={close}
-        title={`Are you sure you want to delete frame ${id}? All the components within this frame will be removed.`}
+        title={`Are you sure you want to delete page ${id}? All the frames/components within this page will be removed.`}
       >
         <Button
           color="red"

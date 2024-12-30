@@ -3,12 +3,9 @@ import { Box, Button, Tooltip } from '@mantine/core';
 import { useGenerateWebsite } from '../../hooks/useGenerateWebsite';
 import { useScrollyStore } from '../../store';
 
-interface DownloadButtonProps {
-  articleId: string;
-  title: string;
-}
-
-const DownloadButton: React.FC<DownloadButtonProps> = ({ articleId, title }) => {
+const DownloadButton: React.FC = () => {
+  const articleId = useScrollyStore((state) => state.articleId);
+  const title = useScrollyStore((state) => state.articleTitle);
   const { mutate: generateWebsite } = useGenerateWebsite();
   const pages = useScrollyStore((state) => state.pages);
 

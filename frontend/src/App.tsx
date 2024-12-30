@@ -9,7 +9,6 @@ import ScrollyRightPanel from './components/ScrollyRightPanel';
 import { useScrollyStore } from './store';
 
 const App: React.FC = () => {
-  const articleId = useScrollyStore((state) => state.articleId);
   const setArticleId = useScrollyStore((state) => state.setArticleId);
 
   useEffect(() => {
@@ -25,8 +24,8 @@ const App: React.FC = () => {
     >
       <AppShell.Header>
         <Flex justify="space-between" align="center" h="100%" ml={24} mr={24}>
-          <Header articleId={articleId} />
-          <DownloadButton articleId={articleId} title="default" />
+          <Header />
+          <DownloadButton />
         </Flex>
       </AppShell.Header>
       <AppShell.Navbar

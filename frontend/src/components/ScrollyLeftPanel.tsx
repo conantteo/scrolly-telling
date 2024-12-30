@@ -1,6 +1,6 @@
 import { IconPlus } from '@tabler/icons-react';
 import _ from 'lodash';
-import { Box, Button, Center } from '@mantine/core';
+import { Box, Button, Center, Tooltip } from '@mantine/core';
 import { useScrollyStore } from '../store';
 import { ScrollyContainerElementProps } from '../types';
 import ScrollyComponentCard from './card/ScrollyComponentCard';
@@ -19,9 +19,15 @@ const ScrollyLeftPanel: React.FC = () => {
         if (element.isNew) {
           return (
             <Center key={element.id}>
-              <Button leftSection={<IconPlus />} onClick={() => onCreateNew(element)} color="blue">
-                New
-              </Button>
+              <Tooltip label="Add new page">
+                <Button
+                  leftSection={<IconPlus />}
+                  onClick={() => onCreateNew(element)}
+                  color="blue"
+                >
+                  New
+                </Button>
+              </Tooltip>
             </Center>
           );
         }
