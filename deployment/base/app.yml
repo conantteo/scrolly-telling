@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: scrollytelling-app
+    component: app
+  name: scrollytelling-app
+  namespace: scrollytelling
+spec:
+  ports:
+  - port: 8001
+    name: server
+    protocol: TCP
+  - port: 5173
+    name: http
+    protocol: TCP
+  selector:
+    app: scrollytelling-app
+    component: app
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: scrollytelling-app
+    component: app
+  name: scrollytelling-app
+  namespace: scrollytelling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scrollytelling-app
+      component: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+    type: RollingUpdate
+  template:
+    metadata:
+     labels:
+       app: scrollytelling-app
+       component: app
+    spec:
+      containers:
+        - name: scrollytelling-app
+          imagePullPolicy: Always
+          image: ${CI_REGISTRY}/${CI_PROJECT_PATH}/scrollytelling:latest
+          ports:
+            - containerPort: 8001
+              name: server
+            - containerPort: 5173
+              name: http
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "4096Mi"
+            limits:
+              cpu: 1000m
+              memory: "4096Mi"
+              

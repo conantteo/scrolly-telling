@@ -72,17 +72,20 @@
 .deploy_template:
   stage: deploy
   image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/alpine/k8s:1.21.2
-#  before_script:
-#    - *secrets_variable_check_script
-#    - *set_kubectl_context
+  variables:
+    NAMESPACE: scrollytelling
   script:
-    - echo "Deploying ${APP_ENV}"
-#    - *create_configmaps
-#    - *create_secrets
-    - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/rapid/base/app.yaml
-    - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/rapid/base/ui.yaml
-    - kubectl -n $NAMESPACE apply -k $CI_PROJECT_DIR/deployment/rapid/${NETWORK}/${APP_ENV}
-    - kubectl -n $NAMESPACE rollout restart deployment backend frontend
-    - kubectl -n $NAMESPACE rollout status deployment backend
-    - kubectl -n $NAMESPACE rollout status deployment frontend
+    - echo ${KUBECONFIG:?} > /dev/null
+    - echo ${NAMESPACE:?} | grep -vq '[[:space:]]'
+    - find ${CI_PROJECT_DIR}/deployment -type f -name "*.yaml" -exec sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" "{}" \;
+    # - kubectl create secret docker-registry gitlab-registry
+    #   --docker-server=${CI_REGISTRY}
+    #   --docker-username="${CI_REGISTRY_USER:?}"
+    #   --docker-password="${CI_REGISTRY_PASSWORD:?}"
+    #   -o yaml --dry-run=client | kubectl -n ${NAMESPACE} apply -f -
+
+    # - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/base/ui.yaml
+    - kubectl -n $NAMESPACE apply -k ${CI_PROJECT_DIR}/deployment/${NETWORK_DOMAIN}
+    - kubectl -n "${NAMESPACE}" rollout restart deployment/scrollytelling-app
+    - kubectl -n $NAMESPACE rollout status deployment scrollytelling-app
 

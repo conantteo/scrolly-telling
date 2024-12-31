@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: scrollytelling
+  name: scrollytelling-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  labels:
+    app: scrollytelling-app-ingress
+  
+spec:
+  rules:
+    - host: scrollytelling.app.${NETWORK_DOMAIN}
+      http:
+        paths:
+          - backend:
+              service:
+                name: scrollytelling-app
+                port:
+                  number: 5173
+            path: /
+            pathType: Prefix
+          - backend:
+              service:
+                name: scrollytelling-app
+                port:
+                  number: 8001
+            path: /docs
+            pathType: Prefix
+  tls:
+    - hosts:
+        - scrollytelling.app.${NETWORK_DOMAIN}
+      secretName: scrollytelling-app-cert
