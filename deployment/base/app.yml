@@ -69,10 +69,3 @@ spec:
               value: "https"
             - name: S3_ENDPOINT
               value: "scrollytelling-minio.app.${NETWORK_DOMAIN}"
-          resources:
-            requests:
-              cpu: "1000m"
-              memory: "8196Mi"
-            limits:
-              cpu: 1000m
-              memory: "8196Mi"
