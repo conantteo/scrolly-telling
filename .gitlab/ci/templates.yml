@@ -77,7 +77,7 @@
   script:
     - echo ${KUBECONFIG:?} > /dev/null
     - echo ${NAMESPACE:?} | grep -vq '[[:space:]]'
-    - find ${CI_PROJECT_DIR}/deployment -type f -name "*.yaml" -exec sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" "{}" \;
+    - find ${CI_PROJECT_DIR}/deployment -type f -name "*.yml" -exec sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" "{}" \;
     # - kubectl create secret docker-registry gitlab-registry
     #   --docker-server=${CI_REGISTRY}
     #   --docker-username="${CI_REGISTRY_USER:?}"
