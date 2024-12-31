@@ -46,7 +46,7 @@ spec:
       containers:
         - name: scrollytelling-app
           imagePullPolicy: Always
-          image: registry.git.${NETWORK_DOMAIN}/ScrollyTelly/scrolly-telling/scrollytelling:latest
+          image: registry.git.${NETWORK_DOMAIN}/scrollytelly/scrolly-telling/scrollytelling:latest
           ports:
             - containerPort: 8001
               name: server
@@ -72,7 +72,7 @@ spec:
           resources:
             requests:
               cpu: "1000m"
-              memory: "4096Mi"
+              memory: "8196Mi"
             limits:
               cpu: 1000m
-              memory: "4096Mi"
+              memory: "8196Mi"
