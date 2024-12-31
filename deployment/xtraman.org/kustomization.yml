@@ -4,7 +4,7 @@ resources:
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 patches:
-  - path: patch_ingress.yaml
+  - path: patch_ingress.yml
     target:
       group: networking.k8s.io
       kind: Ingress
