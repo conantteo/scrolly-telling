@@ -1,7 +1,9 @@
-FROM node:23-alpine3.19
+FROM node:22-bookworm
 
 # RUN apk add --update --no-cache python3=3.12 python3-pip
-RUN apk add --no-cache python3 py3-pip && ln -sf python3 /usr/bin/python
+RUN apt-get update
+RUN apt-get upgrade
+RUN apt-get install -y python3 python3-pip python3-venv && ln -sf python3 /usr/bin/python
 # RUN python3 -m ensurepip
 RUN python3 -m venv /opt/venv
 RUN /opt/venv/bin/pip3 install --no-cache --upgrade pip setuptools
@@ -29,6 +31,7 @@ ENV FLASK_ENV=development
 
 WORKDIR /app
 
+RUN apt-get install dos2unix
 RUN dos2unix entrypoint.sh
 
 CMD ./entrypoint.sh
