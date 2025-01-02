@@ -168,7 +168,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         label="Choose an animation"
         placeholder="Select an animation"
         description="Animation affects how your content will appear on the screen"
-        data={animationOptions}
+        data={animationOptions['animation-options']}
         searchable
         value={component.animation}
         onChange={(value) => {
