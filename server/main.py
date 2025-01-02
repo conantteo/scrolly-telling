@@ -12,43 +12,46 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import HTMLResponse
 
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
 from server.model.script.animation.animation_script_factory import AnimationScriptFactory
 from server.parser import process_pages
+from server.utilities.constants import CDN_URL
+from server.utilities.constants import IS_LOCAL
 from server.utilities.utils import copy_files
 from server.utilities.utils import download_files
 from server.utilities.utils import stage_file
-from server.utilities.constants import CDN_URL
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="ScrollyTelling server", 
-              version="0.0.1", 
-              docs_url=None,  # disable so that our override (below) will work
-              redoc_url=None,  # disable
-              root_path="/api"
+app = FastAPI(
+    title="ScrollyTelling server",
+    version="0.0.1",
+    docs_url=None,  # disable so that our override (below) will work
+    redoc_url=None,  # disable
+    root_path="/api",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:4173", "http://localhost:4174"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
-@app.get('/docs', include_in_schema=False)
-async def custom_docs():
+@app.get("/docs", include_in_schema=False)
+async def custom_docs() -> HTMLResponse:
+    if IS_LOCAL:
+        return get_swagger_ui_html(
+            openapi_url=app.openapi_url,
+            title=app.title,
+            swagger_favicon_url="/static/logo.png",  # this can also be '/static/favicon.ico'
+        )
     return get_swagger_ui_html(
-        openapi_url=f"/api{app.openapi_url}",
+        openapi_url=app.openapi_url,
         title=app.title,
         # warning: newer versions of swagger require chrome>=93
-        swagger_js_url=f'{CDN_URL}/cdn.jsdelivr.net/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js',
-        swagger_css_url=f'{CDN_URL}/cdn.jsdelivr.net/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css',
-        swagger_favicon_url='/static/logo.png',  # this can also be '/static/favicon.ico'
+        swagger_js_url=f"{CDN_URL}/cdn.jsdelivr.net/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js",
+        swagger_css_url=f"{CDN_URL}/cdn.jsdelivr.net/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css",
+        swagger_favicon_url="/static/logo.png",  # this can also be '/static/favicon.ico'
     )
 
 
@@ -88,6 +91,7 @@ async def get_animation_options() -> str:
         },
         status_code=status.HTTP_201_CREATED,
     )
+
 
 @app.post(
     "/generate-website",
@@ -137,6 +141,8 @@ async def generate_website(request_body: Article, is_download: bool) -> Union[Fi
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
+
+app.mount("/", StaticFiles(directory="frontend/dist/", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)  # noqa: S104

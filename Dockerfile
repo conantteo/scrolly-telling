@@ -20,18 +20,15 @@ COPY ./entrypoint.sh /app/entrypoint.sh
 
 WORKDIR /app/frontend
 RUN npm install
+RUN npm run build
 
 WORKDIR /app/server
 RUN /opt/venv/bin/pip3 install .
 
 EXPOSE 8001
-EXPOSE 5173
 
 ENV FLASK_ENV=development
 
 WORKDIR /app
 
-RUN apt-get install dos2unix
-RUN dos2unix entrypoint.sh
-
-CMD ./entrypoint.sh
+CMD ["/opt/venv/bin/python3", "-m", "uvicorn", "server.main:app",  "--host", "0.0.0.0", "--port", "8001", "--reload"]
