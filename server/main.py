@@ -37,7 +37,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+print(app.openapi_url)
 @app.get('/docs', include_in_schema=False)
 async def custom_docs():
     return get_swagger_ui_html(
