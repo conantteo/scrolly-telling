@@ -60,7 +60,7 @@ def stage_file(article_id: str, file_content: bytes, filename: str, file_size: i
                 length=file_size,
                 content_type=file_content_type,
             )
-            return f"{MINIO_UI_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"  # noqa: E501
+            return f"{MINIO_UI_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"  # noqa: E501
         raise
 
 
@@ -74,7 +74,7 @@ def copy_files(
     objs = MINIO_CLIENT.list_objects(src_bucket, src_obj, True)  # noqa: FBT003
     for obj in objs:
         MINIO_CLIENT.copy_object(dest_bucket, obj.object_name, CopySource(src_bucket, obj.object_name))
-    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT.replace('minio', 'localhost')}/{dest_bucket}/{src_obj}/index.html"
+    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{dest_bucket}/{src_obj}/index.html"
 
 def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET) -> str:
     if not IS_LOCAL:

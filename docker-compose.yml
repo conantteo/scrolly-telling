@@ -14,7 +14,7 @@ services:
     environment: 
       IS_LOCAL: "False"
       S3_SECURE: "False"
-      S3_ENDPOINT: minio:9000
+      S3_ENDPOINT: localhost:9000
     ports:
       - 8001:8001
       - 4173:4173

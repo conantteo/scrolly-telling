@@ -81,7 +81,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         length=len(formatted_html_content),
         content_type="text/html",
     )
-    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
 
 
 #################################################################################################################
