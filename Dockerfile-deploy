@@ -41,7 +41,7 @@ WORKDIR /app/server
 RUN /opt/venv/bin/pip3 install .
 
 EXPOSE 8001
-EXPOSE 5173
+EXPOSE 4173
 
 ENV FLASK_ENV=development
 

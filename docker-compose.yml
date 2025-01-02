@@ -17,7 +17,7 @@ services:
       S3_ENDPOINT: minio:9000
     ports:
       - 8001:8001
-      - 5173:5173
+      - 4173:4173
     networks:
       - db
 
