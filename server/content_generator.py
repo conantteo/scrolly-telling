@@ -8,10 +8,11 @@ from jinja2 import Template
 from server.model.component import Component
 from server.model.frame import Frame
 from server.model.layout import Layout
+from server.utilities.constants import CDN_URL
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
-from server.utilities.constants import MINIO_ENDPOINT
+from server.utilities.constants import MINIO_UI_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_SCHEME
 
@@ -45,7 +46,7 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     additional_class = "first-image" if frame_index == 0 else ""
     div_wrapper = f'<div class="{class_name} {additional_class}" id="comp-{component.id}" >'
     minio_url = (
-        f"{MINIO_SCHEME}://{MINIO_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
+        f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
     )
     div_wrapper += f'<img src="{minio_url}" alt="Image" />'
     div_wrapper += "</div>"
@@ -57,6 +58,9 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
     # Load HTML template
     with Path.open(Path(__file__).parent / "templates" / "index.html", encoding="utf-8") as file:
         html_template = file.read()
+        if CDN_URL:
+            html_template.replace("https://cdn.jsdelivr.net", f"{CDN_URL}/cdn.jsdelivr.net")
+            html_template.replace("https://cdnjs.cloudflare.com", f"{CDN_URL}/cdnjs.cloudflare.com")
 
     # Render HTML template with provided data
     html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)
@@ -69,6 +73,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id, parents=True, exist_ok=True)
         Path(LOCAL_OUTPUT_DIR / article_id / "index.html").write_bytes(formatted_html_content.encode())
         return str(Path(LOCAL_OUTPUT_DIR / article_id / "index.html"))
+    
     MINIO_CLIENT.put_object(
         MINIO_PRIVATE_ARTICLE_BUCKET,
         f"{article_id}/index.html",
@@ -76,7 +81,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         length=len(formatted_html_content),
         content_type="text/html",
     )
-    return f"{MINIO_SCHEME}://{MINIO_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT.replace('minio', 'localhost')}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
 
 
 #################################################################################################################

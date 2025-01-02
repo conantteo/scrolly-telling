@@ -67,12 +67,14 @@ spec:
                   optional: false
             - name: MINIO_SCHEME
               value: "https"
-            - name: S3_ENDPOINT
+            - name: S3_API_ENDPOINT
+              value: "scrollytelling-minio.scrollytelling.svc.cluster.local:9000"
+            - name: S3_UI_ENDPOINT
               value: "scrollytelling-minio.app.${NETWORK_DOMAIN}"
             - name: IS_LOCAL
               value: "False"
             - name: CDN_URL
-              value: "https://artifact.${NETWORK_DOMAIN}/artifactory/mirror/cdn.jsdelivr.net"
+              value: "https://artifact.${NETWORK_DOMAIN}/artifactory/mirror"
           resources:
             requests:
               cpu: "2000m"

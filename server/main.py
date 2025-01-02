@@ -45,8 +45,8 @@ async def custom_docs():
         openapi_url=f"/api{app.openapi_url}",
         title=app.title,
         # warning: newer versions of swagger require chrome>=93
-        swagger_js_url=f'{CDN_URL}/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js',
-        swagger_css_url=f'{CDN_URL}/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css',
+        swagger_js_url=f'{CDN_URL}/cdn.jsdelivr.net/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js',
+        swagger_css_url=f'{CDN_URL}/cdn.jsdelivr.net/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css',
         swagger_favicon_url='/static/logo.png',  # this can also be '/static/favicon.ico'
     )
 
