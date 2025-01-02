@@ -10,3 +10,5 @@ patches:
       kind: Ingress
       name: scrollytelling-app-ingress
       version: v1
+patchesStrategicMerge:
+  - patch_app.yml
