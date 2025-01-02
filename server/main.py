@@ -28,6 +28,7 @@ app = FastAPI(title="ScrollyTelling server",
               version="0.0.1", 
               docs_url=None,  # disable so that our override (below) will work
               redoc_url=None,  # disable
+              root_path="/api"
 )
 
 app.add_middleware(
@@ -41,7 +42,7 @@ print(app.openapi_url)
 @app.get('/docs', include_in_schema=False)
 async def custom_docs():
     return get_swagger_ui_html(
-        openapi_url=app.openapi_url,
+        openapi_url=f"/api/{app.openapi_url}",
         title=app.title,
         # warning: newer versions of swagger require chrome>=93
         swagger_js_url=f'{CDN_URL}/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js',
@@ -51,7 +52,7 @@ async def custom_docs():
 
 
 @app.post(
-    "/api/upload-image",
+    "/upload-image",
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {"model": SuccessfulResponse},
@@ -84,7 +85,7 @@ async def test() -> str:
 
 
 @app.post(
-    "/api/generate-website",
+    "/generate-website",
     responses={
         status.HTTP_201_CREATED: {"model": SuccessfulResponse},
         status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},

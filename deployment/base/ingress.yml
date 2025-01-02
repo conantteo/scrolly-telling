@@ -25,7 +25,7 @@ spec:
                 name: scrollytelling-app
                 port:
                   number: 8001
-            path: /docs
+            path: /api
             pathType: Prefix
   tls:
     - hosts:
