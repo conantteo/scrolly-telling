@@ -59,8 +59,8 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
     with Path.open(Path(__file__).parent / "templates" / "index.html", encoding="utf-8") as file:
         html_template = file.read()
         if CDN_URL:
-            html_template.replace("https://cdn.jsdelivr.net", f"{CDN_URL}/cdn.jsdelivr.net")
-            html_template.replace("https://cdnjs.cloudflare.com", f"{CDN_URL}/cdnjs.cloudflare.com")
+            html_template = html_template.replace("https://cdn.jsdelivr.net", f"{CDN_URL}/cdn.jsdelivr.net")
+            html_template = html_template.replace("https://cdnjs.cloudflare.com", f"{CDN_URL}/cdnjs.cloudflare.com")
 
     # Render HTML template with provided data
     html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)

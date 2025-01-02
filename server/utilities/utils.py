@@ -1,3 +1,4 @@
+import io
 import logging
 import os
 import shutil
@@ -73,7 +74,22 @@ def copy_files(
         return str(Path(LOCAL_OUTPUT_DIR / src_obj / "index.html"))
     objs = MINIO_CLIENT.list_objects(src_bucket, src_obj, True)  # noqa: FBT003
     for obj in objs:
-        MINIO_CLIENT.copy_object(dest_bucket, obj.object_name, CopySource(src_bucket, obj.object_name))
+        if obj.object_name.endswith("index.html"):
+            Path.mkdir(LOCAL_OUTPUT_DIR / src_obj, parents=True, exist_ok=True)
+            MINIO_CLIENT.fget_object(src_bucket, obj.object_name, str(LOCAL_OUTPUT_DIR / obj.object_name))
+            with Path.open(Path(__file__).parent / "templates" / "index.html", encoding="utf-8") as file:
+                html_template = file.read()
+                html_template = html_template.replace(MINIO_PRIVATE_ARTICLE_BUCKET, MINIO_PUBLIC_ARTICLE_BUCKET)
+                MINIO_CLIENT.put_object(
+                    MINIO_PUBLIC_ARTICLE_BUCKET,
+                    f"{src_obj}/index.html",
+                    io.BytesIO(html_template.encode()),
+                    length=len(html_template),
+                    content_type="text/html",
+                )
+            shutil.rmtree(LOCAL_OUTPUT_DIR / src_obj)
+        else:
+            MINIO_CLIENT.copy_object(dest_bucket, obj.object_name, CopySource(src_bucket, obj.object_name))
     return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{dest_bucket}/{src_obj}/index.html"
 
 def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET) -> str:
