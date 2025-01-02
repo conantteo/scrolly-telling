@@ -68,7 +68,7 @@ spec:
             - name: MINIO_SCHEME
               value: "https"
             - name: S3_ENDPOINT
-              value: "scrollytelling-minio.scrollytelling.svc.cluster.local:9000"
+              value: "scrollytelling-minio.app.${NETWORK_DOMAIN}"
             - name: IS_LOCAL
               value: "False"
             - name: CDN_URL

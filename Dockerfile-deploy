@@ -48,6 +48,6 @@ ENV FLASK_ENV=development
 WORKDIR /app
 
 #RUN dos2unix entrypoint.sh
-
+RUN npm run build
 RUN chmod +x entrypoint.sh
 CMD ./entrypoint.sh

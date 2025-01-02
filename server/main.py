@@ -104,7 +104,6 @@ async def generate_website(request_body: Article, is_download: bool) -> Union[Fi
 
         if is_download:
             zip_path = download_files(article_id)
-            print(zip_path)
             return FileResponse(path=zip_path, filename=Path(zip_path).name, media_type="application/zip")
 
         # # Copy from private bucket to public bucket
