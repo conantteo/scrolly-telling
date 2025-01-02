@@ -9,6 +9,7 @@ from fastapi import Form
 from fastapi import UploadFile
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 
@@ -19,10 +20,15 @@ from server.parser import process_pages
 from server.utilities.utils import copy_files
 from server.utilities.utils import download_files
 from server.utilities.utils import stage_file
+from server.utilities.constants import CDN_URL
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="ScrollyTelling server", version="0.0.1")
+app = FastAPI(title="ScrollyTelling server", 
+              version="0.0.1", 
+              docs_url=None,  # disable so that our override (below) will work
+              redoc_url=None,  # disable
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +37,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get('/docs', include_in_schema=False)
+async def custom_docs():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title,
+        # warning: newer versions of swagger require chrome>=93
+        swagger_js_url=f'{CDN_URL}/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js',
+        swagger_css_url=f'{CDN_URL}/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui.css',
+        swagger_favicon_url='/static/logo.png',  # this can also be '/static/favicon.ico'
+    )
 
 
 @app.post(

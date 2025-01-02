@@ -9,6 +9,7 @@ IS_LOCAL = os.getenv("IS_LOCAL", "True").lower() == "true"
 
 LOCAL_OUTPUT_DIR = LOCAL_PARENT_DIR / "output"
 
+CDN_URL = os.getenv("CDN_URL", "https://cdn.jsdelivr.net")
 MINIO_SCHEME = os.getenv("S3_SCHEME", "http")
 MINIO_ENDPOINT = os.getenv("S3_ENDPOINT", "localhost:9000")
 MINIO_ACCESS_KEY = os.getenv("S3_ACCESS_KEY", "minio")

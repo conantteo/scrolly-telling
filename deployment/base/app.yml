@@ -69,6 +69,8 @@ spec:
               value: "https"
             - name: S3_ENDPOINT
               value: "scrollytelling-minio.app.${NETWORK_DOMAIN}"
+            - name: CDN_URL
+              value: "https://artifact.${NETWORK_DOMAIN}/artifactory/mirror/cdn.jsdelivr.net"
           resources:
             requests:
               cpu: "1000m"
