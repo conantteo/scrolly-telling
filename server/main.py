@@ -80,7 +80,7 @@ async def upload_image(file: UploadFile, article_id: Annotated[str, Form()]) -> 
         )
 
 
-@app.get("/api/animation-options")
+@app.get("/animation-options")
 async def get_animation_options() -> str:
     return JSONResponse(
         content={
