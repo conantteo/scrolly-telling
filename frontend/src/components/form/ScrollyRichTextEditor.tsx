@@ -43,7 +43,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     debounce((newHtml) => {
       onChange(newHtml);
     }, 500),
-    []
+    [onChange]
   );
 
   const editor = useEditor({

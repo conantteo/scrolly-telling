@@ -16,6 +16,7 @@ from fastapi.responses import JSONResponse
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
+from server.model.script.animation.animation_script_factory import AnimationScriptFactory
 from server.parser import process_pages
 from server.utilities.utils import copy_files
 from server.utilities.utils import download_files
@@ -79,10 +80,14 @@ async def upload_image(file: UploadFile, article_id: Annotated[str, Form()]) -> 
         )
 
 
-@app.get("/test")
-async def test() -> str:
-    return "ok"
-
+@app.get("/api/animation-options")
+async def get_animation_options() -> str:
+    return JSONResponse(
+        content={
+            "animation-options": AnimationScriptFactory.get_animation_name_list(),
+        },
+        status_code=status.HTTP_201_CREATED,
+    )
 
 @app.post(
     "/generate-website",
