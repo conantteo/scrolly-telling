@@ -36,7 +36,7 @@ export const useGenerateAndDownloadWebsite = () => {
     mutationFn: async (data: PostWebsiteRequest) => {
       const dataForPost = prepareDataForPost(data);
       const response = await axios.post<Blob>(
-        'http://localhost:8001/api/generate-website',
+        'http://scrollytelling.app.xtraman.org/api/generate-website',
         dataForPost,
         {
           params: { is_download: true },
@@ -61,7 +61,7 @@ export const useGenerateAndPreviewWebsite = () => {
     mutationFn: async (data: PostWebsiteRequest) => {
       const dataForPost = prepareDataForPost(data);
       const response = await axios.post<PostWebsiteResponse>(
-        'http://localhost:8001/api/generate-website',
+        'http://scrollytelling.app.xtraman.org/api/generate-website',
         dataForPost,
         {
           params: { is_download: false },
