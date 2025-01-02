@@ -13,10 +13,10 @@ from minio.error import S3Error
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
-from server.utilities.constants import MINIO_UI_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_PUBLIC_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_SCHEME
+from server.utilities.constants import MINIO_UI_ENDPOINT
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +91,7 @@ def copy_files(
         else:
             MINIO_CLIENT.copy_object(dest_bucket, obj.object_name, CopySource(src_bucket, obj.object_name))
     return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{dest_bucket}/{src_obj}/index.html"
+
 
 def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET) -> str:
     if not IS_LOCAL:

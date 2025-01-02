@@ -14,6 +14,8 @@ interface PostWebsiteResponse {
   url: string;
 }
 
+const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : '';
+
 const prepareDataForPost = (data: PostWebsiteRequest) => {
   const updatedData = _.cloneDeep(data);
   const updatedPages = updatedData.pages.map((page, pageIndex) => {
@@ -35,15 +37,10 @@ export const useGenerateAndDownloadWebsite = () => {
   return useMutation<Blob, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
       const dataForPost = prepareDataForPost(data);
-      const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : "http://localhost:8001"
-      const response = await axios.post<Blob>(
-        `${server_url}/api/generate-website`,
-        dataForPost,
-        {
-          params: { is_download: true },
-          responseType: 'blob',
-        }
-      );
+      const response = await axios.post<Blob>(`${server_url}/api/generate-website`, dataForPost, {
+        params: { is_download: true },
+        responseType: 'blob',
+      });
       const url = URL.createObjectURL(new Blob([response.data], { type: 'application/zip' }));
       const link = document.createElement('a');
       link.href = url;
@@ -60,7 +57,6 @@ export const useGenerateAndPreviewWebsite = () => {
   return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
       const dataForPost = prepareDataForPost(data);
-      const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : "http://localhost:8001"
       const response = await axios.post<PostWebsiteResponse>(
         `${server_url}/api/generate-website`,
         dataForPost,

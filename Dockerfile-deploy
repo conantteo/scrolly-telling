@@ -31,24 +31,17 @@ COPY ./frontend/ /app/frontend/
 COPY ./README.md /app/server/README.md
 COPY ./pyproject.toml /app/server/pyproject.toml
 COPY ./server/ /app/server/
-COPY ./entrypoint.sh /app/entrypoint.sh
-RUN   echo "VITE_SERVER_URL=https://scrollytelling.app.${NETWORK_DOMAIN}" >> /app/frontend/.env
+RUN rm -f /app/frontend/.env
 
 WORKDIR /app/frontend
 RUN npm install
+RUN npm run build
 
 WORKDIR /app/server
 RUN /opt/venv/bin/pip3 install .
 
 EXPOSE 8001
-EXPOSE 4173
 
-ENV FLASK_ENV=development
 
-WORKDIR /app/frontend
-
-#RUN dos2unix entrypoint.sh
-RUN npm run build
-WORKDIR /app/
-RUN chmod +x entrypoint.sh
-CMD ./entrypoint.sh
+WORKDIR /app
+CMD ["/opt/venv/bin/python3", "-m", "uvicorn", "server.main:app",  "--host", "0.0.0.0", "--port", "8001", "--reload"]

@@ -16,7 +16,7 @@ COPY ./frontend/ /app/frontend/
 COPY ./README.md /app/server/README.md
 COPY ./pyproject.toml /app/server/pyproject.toml
 COPY ./server/ /app/server/
-COPY ./entrypoint.sh /app/entrypoint.sh
+RUN rm -f /app/frontend/.env
 
 WORKDIR /app/frontend
 RUN npm install
@@ -26,8 +26,6 @@ WORKDIR /app/server
 RUN /opt/venv/bin/pip3 install .
 
 EXPOSE 8001
-
-ENV FLASK_ENV=development
 
 WORKDIR /app
 

@@ -8,7 +8,6 @@ from fastapi import FastAPI
 from fastapi import Form
 from fastapi import UploadFile
 from fastapi import status
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
