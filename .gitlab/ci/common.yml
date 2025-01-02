@@ -12,4 +12,3 @@ build:
   extends: [.common_tags, .kaniko]
 deploy:
   extends: [.common_tags, .deploy_template]
-

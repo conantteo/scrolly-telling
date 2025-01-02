@@ -1,37 +1,4 @@
-# SCRIPTS
-.container_registry_variable_check_script:
-  &container_registry_variable_check_script
-  - "[[ ! -z $ARTIFACTORY_USER ]]"
-  - "[[ ! -z $ARTIFACTORY_PASS ]]"
-
 ### TEMPLATES
-
-#.ruff_template:
-#  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
-#  stage: lint
-#  script:
-#    - pip install --root-user-action=ignore --progress-bar off --upgrade ruff
-#    # when ruff prints diffs, it ignores errors for which there are no diffs
-#    # this is a known bug/feature in ruff
-#    - python3 -m ruff check ${CI_PROJECT_DIR}/server --diff
-#    # if there are no errors for which we can print diffs, then try again without printing diffs
-#    - python3 -m ruff check ${CI_PROJECT_DIR}/server
-#    - echo "ruff passed!"
-#
-#.mypy_template:
-#  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/python:3.8
-#  stage: lint
-#  script:
-#    - cd ${CI_PROJECT_DIR}
-#    - pip install --root-user-action=ignore --progress-bar off -r ./requirements-ci.txt
-#    - pip install --root-user-action=ignore --progress-bar off --upgrade mypy
-#    - python3 -m mypy
-#      --show-error-codes
-#      --ignore-missing-imports
-#      --install-types --non-interactive
-#      -p server
-#    - echo "mypy passed!"
-
 .kaniko:
   image:
     name: docker.artifact.${NETWORK_DOMAIN}/infra/devops/kaniko-project/executor:debug
@@ -74,18 +41,16 @@
   image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/alpine/k8s:1.21.2
   variables:
     NAMESPACE: scrollytelling
+  when: manual
   script:
     - echo ${KUBECONFIG:?} > /dev/null
     - echo ${NAMESPACE:?} | grep -vq '[[:space:]]'
     - find ${CI_PROJECT_DIR}/deployment -type f -name "*.yml" -exec sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" "{}" \;
-    # - kubectl create secret docker-registry gitlab-registry
-    #   --docker-server=${CI_REGISTRY}
-    #   --docker-username="${CI_REGISTRY_USER:?}"
-    #   --docker-password="${CI_REGISTRY_PASSWORD:?}"
-    #   -o yaml --dry-run=client | kubectl -n ${NAMESPACE} apply -f -
-
-    # - sed -i "s/\${NETWORK_DOMAIN}/${NETWORK_DOMAIN}/g" ${CI_PROJECT_DIR}/deployment/base/ui.yaml
+    - kubectl create secret docker-registry gitlab-registry
+      --docker-server=${CI_REGISTRY}
+      --docker-username="${CI_REGISTRY_USER:?}"
+      --docker-password="${CI_REGISTRY_PASSWORD:?}"
+      -o yaml --dry-run=client | kubectl -n ${NAMESPACE} apply -f -
     - kubectl -n $NAMESPACE apply -k ${CI_PROJECT_DIR}/deployment/${NETWORK_DOMAIN}
     - kubectl -n "${NAMESPACE}" rollout restart deployment/scrollytelling-app
     - kubectl -n $NAMESPACE rollout status deployment scrollytelling-app
-
