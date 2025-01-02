@@ -77,7 +77,7 @@ def copy_files(
         if obj.object_name.endswith("index.html"):
             Path.mkdir(LOCAL_OUTPUT_DIR / src_obj, parents=True, exist_ok=True)
             MINIO_CLIENT.fget_object(src_bucket, obj.object_name, str(LOCAL_OUTPUT_DIR / obj.object_name))
-            with Path.open(Path(__file__).parent / "templates" / "index.html", encoding="utf-8") as file:
+            with Path.open(LOCAL_OUTPUT_DIR / obj.object_name, encoding="utf-8") as file:
                 html_template = file.read()
                 html_template = html_template.replace(MINIO_PRIVATE_ARTICLE_BUCKET, MINIO_PUBLIC_ARTICLE_BUCKET)
                 MINIO_CLIENT.put_object(
