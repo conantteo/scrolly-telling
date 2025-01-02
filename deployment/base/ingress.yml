@@ -17,7 +17,7 @@ spec:
               service:
                 name: scrollytelling-app
                 port:
-                  number: 5173
+                  number: 4173
             path: /
             pathType: Prefix
           - backend:

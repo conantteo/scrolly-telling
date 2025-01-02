@@ -11,7 +11,7 @@ spec:
   - port: 8001
     name: server
     protocol: TCP
-  - port: 5173
+  - port: 4173
     name: http
     protocol: TCP
   selector:
@@ -50,7 +50,7 @@ spec:
           ports:
             - containerPort: 8001
               name: server
-            - containerPort: 5173
+            - containerPort: 4173
               name: http
           env:
             - name: S3_ACCESS_KEY
