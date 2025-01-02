@@ -17,8 +17,10 @@ const uploadImage = async ({ articleId, file }: UploadImageRequest) => {
   formData.append('article_id', articleId);
   formData.append('file', file);
 
+  const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : "http://localhost:8001"
+
   const response = await axios.post<UploadImageResponse>(
-    'http://localhost:8001/api/upload-image',
+    `${server_url}/api/upload-image`,
     formData,
     {
       headers: {

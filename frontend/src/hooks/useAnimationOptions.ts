@@ -4,7 +4,8 @@ import axios from 'axios';
 const ANIMATION_OPTIONS_FALLBACK = ['overlap', 'fade'];
 
 const getAnimationOptions = async () => {
-  const response = await axios.get('http://localhost:8001/api/animation-options');
+  const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : "http://localhost:8001"
+  const response = await axios.get(`${server_url}/api/animation-options`);
   return response.data;
 };
 
