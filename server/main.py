@@ -42,7 +42,7 @@ print(app.openapi_url)
 @app.get('/docs', include_in_schema=False)
 async def custom_docs():
     return get_swagger_ui_html(
-        openapi_url=f"/api/{app.openapi_url}",
+        openapi_url=f"/api{app.openapi_url}",
         title=app.title,
         # warning: newer versions of swagger require chrome>=93
         swagger_js_url=f'{CDN_URL}/npm/swagger-ui-dist@5.0.0-alpha.6/swagger-ui-bundle.js',
