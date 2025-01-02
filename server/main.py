@@ -28,7 +28,6 @@ app = FastAPI(title="ScrollyTelling server",
               version="0.0.1", 
               docs_url=None,  # disable so that our override (below) will work
               redoc_url=None,  # disable
-              root_path="/docs"
 )
 
 app.add_middleware(
