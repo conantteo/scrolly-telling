@@ -32,6 +32,7 @@ COPY ./README.md /app/server/README.md
 COPY ./pyproject.toml /app/server/pyproject.toml
 COPY ./server/ /app/server/
 COPY ./entrypoint.sh /app/entrypoint.sh
+RUN   echo "VITE_SERVER_URL=https://scrollytelling.app.${NETWORK_DOMAIN}" >> /app/frontend/.env
 
 WORKDIR /app/frontend
 RUN npm install

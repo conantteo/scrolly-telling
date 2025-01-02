@@ -35,8 +35,9 @@ export const useGenerateAndDownloadWebsite = () => {
   return useMutation<Blob, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
       const dataForPost = prepareDataForPost(data);
+      const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : "http://localhost:8001"
       const response = await axios.post<Blob>(
-        'http://localhost:8001/api/generate-website',
+        `${server_url}/api/generate-website`,
         dataForPost,
         {
           params: { is_download: true },
@@ -60,8 +61,9 @@ export const useGenerateAndPreviewWebsite = () => {
   return useMutation<PostWebsiteResponse, Error, PostWebsiteRequest>({
     mutationFn: async (data: PostWebsiteRequest) => {
       const dataForPost = prepareDataForPost(data);
+      const server_url = import.meta.env.VITE_SERVER_URL ? import.meta.env.VITE_SERVER_URL : "http://localhost:8001"
       const response = await axios.post<PostWebsiteResponse>(
-        'http://localhost:8001/api/generate-website',
+        `${server_url}/api/generate-website`,
         dataForPost,
         {
           params: { is_download: false },
