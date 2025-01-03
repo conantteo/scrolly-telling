@@ -33,7 +33,6 @@
     expire_in: 1 week
     paths:
       - dist/
-  needs: ["prepare-build"]
   tags:
     - k8s
   script:
