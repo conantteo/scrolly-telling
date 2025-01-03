@@ -27,7 +27,7 @@ RUN mkdir /app/server
 RUN mkdir /app/frontend
 
 # COPY ./frontend/ /app/frontend/
-COPY ./dist/ /app/frontend/dist
+COPY ./frontend/dist/ /app/frontend/dist
 # COPY ./README.md /app/server/README.md
 COPY ./pyproject.toml /app/server/pyproject.toml
 COPY ./server/ /app/server/
