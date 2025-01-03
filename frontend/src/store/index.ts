@@ -6,6 +6,7 @@ import {
   ScrollyFocusElement,
   ScrollyPage,
 } from '../types';
+import { setArticleFromSessionStorage } from '../util/sessionStorageUtil';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -16,6 +17,7 @@ interface ScrollyState {
   appendDefaultElement: () => void;
   pages: ScrollyPage[];
   setPage: (pageIndex: string, data: ScrollyPage) => void;
+  setPages: (pages: ScrollyPage[]) => void;
   currentScrollyFocusElement: ScrollyFocusElement | null;
   setScrollyFocusElement: (component: ScrollyComponent | null) => void;
   articleId: string;
@@ -38,6 +40,9 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   currentScrollyFocusElement: null,
   setArticleTitle: (title) => {
     set(() => {
+      setArticleFromSessionStorage({
+        title,
+      });
       return {
         articleTitle: title,
       };
@@ -45,6 +50,9 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   },
   setArticleId: (id) => {
     set(() => {
+      setArticleFromSessionStorage({
+        articleId: id,
+      });
       return {
         articleId: id,
       };
@@ -66,6 +74,9 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       updatedElements.splice(numericalId, 1);
       const reorderedData = updatedData.map((item, index) => ({ ...item, id: `${index}` }));
       const reorderedElements = updatedElements.map((item, index) => ({ ...item, id: `${index}` }));
+      setArticleFromSessionStorage({
+        pages: reorderedData,
+      });
       return {
         pages: reorderedData,
         elements: reorderedElements.length > 0 ? reorderedElements : [INITIAL_COMPONENT],
@@ -86,7 +97,21 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
           });
         });
       });
+      setArticleFromSessionStorage({
+        pages: updatedData,
+      });
       return { pages: updatedData };
+    });
+  },
+  setPages: (pages) => {
+    set(() => {
+      const updatedData = _.cloneDeep(pages);
+      const updatedElements: ScrollyContainerElementProps[] = _.cloneDeep(pages).map((data) => ({
+        ...data,
+        isNew: false,
+      }));
+      updatedElements.push({ ...INITIAL_COMPONENT, id: `${updatedElements.length}` });
+      return { pages: updatedData, elements: updatedElements };
     });
   },
   setElement: (index, data) => {

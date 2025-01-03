@@ -7,12 +7,29 @@ import ScrollyLeftPanel from './layout/ScrollyLeftPanel';
 import ScrollyMainPanel from './layout/ScrollyMainPanel';
 import ScrollyRightPanel from './layout/ScrollyRightPanel';
 import { useScrollyStore } from './store';
+import { getArticleFromSessionStorage } from './util/sessionStorageUtil';
 
 const App: React.FC = () => {
   const setArticleId = useScrollyStore((state) => state.setArticleId);
+  const setArticleTitle = useScrollyStore((state) => state.setArticleTitle);
+  const setPages = useScrollyStore((state) => state.setPages);
 
   useEffect(() => {
-    setArticleId(uuidv4());
+    const article = getArticleFromSessionStorage();
+    if (article === null) {
+      const articleId = uuidv4();
+      setArticleId(articleId);
+    } else {
+      if (article.articleId) {
+        setArticleId(article.articleId);
+      }
+      if (article.title) {
+        setArticleTitle(article.title);
+      }
+      if (article.pages) {
+        setPages(article.pages);
+      }
+    }
   }, []);
 
   return (

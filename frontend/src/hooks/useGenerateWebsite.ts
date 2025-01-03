@@ -3,7 +3,7 @@ import axios from 'axios';
 import _ from 'lodash';
 import { ScrollyPage } from '../types';
 
-interface PostWebsiteRequest {
+export interface PostWebsiteRequest {
   articleId: string;
   title: string;
   pages: ScrollyPage[];

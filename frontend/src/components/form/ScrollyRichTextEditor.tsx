@@ -39,13 +39,6 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
   onChange,
   readOnly = false,
 }) => {
-  const debouncedOnChange = useCallback(
-    debounce((newHtml) => {
-      onChange(newHtml);
-    }, 500),
-    [onChange]
-  );
-
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -65,12 +58,32 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     editable: !readOnly,
   });
 
+  const debouncedOnChange = useCallback(
+    debounce((newHtml) => {
+      onChange(newHtml);
+    }, 300),
+    [onChange]
+  );
+
   useEffect(() => {
-    editor?.commands.setContent(value);
-  }, [value]);
+    if (editor && value !== editor.getHTML()) {
+      const selection = editor.state.selection;
+      editor.commands.setContent(value, false);
+
+      if (editor.isFocused) {
+        editor.commands.setTextSelection(selection);
+      }
+    }
+  }, [value, editor]);
+
+  useEffect(() => {
+    return () => {
+      debouncedOnChange.cancel();
+    };
+  }, [debouncedOnChange]);
 
   return (
-    <RichTextEditor editor={editor}>
+    <RichTextEditor editor={editor} onChange={() => {}}>
       <RichTextEditor.Toolbar sticky stickyOffset={60}>
         <RichTextEditor.ControlsGroup>
           <RichTextEditor.Bold />
