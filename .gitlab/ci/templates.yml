@@ -4,8 +4,8 @@
   stage: prepare
   image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/node:22-bookworm
   script:
-    - npm install
-    - npm run build
+    - npm --prefix frontend/ install
+    - npm --prefix frontend/ run build
   artifacts:
     expire_in: 1 week
     paths:
