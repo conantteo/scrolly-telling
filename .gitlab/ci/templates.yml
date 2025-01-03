@@ -1,4 +1,18 @@
 ### TEMPLATES
+
+.prepare:
+  stage: prepare
+  image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/node:22-bookworm
+  script:
+    - npm install
+    - npm run build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - dist/
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 .kaniko:
   image:
     name: docker.artifact.${NETWORK_DOMAIN}/infra/devops/kaniko-project/executor:debug
@@ -14,6 +28,13 @@
   stage: build
   environment:
     name: build
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - dist/
+  dependencies:
+    - prepare
   tags:
     - k8s
   script:

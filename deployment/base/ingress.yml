@@ -17,15 +17,8 @@ spec:
               service:
                 name: scrollytelling-app
                 port:
-                  number: 4173
-            path: /
-            pathType: Prefix
-          - backend:
-              service:
-                name: scrollytelling-app
-                port:
                   number: 8001
-            path: /api
+            path: /
             pathType: Prefix
   tls:
     - hosts:

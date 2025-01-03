@@ -9,6 +9,6 @@
 #ruff:
 #  extends: [.common_tags, .ruff_template]
 build:
-  extends: [.common_tags, .kaniko]
+  extends: [.common_tags, .prepare, .kaniko]
 deploy:
   extends: [.common_tags, .deploy_template]
