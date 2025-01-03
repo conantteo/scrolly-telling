@@ -1,6 +1,6 @@
 ### TEMPLATES
 
-.prepare:
+.prepare-build:
   stage: prepare
   image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/node:22-bookworm
   script:
@@ -33,7 +33,7 @@
     expire_in: 1 week
     paths:
       - dist/
-  needs: ["prepare"]
+  needs: ["prepare-build"]
   tags:
     - k8s
   script:
