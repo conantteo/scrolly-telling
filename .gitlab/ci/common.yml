@@ -2,8 +2,9 @@
   tags:
     - shared
     - docker
-
+prepare:
+  extends: [.common_tags, .prepare-build]
 build:
-  extends: [.common_tags, .prepare-build, .kaniko]
+  extends: [.common_tags, .kaniko]
 deploy:
   extends: [.common_tags, .deploy_template]
