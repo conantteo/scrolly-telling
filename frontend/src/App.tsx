@@ -30,6 +30,7 @@ const App: React.FC = () => {
         setPages(article.pages);
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

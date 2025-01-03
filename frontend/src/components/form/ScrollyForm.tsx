@@ -113,6 +113,7 @@ const ScrollyForm: React.FC = () => {
         DEFAULT_SINGLE_PAGE_FORM_DATA;
       setModifiedPage(_.cloneDeep(page));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pages, currentElementId]);
 
   const onReset = () => {

@@ -58,6 +58,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     editable: !readOnly,
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnChange = useCallback(
     debounce((newHtml) => {
       onChange(newHtml);

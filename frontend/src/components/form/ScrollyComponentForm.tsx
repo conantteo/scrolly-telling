@@ -86,7 +86,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         position: layoutTemplates[0],
       });
     }
-  }, [component, layoutTemplates]);
+  }, [component, layoutTemplates, setComponent]);
 
   const onComponentChanged = (componentSelected: ScrollyComponent | null) => {
     if (componentSelected && componentSelected.type === 'image') {
