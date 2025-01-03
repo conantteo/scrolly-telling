@@ -145,7 +145,7 @@ scrolly-telling/
 
 5. `pyproject.toml`: Lists all Python dependencies for the project.
 
-## Setup Instructions
+## Setup Instructions - Python Server
 
 1. Clone the repository:
    ```
@@ -188,7 +188,25 @@ scrolly-telling/
 The server should now be running on `http://localhost:8000`.
 To access the Swagger API UI page, go to `http://localhost:8000/docs` or `http://localhost:8000/redoc`
 
-## Docker setup instructions
+## Setup Instructions - Frontend
+1. Install packages
+   ```
+   npm install
+   ```
+2. Set environment. Create a `.env` file in `frontend` folder with the following content:
+   ```
+   VITE_SERVER_URL=http://localhost:8000
+   ```
+3. Run
+   ```
+   npm run dev
+   ```
+4. To build into production
+   ```
+   npm run build
+   ```
+
+## Setup Instructions - Docker
 
 ### Build
 ```bash
@@ -240,18 +258,6 @@ Plugin currently supported:
 
 TBU
 
-## Configuration
-
-Update the MinIO client setup in `server/main.py` with your own MinIO server details:
-
-```python
-minio_client = Minio(
-    "your-minio-server-url",
-    access_key="your-access-key",
-    secret_key="your-secret-key",
-    secure=True  # Set to False if not using HTTPS
-)
-```
 
 ### Local Configuration
 

@@ -140,8 +140,8 @@ async def generate_website(request_body: Article, is_download: bool) -> Union[Fi
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-
-app.mount("/", StaticFiles(directory="frontend/dist/", html=True), name="static")
+if not IS_LOCAL:
+    app.mount("/", StaticFiles(directory="frontend/dist/", html=True), name="static")
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)  # noqa: S104
