@@ -73,8 +73,6 @@ spec:
               value: "scrollytelling-minio.app.${NETWORK_DOMAIN}"
             - name: IS_LOCAL
               value: "False"
-            - name: CDN_URL
-              value: "https://artifact.${NETWORK_DOMAIN}/artifactory/mirror"
           resources:
             requests:
               cpu: "2000m"

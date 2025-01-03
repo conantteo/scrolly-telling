@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: scrollytelling-app
+    component: app
+  name: scrollytelling-app
+  namespace: scrollytelling
+spec:
+  template:
+    spec:
+      containers:
+        - name: scrollytelling-app
+          env:
+            - name: CDN_URL
+              value: "https://artifact.${NETWORK_DOMAIN}/artifactory/mirror"
