@@ -17,6 +17,8 @@ export const setArticleFromSessionStorage = (data: Partial<PostWebsiteRequest>) 
         SESSION_STORAGE_KEY,
         JSON.stringify({ ..._.cloneDeep(value), ..._.cloneDeep(data) })
       );
+    } else {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ ..._.cloneDeep(data) }));
     }
   }
 };
