@@ -1,30 +1,25 @@
-import { IconSun } from '@tabler/icons-react';
+import { IconRestore } from '@tabler/icons-react';
 import { Box, Button, Group, Modal, Stack, Title, Tooltip } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-  useGenerateAndDownloadWebsite,
-  useGenerateAndPreviewWebsite,
-} from '../../hooks/useGenerateWebsite';
 import { useScrollyStore } from '../../store';
+import { deleteArticleFromLocalStorage } from '../../util/localStorageUtil';
 
-const DownloadButton: React.FC = () => {
+const ResetButton: React.FC = () => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
   const articleId = useScrollyStore((state) => state.articleId);
-  const title = useScrollyStore((state) => state.articleTitle);
-  const { mutate: generateAndDownloadWebsite } = useGenerateAndDownloadWebsite();
-  const { mutate: generateAndPreviewWebsite } = useGenerateAndPreviewWebsite();
   const pages = useScrollyStore((state) => state.pages);
+  const resetStore = useScrollyStore((state) => state.resetStore);
 
   return (
     <>
-      <Tooltip label="Click here to generate all the pages you've created. A download link will be generated.">
+      <Tooltip label="Click here to reset this article.">
         <Button
           size="sm"
-          leftSection={<IconSun />}
+          leftSection={<IconRestore />}
           onClick={open}
           disabled={pages.length === 0 || !articleId}
         >
-          Generate
+          Reset
         </Button>
       </Tooltip>
       {isModalOpened ? (
@@ -32,29 +27,33 @@ const DownloadButton: React.FC = () => {
           centered
           opened={isModalOpened}
           onClose={close}
-          title={<Title order={2}>Scrolly Article Completed</Title>}
+          title={<Title order={2}>Are you sure you want to reset?</Title>}
         >
           <Stack>
-            <Box>Would you like to preview online or download a copy offline to view?</Box>
+            <Box>
+              Article that has been resetted cannot be restored. Have you downloaded them before
+              reset?
+            </Box>
             <Group>
               <Button
                 size="sm"
                 variant="subtle"
                 onClick={() => {
-                  generateAndDownloadWebsite({ articleId, title, pages });
                   close();
                 }}
               >
-                Download
+                Cancel
               </Button>
               <Button
+                color="red"
                 size="sm"
                 onClick={() => {
-                  generateAndPreviewWebsite({ articleId, title, pages });
+                  deleteArticleFromLocalStorage();
+                  resetStore();
                   close();
                 }}
               >
-                Preview
+                Reset
               </Button>
             </Group>
           </Stack>
@@ -64,4 +63,4 @@ const DownloadButton: React.FC = () => {
   );
 };
 
-export default DownloadButton;
+export default ResetButton;

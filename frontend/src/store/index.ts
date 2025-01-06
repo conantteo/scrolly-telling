@@ -1,4 +1,5 @@
 import _, { isNumber } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 import { create } from 'zustand';
 import {
   ScrollyComponent,
@@ -6,7 +7,7 @@ import {
   ScrollyFocusElement,
   ScrollyPage,
 } from '../types';
-import { setArticleFromSessionStorage } from '../util/sessionStorageUtil';
+import { setArticleFromLocalStorage } from '../util/localStorageUtil';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -24,6 +25,7 @@ interface ScrollyState {
   setArticleId: (id: string) => void;
   articleTitle: string;
   setArticleTitle: (id: string) => void;
+  resetStore: () => void;
 }
 
 const INITIAL_COMPONENT: ScrollyContainerElementProps = {
@@ -38,9 +40,22 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   pages: [],
   currentElementId: null,
   currentScrollyFocusElement: null,
+  resetStore: () => {
+    set(() => {
+      const articleId = uuidv4();
+      return {
+        articleId,
+        articleTitle: '',
+        elements: [INITIAL_COMPONENT],
+        pages: [],
+        currentElementId: null,
+        currentScrollyFocusElement: null,
+      };
+    });
+  },
   setArticleTitle: (title) => {
     set(() => {
-      setArticleFromSessionStorage({
+      setArticleFromLocalStorage({
         title,
       });
       return {
@@ -50,7 +65,7 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   },
   setArticleId: (id) => {
     set(() => {
-      setArticleFromSessionStorage({
+      setArticleFromLocalStorage({
         articleId: id,
       });
       return {
@@ -74,7 +89,7 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       updatedElements.splice(numericalId, 1);
       const reorderedData = updatedData.map((item, index) => ({ ...item, id: `${index}` }));
       const reorderedElements = updatedElements.map((item, index) => ({ ...item, id: `${index}` }));
-      setArticleFromSessionStorage({
+      setArticleFromLocalStorage({
         pages: reorderedData,
       });
       return {
@@ -97,7 +112,7 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
           });
         });
       });
-      setArticleFromSessionStorage({
+      setArticleFromLocalStorage({
         pages: updatedData,
       });
       return { pages: updatedData };

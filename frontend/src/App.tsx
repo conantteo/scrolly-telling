@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { AppShell, Flex } from '@mantine/core';
+import { AppShell, Box, Flex, Group } from '@mantine/core';
 import DownloadButton from './components/button/DownloadButton';
+import ResetButton from './components/button/ResetButton';
 import Header from './layout/Header';
 import ScrollyLeftPanel from './layout/ScrollyLeftPanel';
 import ScrollyMainPanel from './layout/ScrollyMainPanel';
 import ScrollyRightPanel from './layout/ScrollyRightPanel';
 import { useScrollyStore } from './store';
-import { getArticleFromSessionStorage } from './util/sessionStorageUtil';
+import { getArticleFromLocalStorage } from './util/localStorageUtil';
 
 const App: React.FC = () => {
   const setArticleId = useScrollyStore((state) => state.setArticleId);
@@ -15,7 +16,7 @@ const App: React.FC = () => {
   const setPages = useScrollyStore((state) => state.setPages);
 
   useEffect(() => {
-    const article = getArticleFromSessionStorage();
+    const article = getArticleFromLocalStorage();
     if (article === null) {
       const articleId = uuidv4();
       setArticleId(articleId);
@@ -43,7 +44,12 @@ const App: React.FC = () => {
       <AppShell.Header>
         <Flex justify="space-between" align="center" h="100%" ml={24} mr={24}>
           <Header />
-          <DownloadButton />
+          <Box>
+            <Group>
+              <ResetButton />
+              <DownloadButton />
+            </Group>
+          </Box>
         </Flex>
       </AppShell.Header>
       <AppShell.Navbar
