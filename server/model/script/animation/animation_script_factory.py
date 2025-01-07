@@ -22,6 +22,8 @@ class AnimationScriptFactory:
 
     @staticmethod
     def construct_animation_script(animation_name: str, start_as_visible) -> AnimationScript:
+        if animation_name is None:
+            return AnimationScript(True)
         animation_builder_hash_map = AnimationScriptFactory.__get_animation_builder_hash_map()
         animation_builder = animation_builder_hash_map[animation_name]()
         return animation_builder.set_initial_visibility(start_as_visible).build()
