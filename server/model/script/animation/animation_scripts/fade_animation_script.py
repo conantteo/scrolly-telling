@@ -15,7 +15,7 @@ class FadeAnimationScript(AnimationScript):
 
     @staticmethod
     def builder():
-        return AnimationScript.Builder()
+        return FadeAnimationScript.Builder()
 
     class Builder:
         def __init__(self):

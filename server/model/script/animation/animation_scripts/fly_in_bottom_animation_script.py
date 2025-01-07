@@ -15,7 +15,7 @@ class FlyInBottomAnimationScript(AnimationScript):
 
     @staticmethod
     def builder():
-        return AnimationScript.Builder()
+        return FlyInBottomAnimationScript.Builder()
 
     class Builder:
         def __init__(self):

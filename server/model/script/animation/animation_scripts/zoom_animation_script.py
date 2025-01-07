@@ -15,7 +15,7 @@ class ZoomAnimationScript(AnimationScript):
 
     @staticmethod
     def builder():
-        return AnimationScript.Builder()
+        return ZoomAnimationScript.Builder()
 
     class Builder:
         def __init__(self):
