@@ -60,7 +60,6 @@
   image: docker.artifact.${NETWORK_DOMAIN}/infra/devops/alpine/k8s:1.21.2
   variables:
     NAMESPACE: scrollytelling
-  when: manual
   script:
     - echo ${KUBECONFIG:?} > /dev/null
     - echo ${NAMESPACE:?} | grep -vq '[[:space:]]'
