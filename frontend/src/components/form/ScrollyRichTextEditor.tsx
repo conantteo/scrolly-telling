@@ -10,6 +10,7 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { debounce } from 'lodash';
 import { Link, RichTextEditor } from '@mantine/tiptap';
+import { convertJsonToHTML } from '../../util/editorUtil';
 
 interface ScrollyRichTextEditorProps {
   value: string;
@@ -45,7 +46,13 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
       TextStyle,
       Color,
       Underline,
-      Link,
+      Link.configure({
+        openOnClick: true,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
+      }),
       Superscript,
       SubScript,
       Highlight,
@@ -53,7 +60,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      debouncedOnChange(editor.getHTML());
+      debouncedOnChange(convertJsonToHTML(editor.getJSON()));
     },
     editable: !readOnly,
   });

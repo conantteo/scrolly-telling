@@ -154,7 +154,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
             }
           }}
           label="Choose a position"
-          description="Select to place content on either left, center, or right"
+          description="Select where to place the content"
           withAsterisk
         >
           <Group mt="xs">
@@ -184,7 +184,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         <Box>
           <FileInput
             radius="xl"
-            label="Upload image(s)"
+            label="Upload image here"
             withAsterisk
             description="Accepts .png, .jpg, .jpeg"
             error={formError.file ? formError.file : null}
