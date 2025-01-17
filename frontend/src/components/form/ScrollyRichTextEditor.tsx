@@ -12,7 +12,6 @@ import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { debounce } from 'lodash';
 import { Link, RichTextEditor } from '@mantine/tiptap';
-import { convertJsonToHTML } from '../../util/editorUtil';
 
 interface ScrollyRichTextEditorProps {
   value: string;
@@ -68,7 +67,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      debouncedOnChange(convertJsonToHTML(editor.getJSON()));
+      debouncedOnChange(editor.getHTML().replace(/<p><\/p>/g, '<br>'));
     },
     editable: !readOnly,
   });
