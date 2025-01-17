@@ -31,7 +31,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
 }) => {
   const articleId = useScrollyStore((state) => state.articleId);
   const { mutate: uploadFile } = useUploadImage();
-  const { data: animationOptions } = useAnimationOptions();
+  const { data: animationOptionsResponse } = useAnimationOptions();
   const onFileUpload = (file: File | null) => {
     if (!file) {
       return;
@@ -168,7 +168,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         label="Choose an animation"
         placeholder="Select an animation"
         description="Animation affects how your content will appear on the screen"
-        data={animationOptions['animation-options']}
+        data={animationOptionsResponse['animation-options']}
         searchable
         value={component.animation}
         onChange={(value) => {

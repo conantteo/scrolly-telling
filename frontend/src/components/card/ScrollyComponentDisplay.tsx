@@ -16,7 +16,10 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
           <Image src={componentInProp.metadata?.fileBase64} />
         </AspectRatio>
       ) : (
-        <div dangerouslySetInnerHTML={{ __html: componentInProp.metadata?.htmlContent ?? '' }} />
+        <div
+          style={{ overflowWrap: 'break-word' }}
+          dangerouslySetInnerHTML={{ __html: componentInProp.metadata?.htmlContent ?? '' }}
+        />
       );
     if (isFocused) {
       return <Box style={{ backgroundColor: '#d0ebff', minHeight: 25 }}>{componentToRender}</Box>;
