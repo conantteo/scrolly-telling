@@ -184,7 +184,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         <Box>
           <FileInput
             radius="xl"
-            label="Upload image(s)"
+            label="Upload image"
             withAsterisk
             description="Accepts .png, .jpg, .jpeg"
             error={formError.file ? formError.file : null}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { Color } from '@tiptap/extension-color';
+import FontFamily from '@tiptap/extension-font-family';
 import Highlight from '@tiptap/extension-highlight';
 import SubScript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
@@ -50,6 +51,9 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
       SubScript,
       Highlight,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
+      FontFamily.configure({
+        types: ['textStyle'],
+      }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
