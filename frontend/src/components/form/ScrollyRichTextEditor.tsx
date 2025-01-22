@@ -1,4 +1,5 @@
 import { useCallback, useEffect } from 'react';
+import CharacterCount from '@tiptap/extension-character-count';
 import { Color } from '@tiptap/extension-color';
 import FontFamily from '@tiptap/extension-font-family';
 import Highlight from '@tiptap/extension-highlight';
@@ -35,6 +36,8 @@ const ALLOWED_COLORS = [
   '#fd7e14',
 ];
 
+const CHARACTERS_LIMIT = 3000;
+
 const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
   value = '',
   onChange,
@@ -46,7 +49,16 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
       TextStyle,
       Color,
       Underline,
-      Link,
+      Link.configure({
+        openOnClick: true,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
+      }),
+      CharacterCount.configure({
+        limit: CHARACTERS_LIMIT,
+      }),
       Superscript,
       SubScript,
       Highlight,
@@ -57,7 +69,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     ],
     content: value,
     onUpdate: ({ editor }) => {
-      debouncedOnChange(editor.getHTML());
+      debouncedOnChange(editor.getHTML().replace(/<p><\/p>/g, '<br>'));
     },
     editable: !readOnly,
   });
@@ -87,57 +99,83 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
     };
   }, [debouncedOnChange]);
 
+  const percentage = editor
+    ? Math.round((100 / CHARACTERS_LIMIT) * editor.storage.characterCount.characters())
+    : 0;
+
   return (
-    <RichTextEditor editor={editor} onChange={() => {}}>
-      <RichTextEditor.Toolbar sticky stickyOffset={60}>
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Bold />
-          <RichTextEditor.Italic />
-          <RichTextEditor.Underline />
-          <RichTextEditor.Strikethrough />
-          <RichTextEditor.ClearFormatting />
-          <RichTextEditor.Highlight />
-          <RichTextEditor.Code />
-        </RichTextEditor.ControlsGroup>
+    <>
+      <RichTextEditor editor={editor} onChange={() => {}}>
+        <RichTextEditor.Toolbar sticky stickyOffset={60}>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Bold />
+            <RichTextEditor.Italic />
+            <RichTextEditor.Underline />
+            <RichTextEditor.Strikethrough />
+            <RichTextEditor.ClearFormatting />
+            <RichTextEditor.Highlight />
+            <RichTextEditor.Code />
+          </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ColorPicker colors={ALLOWED_COLORS} />
+          <RichTextEditor.ColorPicker colors={ALLOWED_COLORS} />
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.H1 />
-          <RichTextEditor.H2 />
-          <RichTextEditor.H3 />
-          <RichTextEditor.H4 />
-        </RichTextEditor.ControlsGroup>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.H1 />
+            <RichTextEditor.H2 />
+            <RichTextEditor.H3 />
+            <RichTextEditor.H4 />
+          </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Blockquote />
-          <RichTextEditor.Hr />
-          <RichTextEditor.BulletList />
-          <RichTextEditor.OrderedList />
-          <RichTextEditor.Subscript />
-          <RichTextEditor.Superscript />
-        </RichTextEditor.ControlsGroup>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Blockquote />
+            <RichTextEditor.Hr />
+            <RichTextEditor.BulletList />
+            <RichTextEditor.OrderedList />
+            <RichTextEditor.Subscript />
+            <RichTextEditor.Superscript />
+          </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Link />
-          <RichTextEditor.Unlink />
-        </RichTextEditor.ControlsGroup>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Link />
+            <RichTextEditor.Unlink />
+          </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.AlignLeft />
-          <RichTextEditor.AlignCenter />
-          <RichTextEditor.AlignJustify />
-          <RichTextEditor.AlignRight />
-        </RichTextEditor.ControlsGroup>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.AlignLeft />
+            <RichTextEditor.AlignCenter />
+            <RichTextEditor.AlignJustify />
+            <RichTextEditor.AlignRight />
+          </RichTextEditor.ControlsGroup>
 
-        <RichTextEditor.ControlsGroup>
-          <RichTextEditor.Undo />
-          <RichTextEditor.Redo />
-        </RichTextEditor.ControlsGroup>
-      </RichTextEditor.Toolbar>
+          <RichTextEditor.ControlsGroup>
+            <RichTextEditor.Undo />
+            <RichTextEditor.Redo />
+          </RichTextEditor.ControlsGroup>
+        </RichTextEditor.Toolbar>
 
-      <RichTextEditor.Content />
-    </RichTextEditor>
+        <RichTextEditor.Content />
+      </RichTextEditor>
+      <br />
+      <div
+        className={`character-count ${editor?.storage.characterCount.characters() === CHARACTERS_LIMIT ? 'character-count--warning' : ''}`}
+      >
+        <svg height="20" width="20" viewBox="0 0 20 20">
+          <circle r="10" cx="10" cy="10" fill="#e9ecef" />
+          <circle
+            r="5"
+            cx="10"
+            cy="10"
+            fill="transparent"
+            stroke="currentColor"
+            strokeWidth="10"
+            strokeDasharray={`calc(${percentage} * 31.4 / 100) 31.4`}
+            transform="rotate(-90) translate(-20)"
+          />
+          <circle r="6" cx="10" cy="10" fill="white" />
+        </svg>
+        {editor?.storage.characterCount.characters()} / {CHARACTERS_LIMIT} characters
+      </div>
+    </>
   );
 };
 
