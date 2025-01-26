@@ -214,7 +214,7 @@ def generate_single_css(page_id: str) -> str:
         f"page-{page_id}",
         {
             "display": "flex",
-            "justify-content": "space-around",
+            "justify-content": "center",
             "align-items": "center",
             "height": "100vh",
             "background-color": "#fff",
@@ -237,6 +237,18 @@ def inject_pinned_page_css(layout: Layout, page_id: str) -> str:
     else:
         return ""
 
+def inject_page_css(layout: Layout, page_id: str) -> str:
+    """Main function to generate CSS based on layout template."""
+    template = layout.template
+
+    if template == "left-right":
+        return generate_left_right_css(page_id, layout)
+    elif template == "top-bottom":
+        return generate_top_bottom_css(page_id, layout)
+    elif template == "single":
+        return generate_single_css(page_id)
+    else:
+        return ""
 
 def generate_left_right_component_css(page_id: str, first_frame_components: List[Component]):
     css = ""
@@ -258,6 +270,7 @@ def generate_left_right_component_css(page_id: str, first_frame_components: List
                     "display": "flex",  # Ensure it's a flex container
                     "justify-content": "center",
                     "align-items": "center",
+                    "flex-direction": "column",
                 },
             )
         else:
@@ -307,13 +320,15 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
 def generate_center_component_css(page_id: str, first_frame_components: List[Component]):
     css = ""
 
-    # Assume there is only one image per frame for each page
+    # Assume there is only one image per frame for each page, hard code width to 60%
     for component in first_frame_components:
         if component.type == "image":
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
                 {
                     "position": "absolute",
+                    "justify-content": "center",
+                    "align-items": "center"
                 },
             )
 
@@ -321,12 +336,21 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
             css += generate_css_class_block(
                 f"page-{page_id}-center-component img",
                 {
-                    "width": "800px",
-                    "max-width": "100%",
+                    "width": "60%",
                     "height": "auto",
                 },
             )
 
+        else:
+            css += generate_css_class_block(
+                f"page-{page_id}-center-component",
+                {
+                    "justify-content": "center",
+                    "align-items": "center",
+                    "display": "flex",
+                    "flex-direction": "column"
+                },
+            )
     return css
 
 

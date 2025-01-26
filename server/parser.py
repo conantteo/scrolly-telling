@@ -20,6 +20,7 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
         else:
             html_page = parse_page_to_html(page, article_id)
             html_output += html_page + "\n"
+            css_output += inject_component_css(page.layout, page.frames, page.id) + "\n"
 
     message = generate_html(article_id, html_output, title)
     generate_css(article_id, css_output)
