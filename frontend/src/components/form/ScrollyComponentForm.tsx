@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import imageCompression from 'browser-image-compression';
 import _ from 'lodash';
 import { Box, FileInput, Group, InputLabel, Radio, Select, Stack } from '@mantine/core';
 import { useAnimationOptions } from '../../hooks/useAnimationOptions';
@@ -39,23 +40,25 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
     const fileExtension = file.name.split('.').pop();
     if (fileExtension && ALLOWED_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
       uploadFile({ file, articleId });
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const base64 = reader.result as string;
-        setComponent({
-          ...component,
-          type: 'image',
-          metadata: {
-            ...component.metadata,
-            image: file.name,
-            fileBase64: base64,
-            fileExtension,
-            fileSize: `${file.size}`,
-            file,
-          },
-        });
-      };
+      imageCompression(file, { maxSizeMB: 0.01, maxWidthOrHeight: 500 }).then((compressedFile) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(compressedFile);
+        reader.onload = () => {
+          const base64 = reader.result as string;
+          setComponent({
+            ...component,
+            type: 'image',
+            metadata: {
+              ...component.metadata,
+              image: file.name,
+              fileBase64: base64,
+              fileExtension,
+              fileSize: `${compressedFile.size}`,
+              file,
+            },
+          });
+        };
+      });
       setFormError({
         ...formError,
         file: '',
