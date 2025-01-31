@@ -1,4 +1,6 @@
-from typing import Dict, List
+from typing import Dict
+from typing import List
+
 from server.model.script.animation.animation_scripts.animation_script import AnimationScript
 from server.model.script.animation.animation_scripts.fade_animation_script import FadeAnimationScript
 from server.model.script.animation.animation_scripts.fly_in_bottom_animation_script import FlyInBottomAnimationScript
@@ -7,10 +9,11 @@ from server.model.script.animation.animation_scripts.fly_in_right_animation_scri
 from server.model.script.animation.animation_scripts.overlap_animation_script import OverlapAnimationScript
 from server.model.script.animation.animation_scripts.zoom_animation_script import ZoomAnimationScript
 
+
 class AnimationScriptFactory:
     @staticmethod
     def __get_animation_builder_hash_map() -> Dict[str, lambda: AnimationScript]:
-        hash_map: Dict[str: AnimationScript] = {
+        hash_map: Dict[str:AnimationScript] = {
             "fade": lambda: FadeAnimationScript.Builder(),
             "zoom": lambda: ZoomAnimationScript.Builder(),
             "fly-in-bottom": lambda: FlyInBottomAnimationScript.Builder(),
@@ -21,7 +24,7 @@ class AnimationScriptFactory:
         return hash_map
 
     @staticmethod
-    def construct_animation_script(animation_name: str, start_as_visible) -> AnimationScript:
+    def construct_animation_script(animation_name: str, start_as_visible: bool) -> AnimationScript:
         if animation_name is None:
             return AnimationScript(True)
         animation_builder_hash_map = AnimationScriptFactory.__get_animation_builder_hash_map()

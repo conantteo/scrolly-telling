@@ -1,17 +1,18 @@
 from server.model.component import Component
 
+
 class ComponentGroups:
-    def __init__(self):
+    def __init__(self) -> None:
         self.groups = {}
 
-    def add_component(self, component: Component):
+    def add_component(self, component: Component) -> None:
         component_group = component.position
         if component_group in self.groups:
             self.groups[component_group].append(component)
         else:
             self.groups[component_group] = [component]
 
-    def get_biggest_group_size(self):
+    def get_biggest_group_size(self) -> int:
         if not self.groups:
             return 0
         return max(len(components) for components in self.groups.values())
@@ -24,4 +25,6 @@ class ComponentGroups:
                     if not is_last_index:
                         return 1
                     else:
-                        return 1 if index == self.get_biggest_group_size() - 1 else self.get_biggest_group_size() - index
+                        return (
+                            1 if index == self.get_biggest_group_size() - 1 else self.get_biggest_group_size() - index
+                        )

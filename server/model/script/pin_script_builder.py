@@ -1,6 +1,6 @@
 class PinScriptBuilder:
     @staticmethod
-    def build_pin_js(page_id: str, pin_length: int):
+    def build_pin_js(page_id: str, pin_length: int) -> str:
         return f"""
         ScrollTrigger.create({{
           trigger: '#page-{page_id}',

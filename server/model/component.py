@@ -1,5 +1,7 @@
 from typing import Optional
+
 from pydantic import BaseModel
+
 
 class Component(BaseModel):
     id: str
@@ -16,7 +18,7 @@ component_data = {
     "position": "left",
     "animation": "fade",
     "type": "text",
-    "image": None
+    "image": None,
 }
 
 # Creating an instance of the Component model

@@ -11,7 +11,7 @@ from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 
 
 class ScriptGenerator:
-    def __init__(self, pages: list[Page], article_id: str):
+    def __init__(self, pages: list[Page], article_id: str) -> None:
         self.article_id = article_id
         self.pages = pages
 
@@ -21,7 +21,7 @@ class ScriptGenerator:
         script_processor.process_pages(self.pages)
         return "".join(string_builder)
 
-    def generate_and_export(self):
+    def generate_and_export(self) -> None:
         scripts = self.generate()
         if IS_LOCAL:
             Path.mkdir(LOCAL_OUTPUT_DIR / self.article_id / "js", parents=True, exist_ok=True)
