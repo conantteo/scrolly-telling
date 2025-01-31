@@ -12,7 +12,7 @@ from server.utilities.constants import CDN_URL
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
-from server.utilities.constants import MINIO_UI_ENDPOINT
+from server.utilities.constants import MINIO_PREVIEW_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_SCHEME
 
@@ -45,9 +45,7 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     # Indicate in class if image is in first frame with "first-image"
     additional_class = "first-image" if frame_index == 0 else ""
     div_wrapper = f'<div class="{class_name} {additional_class}" id="comp-{component.id}" >'
-    minio_url = (
-        f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
-    )
+    minio_url = f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
     div_wrapper += f'<img src="{minio_url}" alt="Image" />'
     div_wrapper += "</div>"
 
@@ -73,7 +71,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id, parents=True, exist_ok=True)
         Path(LOCAL_OUTPUT_DIR / article_id / "index.html").write_bytes(formatted_html_content.encode())
         return str(Path(LOCAL_OUTPUT_DIR / article_id / "index.html"))
-    
+
     MINIO_CLIENT.put_object(
         MINIO_PRIVATE_ARTICLE_BUCKET,
         f"{article_id}/index.html",
@@ -81,7 +79,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         length=len(formatted_html_content),
         content_type="text/html",
     )
-    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+    return f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
 
 
 #################################################################################################################
@@ -237,6 +235,7 @@ def inject_pinned_page_css(layout: Layout, page_id: str) -> str:
     else:
         return ""
 
+
 def inject_page_css(layout: Layout, page_id: str) -> str:
     """Main function to generate CSS based on layout template."""
     template = layout.template
@@ -249,6 +248,7 @@ def inject_page_css(layout: Layout, page_id: str) -> str:
         return generate_single_css(page_id)
     else:
         return ""
+
 
 def generate_left_right_component_css(page_id: str, first_frame_components: List[Component]):
     css = ""
@@ -325,11 +325,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
         if component.type == "image":
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
-                {
-                    "position": "absolute",
-                    "justify-content": "center",
-                    "align-items": "center"
-                },
+                {"position": "absolute", "justify-content": "center", "align-items": "center"},
             )
 
             # Set max width to image
@@ -344,12 +340,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
         else:
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
-                {
-                    "justify-content": "center",
-                    "align-items": "center",
-                    "display": "flex",
-                    "flex-direction": "column"
-                },
+                {"justify-content": "center", "align-items": "center", "display": "flex", "flex-direction": "column"},
             )
     return css
 

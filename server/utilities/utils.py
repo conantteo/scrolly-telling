@@ -13,10 +13,10 @@ from minio.error import S3Error
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
+from server.utilities.constants import MINIO_PREVIEW_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_PUBLIC_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_SCHEME
-from server.utilities.constants import MINIO_UI_ENDPOINT
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ def stage_file(article_id: str, file_content: bytes, filename: str, file_size: i
                 length=file_size,
                 content_type=file_content_type,
             )
-            return f"{MINIO_UI_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"  # noqa: E501
+            return f"{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"  # noqa: E501
         raise
 
 
@@ -90,7 +90,7 @@ def copy_files(
             shutil.rmtree(LOCAL_OUTPUT_DIR / src_obj)
         else:
             MINIO_CLIENT.copy_object(dest_bucket, obj.object_name, CopySource(src_bucket, obj.object_name))
-    return f"{MINIO_SCHEME}://{MINIO_UI_ENDPOINT}/{dest_bucket}/{src_obj}/index.html"
+    return f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{dest_bucket}/{src_obj}/index.html"
 
 
 def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET) -> str:
@@ -99,5 +99,8 @@ def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET)
         objs = MINIO_CLIENT.list_objects(src_bucket, src_obj, True)  # noqa: FBT003
         for obj in objs:
             MINIO_CLIENT.fget_object(src_bucket, obj.object_name, str(LOCAL_OUTPUT_DIR / obj.object_name))
+    tmp = Path(str(LOCAL_OUTPUT_DIR / src_obj / "index.html")).read_text(encoding="utf-8")
+    tmp = tmp.replace(f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{src_obj}", ".")
+    Path(str(LOCAL_OUTPUT_DIR / src_obj / "index.html")).write_text(tmp, encoding="utf-8")
     shutil.make_archive(LOCAL_OUTPUT_DIR / src_obj, "zip", LOCAL_OUTPUT_DIR / src_obj)
     return f"{LOCAL_OUTPUT_DIR / src_obj}.zip"

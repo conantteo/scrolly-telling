@@ -2,7 +2,7 @@ FROM node:22-bookworm
 
 # RUN apk add --update --no-cache python3=3.12 python3-pip
 RUN apt-get update
-RUN apt-get upgrade
+RUN apt-get -y upgrade
 RUN apt-get install -y python3 python3-pip python3-venv && ln -sf python3 /usr/bin/python
 # RUN python3 -m ensurepip
 RUN python3 -m venv /opt/venv

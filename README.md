@@ -218,16 +218,16 @@ To run Minio and the application together:
 ```bash
 docker compose up
 ```
-The frontend can be accessed through http://localhost:5173.
-The server can be accessed through http://localhost:8001.
+The frontend can be accessed through http://localhost:8001.
+The server can be accessed through http://localhost:8001/docs.
 MinIO can be accessed through http://localhost:9001.
 
 Running the application only:
 ```bash
-docker run -p 8001:8001 -p 5173:5173 -it scrollytelling:v1
+docker run -p 8001:8001 -it scrollytelling:v1
 ```
-The frontend can be accessed through http://localhost:5173.
-The server can be accessed through http://localhost:8001.
+The frontend can be accessed through http://localhost:8001.
+The server can be accessed through http://localhost:8001/docs.
 
 ## Usage
 
