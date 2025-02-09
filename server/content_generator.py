@@ -306,7 +306,7 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
                 {
                     "position": "absolute",
                     "width": "100%",
-                    "height": "100%",
+                    "height": "80%",
                     "display": "flex",
                     "justify-content": "center",
                     "align-items": "center",
@@ -317,26 +317,39 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
     return css
 
 
-def generate_center_component_css(page_id: str, first_frame_components: List[Component]):
+def generate_center_component_css(page_id: str, first_frame_components: List[Component], pinnable: bool):
     css = ""
 
     # Assume there is only one image per frame for each page, hard code width to 60%
     for component in first_frame_components:
         if component.type == "image":
-            css += generate_css_class_block(
-                f"page-{page_id}-center-component",
-                {"position": "absolute", "justify-content": "center", "align-items": "center"},
-            )
+            if pinnable:
+                css += generate_css_class_block(
+                    f"page-{page_id}-center-component",
+                    {"position": "absolute", "justify-content": "center", "align-items": "center"},
+                )
 
-            # Set max width to image
-            css += generate_css_class_block(
-                f"page-{page_id}-center-component img",
-                {
-                    "width": "60%",
-                    "height": "auto",
-                },
-            )
+                # Set max width to image
+                css += generate_css_class_block(
+                    f"page-{page_id}-center-component img",
+                    {
+                        "width": "100%",
+                        "height": "auto",
+                    },
+                )
+            else:
+                css += generate_css_class_block(
+                    f"page-{page_id}-center-component",
+                    {"justify-content": "center", "align-items": "center"},
+                )
 
+                css += generate_css_class_block(
+                    f"page-{page_id}-center-component img",
+                    {
+                        "width": "90%",
+                        "height": "auto",
+                    },
+                )
         else:
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
@@ -346,7 +359,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
 
 
 # Assumes in left-right / top-bottom template, there will always be one image and one text in either section for each frame
-def inject_component_css(layout: Layout, frames: List[Frame], page_id: str):
+def inject_component_css(layout: Layout, frames: List[Frame], page_id: str, pinnable: bool):
     template = layout.template
 
     # Check first frame to identify which position is image and text
@@ -357,7 +370,7 @@ def inject_component_css(layout: Layout, frames: List[Frame], page_id: str):
     elif template == "top-bottom":
         return generate_top_bottom_component_css(page_id, first_frame_components)
     elif template == "single":
-        return generate_center_component_css(page_id, first_frame_components)
+        return generate_center_component_css(page_id, first_frame_components, pinnable)
     else:
         return ""
 

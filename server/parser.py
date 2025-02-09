@@ -21,12 +21,12 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
             html_page = parse_pinned_page_to_html(page, article_id)
             html_output += html_page + "\n"
             css_output += inject_pinned_page_css(page.layout, page.id) + "\n"
-            css_output += inject_component_css(page.layout, page.frames, page.id) + "\n"
+            css_output += inject_component_css(page.layout, page.frames, page.id, pinnable) + "\n"
 
         else:
             html_page = parse_page_to_html(page, article_id)
             html_output += html_page + "\n"
-            css_output += inject_component_css(page.layout, page.frames, page.id) + "\n"
+            css_output += inject_component_css(page.layout, page.frames, page.id, pinnable) + "\n"
 
     message = generate_html(article_id, html_output, title)
     generate_css(article_id, css_output)
