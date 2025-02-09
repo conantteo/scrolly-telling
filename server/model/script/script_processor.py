@@ -13,11 +13,12 @@ class ScriptProcessor:
 
     def process_pages(self, pages: list[Page]) -> None:
         for page in pages:
-            frames = page.frames
-            component_groups = ComponentGroups()
-            self.__process_frames(frames, component_groups)
-            self.__append_animation_scripts(component_groups)
-            self.__append_page_pinning_script(page, component_groups)
+            if page.pinnable:
+                frames = page.frames
+                component_groups = ComponentGroups()
+                self.__process_frames(frames, component_groups)
+                self.__append_animation_scripts(component_groups)
+                self.__append_page_pinning_script(page, component_groups)
 
     def __append_page_pinning_script(self, page: Page, component_groups: ComponentGroups) -> None:
         pin_js = PinScriptBuilder.build_pin_js(page.id, component_groups.get_biggest_group_size())
