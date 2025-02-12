@@ -263,13 +263,13 @@ def generate_left_right_component_css(page_id: str, first_frame_components: List
                     "width": "70%",
                     "max-width": "500px",
                     "height": "100%",
-                    "text-align": "center",
+                    "text-align": "left",
                     "opacity": "1",
                     "z-index": "1",
                     "background-color": "transparent",
                     "display": "flex",  # Ensure it's a flex container
                     "justify-content": "center",
-                    "align-items": "center",
+                    "align-items": "flex-start",
                     "flex-direction": "column",
                 },
             )
@@ -298,7 +298,10 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
         if component.type == "text":
             css += generate_css_class_block(
                 f"page-{page_id}-{component.position}-component",
-                {"text-align": "center", "line-height": "1.5", "position": "absolute"},
+                {"text-align": "left", "line-height": "1.5", "position": "absolute", "width": "100%",
+                    "height": "100%",  "justify-content": "center",
+                    "align-items": "flex-start",
+                    "flex-direction": "column", "padding-top": "25px"},
             )
         else:
             css += generate_css_class_block(
@@ -353,7 +356,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
         else:
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
-                {"justify-content": "center", "align-items": "center", "display": "flex", "flex-direction": "column"},
+                {"justify-content": "center", "align-items": "center", "display": "flex", "flex-direction": "column", "text-align": "left"},
             )
     return css
 
