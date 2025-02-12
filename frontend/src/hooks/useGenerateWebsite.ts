@@ -64,9 +64,8 @@ export const useGenerateAndPreviewWebsite = () => {
           params: { is_download: false },
         }
       );
-
-      window.open(response.data.url, '_blank', 'noopener,noreferrer');
       return response.data;
     },
+    onSuccess: (data) => data,
   });
 };
