@@ -21,7 +21,7 @@ import { useScrollyStore } from '../../store';
 
 const DownloadButton: React.FC = () => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
-  const [previewIframeInfo, setPreviewIframeInfo] = useState<string>();
+  const [previewIframeInfo, setPreviewIframeInfo] = useState<string | null>(null);
   const articleId = useScrollyStore((state) => state.articleId);
   const title = useScrollyStore((state) => state.articleTitle);
   const { mutate: generateAndDownloadWebsite } = useGenerateAndDownloadWebsite();
@@ -46,7 +46,7 @@ const DownloadButton: React.FC = () => {
           centered
           opened={isModalOpened}
           onClose={() => {
-            setPreviewIframeInfo(undefined);
+            setPreviewIframeInfo(null);
             close();
           }}
           title={<Title order={2}>Scrolly Article Completed</Title>}
@@ -78,7 +78,7 @@ const DownloadButton: React.FC = () => {
                   size="sm"
                   onClick={() => {
                     window.open(data?.url, '_blank', 'noopener,noreferrer');
-                    setPreviewIframeInfo(undefined);
+                    setPreviewIframeInfo(null);
                     close();
                   }}
                 >
