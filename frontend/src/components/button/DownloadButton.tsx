@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { IconCheck, IconCopy, IconSun } from '@tabler/icons-react';
 import {
   ActionIcon,
@@ -21,7 +20,6 @@ import { useScrollyStore } from '../../store';
 
 const DownloadButton: React.FC = () => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
-  const [previewIframeInfo, setPreviewIframeInfo] = useState<string | null>(null);
   const articleId = useScrollyStore((state) => state.articleId);
   const title = useScrollyStore((state) => state.articleTitle);
   const { mutate: generateAndDownloadWebsite } = useGenerateAndDownloadWebsite();
@@ -45,20 +43,17 @@ const DownloadButton: React.FC = () => {
         <Modal
           centered
           opened={isModalOpened}
-          onClose={() => {
-            setPreviewIframeInfo(null);
-            close();
-          }}
+          onClose={close}
           title={<Title order={2}>Scrolly Article Completed</Title>}
           size="auto"
         >
-          {!isPending && previewIframeInfo ? (
+          {!isPending && data?.url ? (
             <Stack>
               <Box>You can paste the following code into the HTML macro in Confluence:</Box>
               <Box>
                 <Group>
-                  <Code block>{previewIframeInfo}</Code>
-                  <CopyButton value={previewIframeInfo} timeout={2000}>
+                  <Code block>{`<iframe height="100%" width="100%" src="${data?.url}"></iframe>`}</Code>
+                  <CopyButton value={`<iframe height="100%" width="100%" src="${data?.url}"></iframe>`} timeout={2000}>
                     {({ copied, copy }) => (
                       <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow position="right">
                         <ActionIcon
@@ -78,7 +73,6 @@ const DownloadButton: React.FC = () => {
                   size="sm"
                   onClick={() => {
                     window.open(data?.url, '_blank', 'noopener,noreferrer');
-                    setPreviewIframeInfo(null);
                     close();
                   }}
                 >
@@ -102,12 +96,9 @@ const DownloadButton: React.FC = () => {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => {
-                    generateAndPreviewWebsite({ articleId, title, pages });
-                    setPreviewIframeInfo(
-                      `<iframe height="100%" width="100%" src="${data?.url}"></iframe>`
-                    );
-                  }}
+                  onClick={() => 
+                    generateAndPreviewWebsite({ articleId, title, pages })
+                  }
                 >
                   Preview
                 </Button>
