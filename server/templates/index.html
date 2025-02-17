@@ -10,16 +10,16 @@
 
 <body>
     <div class="scroller">
-         <!-- Dynamic body content goes here -->
+        <!-- Dynamic body content goes here -->
         {{ body_content | safe }}
     </div>
-    <script src="js/gsap.min.js"></script>
+    <!-- <script src="js/gsap.min.js"></script> -->
     {% if flip %}
     <script src="js/Flip.min.js"></script>{% endif %}
-    {% if scroll_trigger %}
+    <!-- {% if scroll_trigger %}
     <script src="js/ScrollTrigger.min.js"></script>
     <script src="js/gsap/registerScrollTrigger.js"></script>
-    {% endif %}
+    {% endif %} -->
     {% if observer %}
     <script src="js/Observer.min.js"></script>{% endif %}
     {% if scroll_to_plugin %}
@@ -38,8 +38,6 @@
     <script src="js/CustomEase.min.js"></script>{% endif %}
     {% if ease_pack %}
     <script src="js/EasePack.min.js"></script>{% endif %}
-    {% if scroll_trigger %}
-    <script src="js/gsap/registerScrollTrigger.js"></script>{% endif %}
     <script src="https://cdn.jsdelivr.net/npm/smooth-scrollbar@8.7.4/dist/smooth-scrollbar.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
