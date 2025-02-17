@@ -1,6 +1,8 @@
 import io
 import logging
 import os
+import re
+import requests
 import shutil
 from pathlib import Path
 from typing import Any
@@ -101,6 +103,11 @@ def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET)
             MINIO_CLIENT.fget_object(src_bucket, obj.object_name, str(LOCAL_OUTPUT_DIR / obj.object_name))
     tmp = Path(str(LOCAL_OUTPUT_DIR / src_obj / "index.html")).read_text(encoding="utf-8")
     tmp = tmp.replace(f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{src_obj}", ".")
+    js_files = re.findall('https://artifact.*.js', tmp)
+    for js_file in js_files:
+        tmp_js_file = requests.get(js_file, verify=False)
+        Path(str(LOCAL_OUTPUT_DIR / src_obj / "js" / os.path.basename(js_file))).write_text(tmp_js_file, encoding="utf-8")
+        tmp.replace(js_file, f"js/{os.path.basename(js_file)}")
     Path(str(LOCAL_OUTPUT_DIR / src_obj / "index.html")).write_text(tmp, encoding="utf-8")
     shutil.make_archive(LOCAL_OUTPUT_DIR / src_obj, "zip", LOCAL_OUTPUT_DIR / src_obj)
     return f"{LOCAL_OUTPUT_DIR / src_obj}.zip"
