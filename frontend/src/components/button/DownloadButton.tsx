@@ -52,8 +52,13 @@ const DownloadButton: React.FC = () => {
               <Box>You can paste the following code into the HTML macro in Confluence:</Box>
               <Box>
                 <Group>
-                  <Code block>{`<iframe height="100%" width="100%" src="${data?.url}"></iframe>`}</Code>
-                  <CopyButton value={`<iframe height="100%" width="100%" src="${data?.url}"></iframe>`} timeout={2000}>
+                  <Code
+                    block
+                  >{`<iframe height="100%" width="100%" src="${data?.url}"></iframe>`}</Code>
+                  <CopyButton
+                    value={`<iframe height="100%" width="100%" src="${data?.url}"></iframe>`}
+                    timeout={2000}
+                  >
                     {({ copied, copy }) => (
                       <Tooltip label={copied ? 'Copied' : 'Copy'} withArrow position="right">
                         <ActionIcon
@@ -69,6 +74,16 @@ const DownloadButton: React.FC = () => {
                 </Group>
               </Box>
               <Group>
+                <Button
+                  size="sm"
+                  variant="subtle"
+                  onClick={() => {
+                    generateAndDownloadWebsite({ articleId, title, pages });
+                    close();
+                  }}
+                >
+                  Download
+                </Button>
                 <Button
                   size="sm"
                   onClick={() => {
@@ -96,9 +111,7 @@ const DownloadButton: React.FC = () => {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => 
-                    generateAndPreviewWebsite({ articleId, title, pages })
-                  }
+                  onClick={() => generateAndPreviewWebsite({ articleId, title, pages })}
                 >
                   Preview
                 </Button>
