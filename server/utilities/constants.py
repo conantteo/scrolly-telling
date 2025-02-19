@@ -31,4 +31,6 @@ else:
     )
 
 GSAP_LOCAL_PATH = LOCAL_PARENT_DIR / "templates" / "js" / "gsap.min.js"
+SMOOTH_SCROLLBAR_LOCAL_PATH = LOCAL_PARENT_DIR / "templates" / "js" / "smooth-scrollbar.js"
+SCROLLTRIGGER_LOCAL_PATH = LOCAL_PARENT_DIR / "templates" / "js" / "ScrollTrigger.min.js"
 REGISTER_PLUGIN_TEMPLATE_PATH = LOCAL_PARENT_DIR / "templates" / "js" / "gsap" / "registerPlugin.js"

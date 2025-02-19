@@ -76,7 +76,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
         MINIO_PRIVATE_ARTICLE_BUCKET,
         f"{article_id}/index.html",
         io.BytesIO(formatted_html_content.encode()),
-        length=len(formatted_html_content),
+        length=len(formatted_html_content.encode()),
         content_type="text/html",
     )
     return f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
@@ -298,10 +298,17 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
         if component.type == "text":
             css += generate_css_class_block(
                 f"page-{page_id}-{component.position}-component",
-                {"text-align": "left", "line-height": "1.5", "position": "absolute", "width": "100%",
-                    "height": "100%",  "justify-content": "center",
+                {
+                    "text-align": "left",
+                    "line-height": "1.5",
+                    "position": "absolute",
+                    "width": "100%",
+                    "height": "100%",
+                    "justify-content": "center",
                     "align-items": "flex-start",
-                    "flex-direction": "column", "padding-top": "25px"},
+                    "flex-direction": "column",
+                    "padding-top": "25px",
+                },
             )
         else:
             css += generate_css_class_block(
@@ -356,7 +363,13 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
         else:
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
-                {"justify-content": "center", "align-items": "center", "display": "flex", "flex-direction": "column", "text-align": "left"},
+                {
+                    "justify-content": "center",
+                    "align-items": "center",
+                    "display": "flex",
+                    "flex-direction": "column",
+                    "text-align": "left",
+                },
             )
     return css
 

@@ -2,7 +2,6 @@ import io
 import logging
 import os
 import re
-import requests
 import shutil
 from pathlib import Path
 from typing import Any
@@ -12,6 +11,7 @@ from jinja2 import FileSystemLoader
 from minio.commonconfig import CopySource
 from minio.error import S3Error
 
+from server.utilities.constants import GSAP_LOCAL_PATH
 from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
@@ -19,6 +19,8 @@ from server.utilities.constants import MINIO_PREVIEW_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_PUBLIC_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_SCHEME
+from server.utilities.constants import SCROLLTRIGGER_LOCAL_PATH
+from server.utilities.constants import SMOOTH_SCROLLBAR_LOCAL_PATH
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +88,7 @@ def copy_files(
                     MINIO_PUBLIC_ARTICLE_BUCKET,
                     f"{src_obj}/index.html",
                     io.BytesIO(html_template.encode()),
-                    length=len(html_template),
+                    length=len(html_template.encode()),
                     content_type="text/html",
                 )
             shutil.rmtree(LOCAL_OUTPUT_DIR / src_obj)
@@ -103,11 +105,12 @@ def download_files(src_obj: str, src_bucket: str = MINIO_PRIVATE_ARTICLE_BUCKET)
             MINIO_CLIENT.fget_object(src_bucket, obj.object_name, str(LOCAL_OUTPUT_DIR / obj.object_name))
     tmp = Path(str(LOCAL_OUTPUT_DIR / src_obj / "index.html")).read_text(encoding="utf-8")
     tmp = tmp.replace(f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{src_obj}", ".")
-    js_files = re.findall('https://artifact.*.js', tmp)
+    shutil.copy(SMOOTH_SCROLLBAR_LOCAL_PATH, LOCAL_OUTPUT_DIR / src_obj / "js" / "smooth-scrollbar.js")
+    shutil.copy(GSAP_LOCAL_PATH, LOCAL_OUTPUT_DIR / src_obj / "js" / "gsap.min.js")
+    shutil.copy(SCROLLTRIGGER_LOCAL_PATH, LOCAL_OUTPUT_DIR / src_obj / "js" / "ScrollTrigger.min.js")
+    js_files = re.findall("https://.*.js", tmp)
     for js_file in js_files:
-        tmp_js_file = requests.get(js_file, verify=False)
-        Path(str(LOCAL_OUTPUT_DIR / src_obj / "js" / os.path.basename(js_file))).write_text(tmp_js_file.text, encoding="utf-8")
-        tmp = tmp.replace(js_file, f"js/{os.path.basename(js_file)}")
+        tmp = tmp.replace(js_file, f"js/{Path(js_file).name}")
     Path(str(LOCAL_OUTPUT_DIR / src_obj / "index.html")).write_text(tmp, encoding="utf-8")
     shutil.make_archive(LOCAL_OUTPUT_DIR / src_obj, "zip", LOCAL_OUTPUT_DIR / src_obj)
     return f"{LOCAL_OUTPUT_DIR / src_obj}.zip"
