@@ -1,4 +1,5 @@
 import io
+import re
 from pathlib import Path
 from typing import List
 
@@ -52,6 +53,13 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     return div_wrapper
 
 
+def prettify_except(soup_obj: BeautifulSoup, tag_name: str) -> str:
+    regex_string = f"<{tag_name}>.*</{tag_name}>"
+    regex = re.compile(regex_string, re.DOTALL)
+    replacing_txt = str(getattr(soup_obj, tag_name))
+    return re.sub(regex, replacing_txt, soup_obj.prettify())
+
+
 def generate_html(article_id: str, body_content: str, title: str) -> str:
     # Load HTML template
     with Path.open(Path(__file__).parent / "templates" / "index.html", encoding="utf-8") as file:
@@ -65,7 +73,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
 
     # Use BeautifulSoup to pretty-print the HTML content
     soup = BeautifulSoup(html_content, "html.parser")
-    formatted_html_content = soup.prettify()
+    formatted_html_content = prettify_except(soup, "u")
 
     if IS_LOCAL:
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id, parents=True, exist_ok=True)
