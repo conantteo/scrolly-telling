@@ -312,8 +312,8 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
                     "position": "absolute",
                     "width": "100%",
                     "height": "100%",
-                    "justify-content": "center",
-                    "align-items": "flex-start",
+                    "display": "flex",
+                    "justify-content": "end",
                     "flex-direction": "column",
                     "padding-top": "25px",
                 },
@@ -351,7 +351,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component img",
                     {
-                        "width": "100%",
+                        "width": "1000px",
                         "height": "auto",
                     },
                 )
@@ -373,7 +373,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                 f"page-{page_id}-center-component",
                 {
                     "justify-content": "center",
-                    "align-items": "center",
+                    # "align-items": "center",
                     "display": "flex",
                     "flex-direction": "column",
                     "text-align": "left",

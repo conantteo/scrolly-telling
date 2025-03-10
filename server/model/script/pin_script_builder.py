@@ -5,7 +5,7 @@ class PinScriptBuilder:
         ScrollTrigger.create({{
           trigger: '#page-{page_id}',
           start: 'top top',
-          end: () => "+={100 * pin_length}%",
+          end: () => "+={50 * pin_length}%",
           pin: true,
           pinSpacing: true,
           scrub: true,
