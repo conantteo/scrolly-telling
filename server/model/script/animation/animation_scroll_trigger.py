@@ -12,10 +12,14 @@ class AnimationScrollTrigger:
         self.animation_script = animation_script
 
     def get_start_trigger(self) -> str:
-        return f"top+={self.start_length * 100}% top"
+        if self.start_length == 0:
+            return f"top+={self.start_length * 50}% bottom"
+        return f"top+={self.start_length * 50}% top"
 
     def get_end_trigger(self) -> str:
-        return f"+={100 * self.end_left}%"
+        if self.start_length == 0:
+            return "+=150%"
+        return f"+={50 * self.end_left}%"
 
     def get_trigger_js(self) -> str:
         return f"""
