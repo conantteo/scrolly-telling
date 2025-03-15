@@ -1,7 +1,21 @@
 import _ from 'lodash';
 import { PostWebsiteRequest } from '../hooks/useGenerateWebsite';
+import { getPayload, uploadPayload } from '../hooks/usePayload';
 
 const SESSION_STORAGE_KEY = 'last-scrolly-article';
+
+export const getArticleFromRemoteStorage = async (article_id: string) => {
+  const data = await getPayload(article_id);
+  window.localStorage.setItem(SESSION_STORAGE_KEY, data);
+};
+
+export const uploadArticalIntoRemoteStorage = (payload: Partial<PostWebsiteRequest>) => {
+  const value = getArticleFromLocalStorage();
+  uploadPayload(
+    JSON.stringify({ ..._.cloneDeep(value), ..._.cloneDeep(payload) }),
+    value?.articleId
+  );
+};
 
 export const getArticleFromLocalStorage = (): Partial<PostWebsiteRequest> | null => {
   const value = window.localStorage.getItem(SESSION_STORAGE_KEY);

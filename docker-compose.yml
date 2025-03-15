@@ -12,7 +12,7 @@ services:
     depends_on:
       - minio
     environment: 
-      IS_LOCAL: "False"
+      BUCKET: MINIO
       S3_SECURE: "False"
       S3_API_ENDPOINT: minio:9000
       S3_PREVIEW_ENDPOINT: localhost:9000

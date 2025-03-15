@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AppShell, Box, Flex, Group } from '@mantine/core';
 import DownloadButton from './components/button/DownloadButton';
+import LoadPayloadButton from './components/button/LoadPayloadButton';
 import ResetButton from './components/button/ResetButton';
 import Header from './layout/Header';
 import ScrollyLeftPanel from './layout/ScrollyLeftPanel';
@@ -46,6 +47,7 @@ const App: React.FC = () => {
           <Header />
           <Box>
             <Group>
+              <LoadPayloadButton />
               <ResetButton />
               <DownloadButton />
             </Group>

@@ -7,7 +7,10 @@ import {
   ScrollyFocusElement,
   ScrollyPage,
 } from '../types';
-import { setArticleFromLocalStorage } from '../util/localStorageUtil';
+import {
+  setArticleFromLocalStorage,
+  uploadArticalIntoRemoteStorage,
+} from '../util/localStorageUtil';
 
 interface ScrollyState {
   currentElementId: string | null;
@@ -43,6 +46,9 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
   resetStore: () => {
     set(() => {
       const articleId = uuidv4();
+      setArticleFromLocalStorage({
+        articleId,
+      });
       return {
         articleId,
         articleTitle: '',
@@ -113,6 +119,9 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
         });
       });
       setArticleFromLocalStorage({
+        pages: updatedData,
+      });
+      uploadArticalIntoRemoteStorage({
         pages: updatedData,
       });
       return { pages: updatedData };

@@ -66,8 +66,8 @@ spec:
               value: "scrollytelling-minio.scrollytelling.svc.cluster.local:9000"
             - name: S3_PREVIEW_ENDPOINT
               value: "scrollytelling-minio.app.${NETWORK_DOMAIN}"
-            - name: IS_LOCAL
-              value: "False"
+            - name: BUCKET
+              value: MINIO
           resources:
             requests:
               cpu: "2000m"

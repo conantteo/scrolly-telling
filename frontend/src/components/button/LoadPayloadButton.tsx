@@ -1,4 +1,5 @@
-import { IconCheck, IconCopy, IconRestore } from '@tabler/icons-react';
+import { useState } from 'react';
+import { IconCheck, IconCopy, IconDeviceDesktopDown } from '@tabler/icons-react';
 import {
   ActionIcon,
   Box,
@@ -8,46 +9,45 @@ import {
   Group,
   Modal,
   Stack,
+  TextInput,
   Title,
   Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useScrollyStore } from '../../store';
-import { deleteArticleFromLocalStorage } from '../../util/localStorageUtil';
+import {
+  deleteArticleFromLocalStorage,
+  getArticleFromRemoteStorage,
+} from '../../util/localStorageUtil';
 
-const ResetButton: React.FC = () => {
+const LoadPayloadButton: React.FC = () => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
-  const articleId = useScrollyStore((state) => state.articleId);
-  const pages = useScrollyStore((state) => state.pages);
+  const currentArticleId = useScrollyStore((state) => state.articleId);
   const resetStore = useScrollyStore((state) => state.resetStore);
-
+  const [articleId, setArticleId] = useState('');
   return (
     <>
-      <Tooltip label="Click here to reset this article.">
-        <Button
-          size="sm"
-          leftSection={<IconRestore />}
-          onClick={open}
-          disabled={pages.length === 0 || !articleId}
-        >
-          Reset
+      <Tooltip label="Click here to load article from storage using an article ID.">
+        <Button size="sm" leftSection={<IconDeviceDesktopDown />} onClick={open}>
+          Load Payload
         </Button>
       </Tooltip>
+
       {isModalOpened ? (
         <Modal
           centered
           opened={isModalOpened}
           onClose={close}
-          title={<Title order={2}>Are you sure you want to reset?</Title>}
+          title={<Title order={2}>Load article from storage</Title>}
           size="auto"
         >
           <Stack>
             <Box>
-              You can reload the current article from storage using the <Code>Load Payload</Code>
-              button in the future using the current article ID:
+              Your current article will be replaced, are you sure you want to continue?
               <Group>
-                <Code block>{articleId}</Code>
-                <CopyButton value={articleId} timeout={2000}>
+                Current article ID:
+                <Code block>{currentArticleId}</Code>
+                <CopyButton value={currentArticleId} timeout={2000}>
                   {({ copied, copy }) => (
                     <Tooltip
                       label={copied ? 'Copied' : 'Copy article ID'}
@@ -62,6 +62,13 @@ const ResetButton: React.FC = () => {
                 </CopyButton>
               </Group>
             </Box>
+            <Box>
+              <TextInput
+                label="Article ID"
+                placeholder="Input article ID to be loaded here"
+                onChange={(event) => setArticleId(event.currentTarget.value)}
+              />
+            </Box>
             <Group>
               <Button
                 size="sm"
@@ -73,15 +80,15 @@ const ResetButton: React.FC = () => {
                 Cancel
               </Button>
               <Button
-                color="red"
                 size="sm"
                 onClick={() => {
                   deleteArticleFromLocalStorage();
                   resetStore();
-                  close();
+                  getArticleFromRemoteStorage(articleId);
+                  window.location.reload();
                 }}
               >
-                Reset
+                Submit
               </Button>
             </Group>
           </Stack>
@@ -91,4 +98,4 @@ const ResetButton: React.FC = () => {
   );
 };
 
-export default ResetButton;
+export default LoadPayloadButton;
