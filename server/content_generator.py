@@ -9,13 +9,15 @@ from jinja2 import Template
 from server.model.component import Component
 from server.model.frame import Frame
 from server.model.layout import Layout
+from server.utilities.constants import BUCKET
 from server.utilities.constants import CDN_URL
-from server.utilities.constants import IS_LOCAL
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
 from server.utilities.constants import MINIO_PREVIEW_ENDPOINT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
 from server.utilities.constants import MINIO_SCHEME
+from server.utilities.constants import S3_BUCKET
+from server.utilities.constants import S3_CLIENT
 
 #################################################################################################################
 ################################################ HTML ###########################################################
@@ -46,7 +48,10 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     # Indicate in class if image is in first frame with "first-image"
     additional_class = "first-image" if frame_index == 0 else ""
     div_wrapper = f'<div class="{class_name} {additional_class}" id="comp-{component.id}" >'
-    minio_url = f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
+    if BUCKET == "S3":
+        minio_url = f"images/{component.image}"
+    else:
+        minio_url = f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
     div_wrapper += f'<img src="{minio_url}" alt="Image" />'
     div_wrapper += "</div>"
 
@@ -75,19 +80,27 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
     soup = BeautifulSoup(html_content, "html.parser")
     formatted_html_content = prettify_except(soup, "u")
 
-    if IS_LOCAL:
+    if BUCKET == "LOCAL":
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id, parents=True, exist_ok=True)
         Path(LOCAL_OUTPUT_DIR / article_id / "index.html").write_bytes(formatted_html_content.encode())
         return str(Path(LOCAL_OUTPUT_DIR / article_id / "index.html"))
-
-    MINIO_CLIENT.put_object(
-        MINIO_PRIVATE_ARTICLE_BUCKET,
-        f"{article_id}/index.html",
-        io.BytesIO(formatted_html_content.encode()),
-        length=len(formatted_html_content.encode()),
-        content_type="text/html",
+    if BUCKET == "MINIO":
+        MINIO_CLIENT.put_object(
+            MINIO_PRIVATE_ARTICLE_BUCKET,
+            f"{article_id}/index.html",
+            io.BytesIO(formatted_html_content.encode()),
+            length=len(formatted_html_content.encode()),
+            content_type="text/html",
+        )
+        return f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+    S3_CLIENT.put_object(
+        Body=io.BytesIO(formatted_html_content.encode()),
+        Bucket=S3_BUCKET,
+        ServerSideEncryption="AES256",
+        Key=f"private-articles/{article_id}/index.html",
+        ContentType="text/html",
     )
-    return f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/index.html"
+    return None
 
 
 #################################################################################################################
@@ -408,14 +421,22 @@ def generate_css(article_id: str, styling_content: str) -> None:
     # Concatenate the template CSS content with the provided styling content
     combined_css_content = f"{template_css_content.strip()}\n\n{styling_content.strip()}"
 
-    if IS_LOCAL:
+    if BUCKET == "LOCAL":
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id / "css", parents=True, exist_ok=True)
         Path(LOCAL_OUTPUT_DIR / article_id / "css" / "styles.css").write_bytes(combined_css_content.encode())
-    else:
+    elif BUCKET == "MINIO":
         MINIO_CLIENT.put_object(
             MINIO_PRIVATE_ARTICLE_BUCKET,
             f"{article_id}/css/styles.css",
             io.BytesIO(combined_css_content.encode()),
             length=len(combined_css_content.encode()),
             content_type="text/css",
+        )
+    else:
+        S3_CLIENT.put_object(
+            Body=io.BytesIO(combined_css_content.encode()),
+            Bucket=S3_BUCKET,
+            ServerSideEncryption="AES256",
+            Key=f"private-articles/{article_id}/css/styles.css",
+            ContentType="text/css",
         )

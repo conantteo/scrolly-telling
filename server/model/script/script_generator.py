@@ -4,10 +4,12 @@ from pathlib import Path
 from server.model.page import Page
 from server.model.script.script_constants import gsap_init_js
 from server.model.script.script_processor import ScriptProcessor
-from server.utilities.constants import IS_LOCAL
+from server.utilities.constants import BUCKET
 from server.utilities.constants import LOCAL_OUTPUT_DIR
 from server.utilities.constants import MINIO_CLIENT
 from server.utilities.constants import MINIO_PRIVATE_ARTICLE_BUCKET
+from server.utilities.constants import S3_BUCKET
+from server.utilities.constants import S3_CLIENT
 
 
 class ScriptGenerator:
@@ -23,14 +25,22 @@ class ScriptGenerator:
 
     def generate_and_export(self) -> None:
         scripts = self.generate()
-        if IS_LOCAL:
+        if BUCKET == "LOCAL":
             Path.mkdir(LOCAL_OUTPUT_DIR / self.article_id / "js", parents=True, exist_ok=True)
             Path(LOCAL_OUTPUT_DIR / self.article_id / "js" / "animation.js").write_bytes(scripts.encode())
-        else:
+        elif BUCKET == "MINIO":
             MINIO_CLIENT.put_object(
                 MINIO_PRIVATE_ARTICLE_BUCKET,
                 f"{self.article_id}/js/animation.js",
                 io.BytesIO(scripts.encode()),
                 length=len(scripts.encode()),
                 content_type="text/javascript",
+            )
+        else:
+            S3_CLIENT.put_object(
+                Body=io.BytesIO(scripts.encode()),
+                Bucket=S3_BUCKET,
+                ServerSideEncryption="AES256",
+                Key=f"private-articles/{self.article_id}/js/animation.js",
+                ContentType="text/javascript",
             )

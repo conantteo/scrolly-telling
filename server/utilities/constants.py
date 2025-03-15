@@ -1,3 +1,4 @@
+import boto3
 import os
 from pathlib import Path
 
@@ -5,7 +6,7 @@ from minio import Minio
 
 LOCAL_PARENT_DIR = Path(__file__).parent.parent
 
-IS_LOCAL = os.getenv("IS_LOCAL", "True").lower() == "true"
+BUCKET = os.getenv("BUCKET", "LOCAL")
 
 LOCAL_OUTPUT_DIR = LOCAL_PARENT_DIR / "output"
 
@@ -18,17 +19,21 @@ MINIO_SECRET_KEY = os.getenv("S3_SECRET_KEY", "minio123")
 MINIO_SECURE = os.getenv("S3_SECURE", "False").lower == "false"
 MINIO_PUBLIC_ARTICLE_BUCKET = "public-articles"
 MINIO_PRIVATE_ARTICLE_BUCKET = "private-articles"
+S3_BUCKET = "t-stg-scrollytelling-s3"
 MINIO_CLIENT = None
+S3_CLIENT = None
 
-if IS_LOCAL:
+if BUCKET == "LOCAL":
     Path.mkdir(LOCAL_OUTPUT_DIR, parents=True, exist_ok=True)
-else:
+elif BUCKET == "MINIO":
     MINIO_CLIENT = Minio(
         endpoint=MINIO_API_ENDPOINT,
         access_key=MINIO_ACCESS_KEY,
         secret_key=MINIO_SECRET_KEY,
         secure=MINIO_SECURE,
     )
+else:
+    S3_CLIENT = boto3.client('s3')
 
 GSAP_LOCAL_PATH = LOCAL_PARENT_DIR / "templates" / "js" / "gsap.min.js"
 SMOOTH_SCROLLBAR_LOCAL_PATH = LOCAL_PARENT_DIR / "templates" / "js" / "smooth-scrollbar.js"

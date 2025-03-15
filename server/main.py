@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Annotated
 from typing import Union
 
+import boto3
 import uvicorn
 from fastapi import FastAPI
 from fastapi import Form
@@ -10,17 +11,20 @@ from fastapi import UploadFile
 from fastapi import status
 from fastapi.openapi.docs import get_swagger_ui_html
 from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
-from starlette.responses import HTMLResponse
 
 from server.model.article import Article
 from server.model.response_error import ErrorResponse
 from server.model.response_successful import SuccessfulResponse
 from server.model.script.animation.animation_script_factory import AnimationScriptFactory
 from server.parser import process_pages
+from server.utilities.constants import BUCKET
 from server.utilities.constants import CDN_URL
-from server.utilities.constants import IS_LOCAL
+from server.utilities.constants import S3_BUCKET
+from server.utilities.constants import S3_CLIENT
 from server.utilities.utils import copy_files
 from server.utilities.utils import download_files
 from server.utilities.utils import stage_file
@@ -38,7 +42,7 @@ app = FastAPI(
 
 @app.get("/docs", include_in_schema=False)
 async def custom_docs() -> HTMLResponse:
-    if IS_LOCAL:
+    if BUCKET == "LOCAL":
         return get_swagger_ui_html(
             openapi_url=app.openapi_url,
             title=app.title,
@@ -140,8 +144,54 @@ async def generate_website(request_body: Article, is_download: bool) -> Union[Fi
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-if not IS_LOCAL:
+
+@app.get(
+    "/s3-assets/{path:path}",
+    responses={
+        status.HTTP_201_CREATED: {"model": SuccessfulResponse},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorResponse},
+        status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
+    },
+    response_model=None,
+)
+def get_s3_assets(path: str) -> Response:
+    print(path)
+    response = S3_CLIENT.get_object(Bucket=S3_BUCKET, Key=f"private-articles/{path}")
+    return Response(
+        content=response["Body"].read(), media_type=response["ContentType"], status_code=status.HTTP_201_CREATED
+    )
+
+
+if BUCKET != "LOCAL":
     app.mount("/", StaticFiles(directory="frontend/dist/", html=True), name="static")
+
+s3 = boto3.resource("s3")
+s3_client = boto3.client("s3")
+try:
+    response = s3_client.list_objects_v2(Bucket="t-stg-scrollytelling-s3")
+    s3_client.put_object(
+        Body=b"<html><body><p>hello world</p></body><html>",
+        Bucket="t-stg-scrollytelling-s3",
+        ServerSideEncryption="AES256",
+        Key="private-articles/test.html",
+        ContentType="text/html",
+    )
+    response = s3_client.list_objects_v2(Bucket="t-stg-scrollytelling-s3", Prefix="private-articles/")
+    for content in response.get("Contents", []):
+        print(content["Key"])
+    response = s3_client.generate_presigned_url(
+        "get_object",
+        Params={
+            "Bucket": "t-stg-scrollytelling-s3",
+            "Key": "private-articles/f28fcc48-fdc7-4d0a-8899-e41ed1d3e70f/index.html",
+        },
+    )
+    print(response)
+    object_acl = s3.ObjectAcl(S3_BUCKET, "private-articles/test.html")
+    response = object_acl.put(ACL="public-read")
+    print(response)
+except Exception as e:
+    print(e)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)  # noqa: S104
