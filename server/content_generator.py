@@ -368,6 +368,23 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                         "height": "auto",
                     },
                 )
+            elif page_id == "0":
+                css += generate_css_id_block(
+                    f"page-{page_id}",
+                    {"max-width": "100%", "height": "100%", "padding": "0px"},
+                )
+                css += generate_css_class_block(
+                    f"page-{page_id}-center-component",
+                    {"justify-content": "center", "align-items": "center", "height": "100%"},
+                )
+
+                css += generate_css_class_block(
+                    f"page-{page_id}-center-component img",
+                    {
+                        "width": "100%",
+                        "height": "100%",
+                    },
+                )
             else:
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component",
@@ -377,7 +394,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component img",
                     {
-                        "width": "90%",
+                        "width": "60%",
                         "height": "auto",
                     },
                 )
