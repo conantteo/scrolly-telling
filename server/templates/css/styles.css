@@ -6,6 +6,10 @@ html {
     overflow-x: hidden;
 }
 
+hr {
+    width: 100%;
+}
+
 .scroller {
     height: 100vh;
 }

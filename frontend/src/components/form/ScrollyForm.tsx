@@ -305,6 +305,7 @@ const ScrollyForm: React.FC = () => {
           </Button>
         </Tooltip>
       </Box>
+      <Space h="40px"></Space>
     </Stack>
   );
 };

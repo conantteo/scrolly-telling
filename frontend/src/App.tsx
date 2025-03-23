@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { AppShell, Box, Flex, Group } from '@mantine/core';
+import { AppShell, Box, Flex, Group, ScrollArea } from '@mantine/core';
 import DownloadButton from './components/button/DownloadButton';
 import LoadPayloadButton from './components/button/LoadPayloadButton';
 import ResetButton from './components/button/ResetButton';
@@ -62,7 +62,9 @@ const App: React.FC = () => {
           scrollbarWidth: 'none',
         }}
       >
-        <ScrollyLeftPanel />
+        <ScrollArea h="calc(100vh - 92px)" offsetScrollbars>
+          <ScrollyLeftPanel />
+        </ScrollArea>
       </AppShell.Navbar>
       <AppShell.Main
         style={{
@@ -72,16 +74,21 @@ const App: React.FC = () => {
         }}
         h="calc(100vh - 92px)"
       >
-        <ScrollyMainPanel />
+        <ScrollArea h="calc(100vh - 92px)" offsetScrollbars>
+          <ScrollyMainPanel />
+        </ScrollArea>
       </AppShell.Main>
       <AppShell.Aside
         p={24}
         style={{
           overflowY: 'scroll',
           overflowX: 'hidden',
+          scrollbarWidth: 'none',
         }}
       >
-        <ScrollyRightPanel />
+        <ScrollArea h="calc(100vh - 92px)" offsetScrollbars>
+          <ScrollyRightPanel />
+        </ScrollArea>
       </AppShell.Aside>
     </AppShell>
   );

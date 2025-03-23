@@ -61,8 +61,15 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
 def prettify_except(soup_obj: BeautifulSoup, tag_name: str) -> str:
     regex_string = f"<{tag_name}>.*?</{tag_name}>"
     regex = re.compile(regex_string, re.DOTALL)
-    replacing_txt = str(getattr(soup_obj, tag_name))
-    return re.sub(regex, replacing_txt, soup_obj.prettify())
+    prettified_text = soup_obj.prettify()
+    to_replace = re.findall(regex, prettified_text)
+    for txt in to_replace:
+        prettified_text = re.sub(
+            txt,
+            f"<{tag_name}>{txt.replace(f'<{tag_name}>', '').replace(f'</{tag_name}>', '').strip()}</{tag_name}>",
+            prettified_text,
+        )
+    return prettified_text
 
 
 def generate_html(article_id: str, body_content: str, title: str) -> str:

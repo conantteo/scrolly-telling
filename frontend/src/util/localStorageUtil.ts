@@ -7,6 +7,7 @@ const SESSION_STORAGE_KEY = 'last-scrolly-article';
 export const getArticleFromRemoteStorage = async (article_id: string) => {
   const data = await getPayload(article_id);
   window.localStorage.setItem(SESSION_STORAGE_KEY, data);
+  window.location.reload();
 };
 
 export const uploadArticalIntoRemoteStorage = (payload: Partial<PostWebsiteRequest>) => {

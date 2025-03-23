@@ -85,7 +85,6 @@ const LoadPayloadButton: React.FC = () => {
                   deleteArticleFromLocalStorage();
                   resetStore();
                   getArticleFromRemoteStorage(articleId);
-                  window.location.reload();
                 }}
               >
                 Submit

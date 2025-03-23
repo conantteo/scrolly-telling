@@ -6,6 +6,7 @@ import {
   Code,
   CopyButton,
   Group,
+  Loader,
   Modal,
   Stack,
   Title,
@@ -22,10 +23,18 @@ const DownloadButton: React.FC = () => {
   const [isModalOpened, { open, close }] = useDisclosure(false);
   const articleId = useScrollyStore((state) => state.articleId);
   const title = useScrollyStore((state) => state.articleTitle);
-  const { mutate: generateAndDownloadWebsite } = useGenerateAndDownloadWebsite();
-  const { mutate: generateAndPreviewWebsite, data, isPending } = useGenerateAndPreviewWebsite();
+  const {
+    mutate: generateAndDownloadWebsite,
+    isPending: isDownloadPending,
+    reset: resetDownload,
+  } = useGenerateAndDownloadWebsite();
+  const {
+    mutate: generateAndPreviewWebsite,
+    data,
+    isPending: isPreviewPending,
+    reset: resetPreview,
+  } = useGenerateAndPreviewWebsite();
   const pages = useScrollyStore((state) => state.pages);
-
   return (
     <>
       <Tooltip label="Click here to generate all the pages you've created. A download link will be generated.">
@@ -43,11 +52,15 @@ const DownloadButton: React.FC = () => {
         <Modal
           centered
           opened={isModalOpened}
-          onClose={close}
+          onClose={() => {
+            resetPreview();
+            resetDownload();
+            close();
+          }}
           title={<Title order={2}>Scrolly Article Completed</Title>}
           size="auto"
         >
-          {!isPending && data?.url ? (
+          {!isPreviewPending && data?.url ? (
             <Stack>
               <Box>You can paste the following code into the HTML macro in Confluence:</Box>
               <Box>
@@ -79,15 +92,19 @@ const DownloadButton: React.FC = () => {
                   variant="subtle"
                   onClick={() => {
                     generateAndDownloadWebsite({ articleId, title, pages });
+                    resetDownload();
+                    resetPreview();
                     close();
                   }}
                 >
-                  Download
+                  {isDownloadPending ? <Loader color="white" size="xs" mr="10px" /> : null} Download
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => {
                     window.open(data?.url, '_blank', 'noopener,noreferrer');
+                    resetPreview();
+                    resetDownload();
                     close();
                   }}
                 >
@@ -104,16 +121,18 @@ const DownloadButton: React.FC = () => {
                   variant="subtle"
                   onClick={() => {
                     generateAndDownloadWebsite({ articleId, title, pages });
+                    resetDownload();
+                    resetPreview();
                     close();
                   }}
                 >
-                  Download
+                  {isDownloadPending ? <Loader color="white" size="xs" mr="10px" /> : null} Download
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => generateAndPreviewWebsite({ articleId, title, pages })}
                 >
-                  Preview
+                  {isPreviewPending ? <Loader color="white" size="xs" mr="10px" /> : null} Preview
                 </Button>
               </Group>
             </Stack>
