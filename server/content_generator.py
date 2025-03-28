@@ -367,15 +367,25 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                     {"position": "absolute", "justify-content": "center", "align-items": "center", "display": "flex"},
                 )
 
-                # Set max width to image
-                css += generate_css_class_block(
-                    f"page-{page_id}-center-component img",
-                    {
-                        "max-width": "60%",
-                        "height": "auto",
-                    },
-                )
-            elif page_id == "0":
+                if component.isDisplayFullscreen:
+                    # Set max width/height to image
+                    css += generate_css_class_block(
+                        f"page-{page_id}-center-component img",
+                        {
+                            "width": "100%",
+                            "height": "100%",
+                        },
+                    )
+                else:
+                    # Set default max width to image
+                    css += generate_css_class_block(
+                        f"page-{page_id}-center-component img",
+                        {
+                            "max-width": "60%",
+                            "height": "auto",
+                        },
+                    )
+            elif component.isDisplayFullscreen:
                 css += generate_css_id_block(
                     f"page-{page_id}",
                     {"max-width": "100%", "height": "100%", "padding": "0px"},
