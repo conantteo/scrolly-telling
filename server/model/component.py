@@ -10,6 +10,7 @@ class Component(BaseModel):
     animation: Optional[str] = None
     contentHtml: Optional[str] = None
     image: Optional[str] = None
+    isDisplayFullscreen: Optional[bool] = False
 
 
 component_data = {

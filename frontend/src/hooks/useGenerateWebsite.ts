@@ -24,6 +24,8 @@ const prepareDataForPost = (data: PostWebsiteRequest) => {
         ...component,
         id: `${pageIndex}-${frameIndex}-${componentIndex}`,
         image: component.type === 'image' ? component.metadata?.image : undefined,
+        isDisplayFullscreen:
+          component.type === 'image' ? component.metadata?.isDisplayFullscreen : false,
         contentHtml: component.type === 'text' ? component.metadata?.htmlContent : undefined,
       }));
       return { ...frame, components: updatedComponents, id: `${pageIndex}-${frameIndex}` };

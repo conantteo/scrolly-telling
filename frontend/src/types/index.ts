@@ -57,11 +57,12 @@ export type ScrollyRichText = {
 };
 
 export type ScrollyImage = {
-  fileBase64: string;
-  image: string;
-  fileExtension: string;
-  fileSize: string;
-  file: File;
+  fileBase64?: string;
+  image?: string;
+  fileExtension?: string;
+  fileSize?: string;
+  file?: File;
+  isDisplayFullscreen?: boolean;
 };
 
 export type ScrollyFocusElement = {

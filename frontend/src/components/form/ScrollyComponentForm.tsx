@@ -55,6 +55,10 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
               fileExtension,
               fileSize: `${compressedFile.size}`,
               file,
+              isDisplayFullscreen:
+                component.type === 'image'
+                  ? (component.metadata?.isDisplayFullscreen ?? false)
+                  : false,
             },
           });
         };
@@ -184,18 +188,43 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         }}
       />
       {component.type === 'image' && (
-        <Box>
-          <FileInput
-            radius="xl"
-            label="Upload image here"
+        <>
+          <Radio.Group
+            value={`${component.metadata?.isDisplayFullscreen ? 'yes' : 'no'}`}
+            defaultValue="no"
+            onChange={(value) => {
+              if (value) {
+                setComponent({
+                  ...component,
+                  metadata: {
+                    ...component.metadata,
+                    isDisplayFullscreen: value === 'yes',
+                  },
+                });
+              }
+            }}
+            label="Display image in fullscreen?"
+            description="Image will either be displayed in default size or fullscreen"
             withAsterisk
-            description="Accepts .png, .jpg, .jpeg"
-            error={formError.file ? formError.file : null}
-            placeholder="Select an image"
-            value={component.metadata?.file ? component.metadata?.file : null}
-            onChange={onFileUpload}
-          />
-        </Box>
+          >
+            <Group mt="xs">
+              <Radio label="No" value="no" />
+              <Radio label="Yes" value="yes" />
+            </Group>
+          </Radio.Group>
+          <Box>
+            <FileInput
+              radius="xl"
+              label="Upload image here"
+              withAsterisk
+              description="Accepts .png, .jpg, .jpeg"
+              error={formError.file ? formError.file : null}
+              placeholder="Select an image"
+              value={component.metadata?.file ? component.metadata?.file : null}
+              onChange={onFileUpload}
+            />
+          </Box>
+        </>
       )}
       {component.type === 'text' && (
         <Box>
