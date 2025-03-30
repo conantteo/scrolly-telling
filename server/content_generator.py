@@ -420,10 +420,10 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                 f"page-{page_id}-center-component",
                 {
                     "justify-content": "center",
-                    # "align-items": "center",
                     "display": "flex",
                     "flex-direction": "column",
                     "text-align": "left",
+                    "max-width": "60%"
                 },
             )
     return css
