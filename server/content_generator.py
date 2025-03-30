@@ -150,6 +150,9 @@ def generate_left_right_css(tag_id: str, layout: Layout) -> str:
             "background-color": "#fff",
             "padding-left": "40px",
             "padding-right": "40px",
+            "max-width": "60%",
+            "margin-left": "auto",
+            "margin-right": "auto",
         },
     )
 
@@ -196,6 +199,8 @@ def generate_top_bottom_css(page_id: str, layout: Layout) -> str:
         {
             "display": "flex",
             "flex-direction": "column",
+            "justify-content": "center",
+            "align-items": "center",
             "height": "100vh",
             "background-color": "#fff",
             "padding-left": "40px",
@@ -209,8 +214,8 @@ def generate_top_bottom_css(page_id: str, layout: Layout) -> str:
         {
             "display": "flex",
             "justify-content": "center",
-            "align-items": "center",
-            "width": "100%",
+            "align-items": "flex-end",
+            "width": "60%",
             "height": top_height,
             "background-color": "transparent",
             "position": "relative",
@@ -223,11 +228,12 @@ def generate_top_bottom_css(page_id: str, layout: Layout) -> str:
         {
             "display": "flex",
             "justify-content": "center",
-            "align-items": "center",
-            "width": "100%",
+            "align-items": "flex-start",
+            "width": "60%",
             "height": bottom_height,
             "background-color": "transparent",
             "position": "relative",
+            "padding-top": "40px",
         },
     )
 
@@ -288,7 +294,7 @@ def generate_left_right_component_css(page_id: str, first_frame_components: List
                 f"page-{page_id}-{component.position}-component",
                 {
                     "position": "absolute",
-                    "width": "70%",
+                    "width": "100%",
                     "max-width": "500px",
                     "height": "100%",
                     "text-align": "left",
@@ -347,7 +353,7 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
                     "height": "80%",
                     "display": "flex",
                     "justify-content": "center",
-                    "align-items": "center",
+                    "align-items": "flex-start" if component.position == "bottom" else "flex-end",
                     "opacity": "1",
                 },
             )
@@ -362,11 +368,6 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
     for component in first_frame_components:
         if component.type == "image":
             if pinnable:
-                css += generate_css_class_block(
-                    f"page-{page_id}-center-component",
-                    {"position": "absolute", "justify-content": "center", "align-items": "center", "display": "flex"},
-                )
-
                 if component.isDisplayFullscreen:
                     # Set max width/height to image
                     css += generate_css_class_block(
@@ -376,13 +377,33 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                             "height": "100%",
                         },
                     )
+                    css += generate_css_class_block(
+                        f"page-{page_id}-center-component",
+                        {
+                            "position": "absolute",
+                            "justify-content": "center",
+                            "align-items": "center",
+                            "display": "flex",
+                        },
+                    )
                 else:
                     # Set default max width to image
                     css += generate_css_class_block(
                         f"page-{page_id}-center-component img",
                         {
-                            "max-width": "60%",
+                            "max-width": "100%",
                             "height": "auto",
+                        },
+                    )
+
+                    css += generate_css_class_block(
+                        f"page-{page_id}-center-component",
+                        {
+                            "position": "absolute",
+                            "justify-content": "center",
+                            "align-items": "center",
+                            "display": "flex",
+                            "max-width": "60%",
                         },
                     )
             elif component.isDisplayFullscreen:
@@ -392,26 +413,26 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                 )
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component",
-                    {"justify-content": "center", "align-items": "center", "height": "100%"},
+                    {"justify-content": "center", "align-items": "center", "height": "100%", "width": "100%"},
                 )
 
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component img",
                     {
                         "width": "100%",
-                        "height": "100%",
+                        "height": "auto",
                     },
                 )
             else:
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component",
-                    {"justify-content": "center", "align-items": "center"},
+                    {"justify-content": "center", "align-items": "center", "max-width": "60%"},
                 )
 
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component img",
                     {
-                        "width": "60%",
+                        "width": "100%",
                         "height": "auto",
                     },
                 )
@@ -423,7 +444,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                     "display": "flex",
                     "flex-direction": "column",
                     "text-align": "left",
-                    "max-width": "60%"
+                    "max-width": "60%",
                 },
             )
     return css

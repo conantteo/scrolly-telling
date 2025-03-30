@@ -36,8 +36,6 @@ def process_pages(article_id: str, pages: list[Page], title: str) -> str:
 
 
 def parse_pinned_page_to_html(page: Page, article_id: str) -> str:
-    pinned_section_wrapper = f'<section id="page-{page.id}">'
-
     # left-right, top-bottom, single
     layout_template = page.layout.template
     components_by_position = {"left": [], "right": [], "top": [], "bottom": [], "center": []}
@@ -58,16 +56,19 @@ def parse_pinned_page_to_html(page: Page, article_id: str) -> str:
         return div_wrapper
 
     if layout_template == "left-right":
+        pinned_section_wrapper = f'<section id="page-{page.id}">'
         # Build left and right sections
         pinned_section_wrapper += build_section_html("left", components_by_position["left"])
         pinned_section_wrapper += build_section_html("right", components_by_position["right"])
 
     elif layout_template == "top-bottom":
+        pinned_section_wrapper = f'<section id="page-{page.id}" class="page-center">'
         # Build top and bottom sections
         pinned_section_wrapper += build_section_html("top", components_by_position["top"])
         pinned_section_wrapper += build_section_html("bottom", components_by_position["bottom"])
 
     elif layout_template == "single":
+        pinned_section_wrapper = f'<section id="page-{page.id}" class="page-center">'
         position_components = components_by_position["center"]
         component_class_name = "page-" + page.id + "-center-component"
         for component, frame_index in position_components:
