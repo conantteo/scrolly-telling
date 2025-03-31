@@ -23,6 +23,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   const components = frames.flatMap((frame) => frame.components || []);
   const imageComponents = components.filter((component) => component.type === 'image');
   const textComponents = components.filter((component) => component.type === 'text');
+  const currentScrollyFocusElement = useScrollyStore((state) => state.currentElementId);
 
   const getGradient = () => {
     if (isCurrent) {
@@ -69,7 +70,10 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   return (
     <>
       <Card withBorder shadow="xl">
-        <CardLabel label={`Page ${_.toNumber(id) + 1}`} />
+        <CardLabel
+          label={`Page ${_.toNumber(id) + 1}`}
+          backgroundColor={currentScrollyFocusElement == id ? '#a5d8ff' : '#d0ebff'}
+        />
         <CardLabel
           label={
             <Tooltip
@@ -86,7 +90,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
             </Tooltip>
           }
           position="right"
-          background={false}
+          backgroundColor="#fff"
         />
         <CardBody>{cardDisplay}</CardBody>
       </Card>

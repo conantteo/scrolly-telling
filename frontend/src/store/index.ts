@@ -9,7 +9,7 @@ import {
 } from '../types';
 import {
   setArticleFromLocalStorage,
-  uploadArticalIntoRemoteStorage,
+  uploadArticleIntoRemoteStorage,
 } from '../util/localStorageUtil';
 
 interface ScrollyState {
@@ -121,7 +121,7 @@ export const useScrollyStore = create<ScrollyState>((set) => ({
       setArticleFromLocalStorage({
         pages: updatedData,
       });
-      uploadArticalIntoRemoteStorage({
+      uploadArticleIntoRemoteStorage({
         pages: updatedData,
       });
       return { pages: updatedData };

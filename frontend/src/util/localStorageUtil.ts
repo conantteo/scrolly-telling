@@ -10,7 +10,7 @@ export const getArticleFromRemoteStorage = async (article_id: string) => {
   window.location.reload();
 };
 
-export const uploadArticalIntoRemoteStorage = (payload: Partial<PostWebsiteRequest>) => {
+export const uploadArticleIntoRemoteStorage = (payload: Partial<PostWebsiteRequest>) => {
   const value = getArticleFromLocalStorage();
   uploadPayload(
     JSON.stringify({ ..._.cloneDeep(value), ..._.cloneDeep(payload) }),

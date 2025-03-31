@@ -54,7 +54,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
               fileBase64: base64,
               fileExtension,
               fileSize: `${compressedFile.size}`,
-              file,
+              file: compressedFile,
               isDisplayFullscreen:
                 component.type === 'image'
                   ? (component.metadata?.isDisplayFullscreen ?? false)

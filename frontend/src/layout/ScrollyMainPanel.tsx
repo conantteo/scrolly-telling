@@ -24,6 +24,7 @@ const SINGLE_ORDER_MAP = {
 
 const ScrollyMainPanel: React.FC = () => {
   const pages = useScrollyStore((state) => state.pages);
+  const currentScrollyFocusElement = useScrollyStore((state) => state.currentElementId);
 
   const reorderComponents = (components: ScrollyComponent[], layoutTemplate: string) => {
     let orderMap: { [key: string]: number } = {};
@@ -63,7 +64,10 @@ const ScrollyMainPanel: React.FC = () => {
     return page.frames.map((frame, frameIndex) => (
       <Box key={frameIndex} mt={8}>
         <Card withBorder shadow="xl">
-          <CardLabel label={`Frame ${_.toNumber(frameIndex) + 1}`} />
+          <CardLabel
+            label={`Frame ${_.toNumber(frameIndex) + 1}`}
+            backgroundColor={currentScrollyFocusElement == page.id ? '#a5d8ff' : '#d0ebff'}
+          />
           <CardBody>{renderFrame(frame, page.layout.template)}</CardBody>
         </Card>
       </Box>
@@ -87,8 +91,16 @@ const ScrollyMainPanel: React.FC = () => {
       <Space h="md" />
       <Stack align="stretch" justify="center" gap="xs">
         {pages.map((page) => (
-          <Card key={page.id} withBorder shadow="xl">
-            <CardLabel label={`Page ${_.toNumber(page.id) + 1}`} />
+          <Card
+            key={page.id}
+            withBorder
+            shadow="xl"
+            bg={currentScrollyFocusElement == page.id ? '#e7f5ff' : '#fff'}
+          >
+            <CardLabel
+              label={`Page ${_.toNumber(page.id) + 1}`}
+              backgroundColor={currentScrollyFocusElement == page.id ? '#a5d8ff' : '#d0ebff'}
+            />
             <CardBody>{renderPage(page)}</CardBody>
           </Card>
         ))}

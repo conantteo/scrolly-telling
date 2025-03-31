@@ -4,13 +4,16 @@ import { Text } from '@mantine/core';
 interface CardLabelProps {
   label: React.ReactNode;
   position?: 'left' | 'right';
-  background?: boolean;
+  backgroundColor?: string;
 }
 
-const CardLabel: React.FC<CardLabelProps> = ({ label, position = 'left', background = true }) => {
-  const stylePositions =
-    position === 'left' ? { left: 0, backgroundColor: '#d0ebff' } : { right: 0 };
-  const styleBackground = background ? { backgroundColor: '#d0ebff' } : {};
+const CardLabel: React.FC<CardLabelProps> = ({
+  label,
+  position = 'left',
+  backgroundColor = '#d0ebff',
+}) => {
+  const stylePositions = position === 'left' ? { left: 0, backgroundColor } : { right: 0 };
+  const styleBackground = { backgroundColor };
   return (
     <Text
       style={{

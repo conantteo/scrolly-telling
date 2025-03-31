@@ -10,7 +10,6 @@ import boto3
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
 from minio.commonconfig import CopySource
-from minio.error import S3Error
 
 from server.utilities.constants import BUCKET
 from server.utilities.constants import GSAP_LOCAL_PATH
@@ -50,36 +49,30 @@ def generate_js_function(template_path: Path, output_file: Path, **kwargs: Any) 
 def stage_file(article_id: str, file_content: bytes, filename: str, file_size: int, file_content_type: str) -> None:
     if BUCKET == "LOCAL":
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id / "images", parents=True, exist_ok=True)
-        if Path.is_file(LOCAL_OUTPUT_DIR / article_id / "images" / filename):
-            raise FileExistsError("An image with the same name exists, please upload with a different name.")
+        # if Path.is_file(LOCAL_OUTPUT_DIR / article_id / "images" / filename):
+        #     raise FileExistsError("An image with the same name exists, please upload with a different name.")
         Path(LOCAL_OUTPUT_DIR / article_id / "images" / filename).write_bytes(file_content.read())
         return str(LOCAL_OUTPUT_DIR / article_id / "images" / filename)
-    elif BUCKET == "MINIO":
+    if BUCKET == "MINIO":
         if not MINIO_CLIENT.bucket_exists(MINIO_PRIVATE_ARTICLE_BUCKET):
             MINIO_CLIENT.make_bucket(MINIO_PRIVATE_ARTICLE_BUCKET)
-        try:
-            MINIO_CLIENT.stat_object(MINIO_PRIVATE_ARTICLE_BUCKET, f"{article_id}/images/{filename}")
-            raise FileExistsError("An image with the same name exists, please upload with a different name.")
-        except S3Error as e:
-            if e.code == "NoSuchKey":
-                MINIO_CLIENT.put_object(
-                    MINIO_PRIVATE_ARTICLE_BUCKET,
-                    f"{article_id}/images/{filename}",
-                    file_content,
-                    length=file_size,
-                    content_type=file_content_type,
-                )
-                return f"{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"  # noqa: E501
-            raise
-    else:
-        S3_CLIENT.put_object(
-            Body=file_content,
-            Bucket=S3_BUCKET,
-            ServerSideEncryption="AES256",
-            Key=f"private-articles/{article_id}/images/{filename}",
-            ContentType=file_content_type,
+
+        MINIO_CLIENT.put_object(
+            MINIO_PRIVATE_ARTICLE_BUCKET,
+            f"{article_id}/images/{filename}",
+            file_content,
+            length=file_size,
+            content_type=file_content_type,
         )
-        return f"{MINIO_PREVIEW_ENDPOINT}/{article_id}/images/{filename}"
+        return f"{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"
+    S3_CLIENT.put_object(
+        Body=file_content,
+        Bucket=S3_BUCKET,
+        ServerSideEncryption="AES256",
+        Key=f"private-articles/{article_id}/images/{filename}",
+        ContentType=file_content_type,
+    )
+    return f"{MINIO_PREVIEW_ENDPOINT}/{article_id}/images/{filename}"
 
 
 def copy_files(
