@@ -167,6 +167,7 @@ def generate_left_right_css(tag_id: str, layout: Layout) -> str:
             "position": "relative",
             "width": left_width,
             "height": "100vh",
+            "margin-right": "10px",
         },
     )
 
@@ -181,6 +182,7 @@ def generate_left_right_css(tag_id: str, layout: Layout) -> str:
             "position": "relative",
             "width": right_width,
             "height": "100vh",
+            "margin-left": "10px",
         },
     )
 
