@@ -1,4 +1,4 @@
-import { AspectRatio, Box, Image } from '@mantine/core';
+import { AspectRatio, Box, Image, Text } from '@mantine/core';
 import { useScrollyStore } from '../../store';
 import { ScrollyComponent } from '../../types';
 
@@ -12,9 +12,16 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
   const renderComponentOnFocus = (componentInProp: ScrollyComponent, isFocused: boolean) => {
     const componentToRender =
       componentInProp.type === 'image' ? (
-        <AspectRatio ratio={1080 / 720} maw={500} mx="auto">
-          <Image src={componentInProp.metadata?.fileBase64} />
-        </AspectRatio>
+        <>
+          <AspectRatio ratio={1080 / 720} maw={500} mx="auto">
+            <Image src={componentInProp.metadata?.fileBase64} />
+          </AspectRatio>
+          {componentInProp.metadata?.caption ? (
+            <Text maw="500px" c="grey" mx="auto">
+              {componentInProp.metadata?.caption}
+            </Text>
+          ) : null}
+        </>
       ) : (
         <div
           style={{ overflowWrap: 'break-word' }}

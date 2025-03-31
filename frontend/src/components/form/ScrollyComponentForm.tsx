@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import imageCompression from 'browser-image-compression';
 import _ from 'lodash';
-import { Box, FileInput, Group, InputLabel, Radio, Select, Stack } from '@mantine/core';
+import { Box, FileInput, Group, InputLabel, Radio, Select, Stack, TextInput } from '@mantine/core';
 import { useAnimationOptions } from '../../hooks/useAnimationOptions';
 import { useUploadImage } from '../../hooks/useUploadImage';
 import { useScrollyStore } from '../../store';
@@ -222,6 +222,20 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
               placeholder="Select an image"
               value={component.metadata?.file ? component.metadata?.file : null}
               onChange={onFileUpload}
+            />
+            <TextInput
+              label="Caption"
+              placeholder="Input caption here"
+              value={component.metadata?.caption}
+              onChange={(event) => {
+                setComponent({
+                  ...component,
+                  metadata: {
+                    ...component.metadata,
+                    caption: event.currentTarget.value,
+                  },
+                });
+              }}
             />
           </Box>
         </>

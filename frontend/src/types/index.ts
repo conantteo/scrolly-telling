@@ -59,6 +59,7 @@ export type ScrollyRichText = {
 export type ScrollyImage = {
   fileBase64?: string;
   image?: string;
+  caption?: string;
   fileExtension?: string;
   fileSize?: string;
   file?: File;

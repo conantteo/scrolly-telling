@@ -2,6 +2,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from server.model.image import Image
+
 
 class Component(BaseModel):
     id: str
@@ -9,8 +11,7 @@ class Component(BaseModel):
     position: str
     animation: Optional[str] = None
     contentHtml: Optional[str] = None
-    image: Optional[str] = None
-    isDisplayFullscreen: Optional[bool] = False
+    image: Optional[Image] = None
 
 
 component_data = {

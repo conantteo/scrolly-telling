@@ -44,16 +44,18 @@ def generate_text_component_as_html(component: Component, class_name: str):
 
 
 # Wrap each component with class <page>-<position>-component so that it is identifiable by JS
-def generate_image_component_as_html(component: Component, class_name: str, article_id: str, frame_index: int):
+def generate_image_component_as_html(component: Component, class_name: str, article_id: str, frame_index: int) -> str:
     # Indicate in class if image is in first frame with "first-image"
     additional_class = "first-image" if frame_index == 0 else ""
-    div_wrapper = f'<div class="{class_name} {additional_class}" id="comp-{component.id}" >'
+    div_wrapper = f'<figure class="{class_name} {additional_class}" id="comp-{component.id}" >'
     if BUCKET == "S3":
-        minio_url = f"images/{component.image}"
+        minio_url = f"images/{component.image.data}"
     else:
-        minio_url = f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image}"
+        minio_url = f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{component.image.data}"
     div_wrapper += f'<img src="{minio_url}" alt="Image" />'
-    div_wrapper += "</div>"
+    if component.image.caption:
+        div_wrapper += f"<figcaption>{component.image.caption}</figcaption>"
+    div_wrapper += "</figure>"
 
     return div_wrapper
 
@@ -147,7 +149,7 @@ def generate_left_right_css(tag_id: str, layout: Layout) -> str:
             "justify-content": "space-around",
             "align-items": "center",
             "height": "100vh",
-            "background-color": "#fff",
+            # "background-color": "#fff",
             "padding-left": "40px",
             "padding-right": "40px",
             "max-width": "60%",
@@ -204,7 +206,7 @@ def generate_top_bottom_css(page_id: str, layout: Layout) -> str:
             "justify-content": "center",
             "align-items": "center",
             "height": "100vh",
-            "background-color": "#fff",
+            # "background-color": "#fff",
             "padding-left": "40px",
             "padding-right": "40px",
         },
@@ -251,7 +253,7 @@ def generate_single_css(page_id: str) -> str:
             "justify-content": "center",
             "align-items": "center",
             "height": "100vh",
-            "background-color": "#fff",
+            # "background-color": "#fff",
             "padding-left": "40px",
             "padding-right": "40px",
         },
@@ -320,6 +322,7 @@ def generate_left_right_component_css(page_id: str, first_frame_components: List
                     "justify-content": "center",
                     "align-items": "center",
                     "opacity": "1",
+                    "flex-direction": "column",
                 },
             )
 
@@ -357,6 +360,7 @@ def generate_top_bottom_component_css(page_id: str, first_frame_components: List
                     "justify-content": "center",
                     "align-items": "flex-start" if component.position == "bottom" else "flex-end",
                     "opacity": "1",
+                    "flex-direction": "column",
                 },
             )
 
@@ -370,7 +374,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
     for component in first_frame_components:
         if component.type == "image":
             if pinnable:
-                if component.isDisplayFullscreen:
+                if component.image.isDisplayFullscreen:
                     # Set max width/height to image
                     css += generate_css_class_block(
                         f"page-{page_id}-center-component img",
@@ -408,7 +412,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                             "max-width": "60%",
                         },
                     )
-            elif component.isDisplayFullscreen:
+            elif component.image.isDisplayFullscreen:
                 css += generate_css_id_block(
                     f"page-{page_id}",
                     {"max-width": "100%", "height": "100%", "padding": "0px"},
@@ -422,7 +426,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                     f"page-{page_id}-center-component img",
                     {
                         "width": "100%",
-                        "height": "auto",
+                        "height": "100%",
                     },
                 )
             else:
@@ -435,7 +439,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                     f"page-{page_id}-center-component img",
                     {
                         "width": "100%",
-                        "height": "auto",
+                        "height": "100%",
                     },
                 )
         else:

@@ -6,8 +6,10 @@ html {
     overflow-x: hidden;
 }
 
-hr {
-    width: 100%;
+div > hr {
+    width: 60%;
+    position: absolute;
+    left: 20%;
 }
 
 .scroller {
@@ -57,4 +59,14 @@ h4 {
 
 p {
     font-size: 1.25rem;
+}
+
+figure {
+    margin: 0px;
+}
+
+figcaption {
+    color: grey;
+    text-align: left;
+    background-color: white;
 }
