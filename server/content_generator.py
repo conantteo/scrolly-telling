@@ -378,10 +378,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                     # Set max width/height to image
                     css += generate_css_class_block(
                         f"page-{page_id}-center-component img",
-                        {
-                            "width": "100%",
-                            "height": "100%",
-                        },
+                        {"width": "100%", "height": "100%", "object-fit": "cover"},
                     )
                     css += generate_css_class_block(
                         f"page-{page_id}-center-component",
@@ -424,10 +421,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
 
                 css += generate_css_class_block(
                     f"page-{page_id}-center-component img",
-                    {
-                        "width": "100%",
-                        "height": "100%",
-                    },
+                    {"width": "100%", "height": "100%", "object-fit": "cover"},
                 )
             else:
                 css += generate_css_class_block(
