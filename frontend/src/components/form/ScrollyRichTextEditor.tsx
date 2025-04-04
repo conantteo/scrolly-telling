@@ -105,7 +105,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
 
   return (
     <>
-      <RichTextEditor editor={editor} onChange={() => {}}>
+      <RichTextEditor editor={editor}>
         <RichTextEditor.Toolbar sticky stickyOffset={60}>
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.Bold />
@@ -116,9 +116,7 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
             <RichTextEditor.Highlight />
             <RichTextEditor.Code />
           </RichTextEditor.ControlsGroup>
-
           <RichTextEditor.ColorPicker colors={ALLOWED_COLORS} />
-
           <RichTextEditor.ControlsGroup>
             <RichTextEditor.H1 />
             <RichTextEditor.H2 />
@@ -152,7 +150,6 @@ const ScrollyRichTextEditor: React.FC<ScrollyRichTextEditorProps> = ({
             <RichTextEditor.Redo />
           </RichTextEditor.ControlsGroup>
         </RichTextEditor.Toolbar>
-
         <RichTextEditor.Content />
       </RichTextEditor>
       <br />

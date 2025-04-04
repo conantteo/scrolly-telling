@@ -395,7 +395,7 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                         f"page-{page_id}-center-component img",
                         {
                             "max-width": "100%",
-                            "height": "auto",
+                            "height": "100vh",
                         },
                     )
 
@@ -407,6 +407,9 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                             "align-items": "center",
                             "display": "flex",
                             "max-width": "60%",
+                            "top": "0",
+                            "bottom": "0",
+                            "max-height": "100vh",
                         },
                     )
             elif component.image.isDisplayFullscreen:
