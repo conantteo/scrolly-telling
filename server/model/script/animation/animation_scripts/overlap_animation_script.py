@@ -1,14 +1,15 @@
 from server.model.script.animation.animation_scripts.animation_script import AnimationScript
 
+
 class OverlapAnimationScript(AnimationScript):
     def get_enter_js(self, component_id):
-        return f"""gsap.to("#{component_id}", {{opacity: 1, duration: 0.33}});"""
+        return f"""gsap.to("#{component_id}", {{opacity: 1, duration: 0.33, zIndex: 1000}});"""
 
     def get_exit_js(self, component_id):
         return f""
 
     def get_exit_back_js(self, component_id):
-        return f"""gsap.to("#{component_id}", {{opacity: 0, duration: 0.33}});"""
+        return f"""gsap.to("#{component_id}", {{opacity: 0, duration: 0.33, zIndex: 0}});"""
 
     def get_init_js(self, component_id):
         if self.start_as_visible:
