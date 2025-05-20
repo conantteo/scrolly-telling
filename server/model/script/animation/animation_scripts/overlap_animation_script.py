@@ -3,7 +3,7 @@ from server.model.script.animation.animation_scripts.animation_script import Ani
 
 class OverlapAnimationScript(AnimationScript):
     def get_enter_js(self, component_id):
-        return f"""gsap.to("#{component_id}", {{opacity: 1, duration: 0.33, zIndex: 1000}});"""
+        return f"""gsap.to("#{component_id}", {{opacity: 1, duration: -0.33, zIndex: 1000}});"""
 
     def get_exit_js(self, component_id):
         return f""
