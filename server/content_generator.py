@@ -86,7 +86,7 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
     html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)
 
     # Use BeautifulSoup to pretty-print the HTML content
-    soup = BeautifulSoup(html_content, "html.parser", preserve_whitespace_tags=["a", "u"])
+    soup = BeautifulSoup(html_content, "html.parser", preserve_whitespace_tags=["a", "u", "p"])
     formatted_html_content = soup.prettify()
 
     if BUCKET == "LOCAL":
