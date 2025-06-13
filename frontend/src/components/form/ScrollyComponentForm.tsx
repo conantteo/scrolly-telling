@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
-import imageCompression from 'browser-image-compression';
 import _ from 'lodash';
-import { Box, FileInput, Group, InputLabel, Radio, Select, Stack, TextInput } from '@mantine/core';
+import { Box, Group, InputLabel, Radio, Select, Stack } from '@mantine/core';
 import { useAnimationOptions } from '../../hooks/useAnimationOptions';
-import { useUploadImage } from '../../hooks/useUploadImage';
-import { useScrollyStore } from '../../store';
 import { Positions, ScrollyComponent } from '../../types';
 import ScrollyComponentSelect from './ScrollyComponentSelect';
+import ScrollyHtmlUploader from './ScrollyHtmlUploader';
+import ScrollyImageUploader from './ScrollyImageUploader';
 import ScrollyRichTextEditor from './ScrollyRichTextEditor';
 
 interface ScrollyComponentFormProps {
@@ -19,8 +18,6 @@ interface ScrollyComponentFormProps {
   currentComponents: ScrollyComponent[];
 }
 
-const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg'];
-
 const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   layoutTemplates,
   formError,
@@ -30,50 +27,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
   defaultComponent,
   currentComponents,
 }) => {
-  const articleId = useScrollyStore((state) => state.articleId);
-  const { mutate: uploadFile } = useUploadImage();
   const { data: animationOptionsResponse } = useAnimationOptions();
-  const onFileUpload = (file: File | null) => {
-    if (!file) {
-      return;
-    }
-    const fileExtension = file.name.split('.').pop();
-    if (fileExtension && ALLOWED_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
-      uploadFile({ file, articleId });
-      imageCompression(file, { maxSizeMB: 0.01, maxWidthOrHeight: 500 }).then((compressedFile) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(compressedFile);
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          setComponent({
-            ...component,
-            type: 'image',
-            metadata: {
-              ...component.metadata,
-              image: file.name,
-              fileBase64: base64,
-              fileExtension,
-              fileSize: `${compressedFile.size}`,
-              file: compressedFile,
-              isDisplayFullscreen:
-                component.type === 'image'
-                  ? (component.metadata?.isDisplayFullscreen ?? false)
-                  : false,
-            },
-          });
-        };
-      });
-      setFormError({
-        ...formError,
-        file: '',
-      });
-    } else {
-      setFormError({
-        ...formError,
-        file: `Only the following file extensions are allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
-      });
-    }
-  };
 
   const onContentChange = (htmlContent: string) => {
     setComponent({
@@ -125,7 +79,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         <Radio.Group
           value={`${component.type}`}
           onChange={(value) => {
-            if (value === 'image' || value === 'text') {
+            if (value === 'image' || value === 'text' || value === 'html') {
               setComponent({
                 ...component,
                 type: value,
@@ -140,6 +94,7 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
           <Group mt="xs">
             <Radio label="Text" value="text" />
             <Radio label="Image" value="image" />
+            <Radio label="Html" value="html" />
           </Group>
         </Radio.Group>
       </Box>
@@ -188,57 +143,12 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
         }}
       />
       {component.type === 'image' && (
-        <>
-          <Radio.Group
-            value={`${component.metadata?.isDisplayFullscreen ? 'yes' : 'no'}`}
-            defaultValue="no"
-            onChange={(value) => {
-              if (value) {
-                setComponent({
-                  ...component,
-                  metadata: {
-                    ...component.metadata,
-                    isDisplayFullscreen: value === 'yes',
-                  },
-                });
-              }
-            }}
-            label="Display image in fullscreen?"
-            description="Image will either be displayed in default size or fullscreen"
-            withAsterisk
-          >
-            <Group mt="xs">
-              <Radio label="No" value="no" />
-              <Radio label="Yes" value="yes" />
-            </Group>
-          </Radio.Group>
-          <Box>
-            <FileInput
-              radius="xl"
-              label="Upload image here"
-              withAsterisk
-              description="Accepts .png, .jpg, .jpeg"
-              error={formError.file ? formError.file : null}
-              placeholder="Select an image"
-              value={component.metadata?.file ? component.metadata?.file : null}
-              onChange={onFileUpload}
-            />
-            <TextInput
-              label="Caption"
-              placeholder="Input caption here"
-              value={component.metadata?.caption}
-              onChange={(event) => {
-                setComponent({
-                  ...component,
-                  metadata: {
-                    ...component.metadata,
-                    caption: event.currentTarget.value,
-                  },
-                });
-              }}
-            />
-          </Box>
-        </>
+        <ScrollyImageUploader
+          component={component}
+          setComponent={setComponent}
+          formError={formError}
+          setFormError={setFormError}
+        />
       )}
       {component.type === 'text' && (
         <Box>
@@ -248,6 +158,14 @@ const ScrollyComponentForm: React.FC<ScrollyComponentFormProps> = ({
             onChange={onContentChange}
           />
         </Box>
+      )}
+      {component.type === 'html' && (
+        <ScrollyHtmlUploader
+          component={component}
+          setComponent={setComponent}
+          formError={formError}
+          setFormError={setFormError}
+        />
       )}
     </Stack>
   );

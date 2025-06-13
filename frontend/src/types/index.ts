@@ -38,7 +38,7 @@ export type ScrollyComponent = {
   animation: string;
   pageIndex?: number;
   frameIndex?: number;
-} & (ScrollyImageComponent | ScrollyRichTextComponent);
+} & (ScrollyImageComponent | ScrollyRichTextComponent | ScrollyHtmlComponent);
 
 export type ScrollyImageComponent = {
   type: 'image';
@@ -48,6 +48,11 @@ export type ScrollyImageComponent = {
 export type ScrollyRichTextComponent = {
   type: 'text';
   metadata?: ScrollyRichText;
+};
+
+export type ScrollyHtmlComponent = {
+  type: 'html';
+  metadata?: ScrollyHtml;
 };
 
 export type ScrollyComponentMetadata = ScrollyRichText | ScrollyImage;
@@ -64,6 +69,19 @@ export type ScrollyImage = {
   fileSize?: string;
   file?: File;
   isDisplayFullscreen?: boolean;
+};
+
+export type ScrollyHtml = {
+  htmlFile?: File;
+  cssFile?: File;
+  html?: string;
+  htmlFileBase64?: string;
+  htmlFileExtension?: string;
+  htmlFileSize?: string;
+  css?: string;
+  cssFileBase64?: string;
+  cssFileExtension?: string;
+  cssFileSize?: string;
 };
 
 export type ScrollyFocusElement = {
