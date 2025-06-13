@@ -59,6 +59,7 @@ const ScrollyComponentSelect: React.FC<ScrollyComponentSelectProps> = ({
         onComponentChanged(_.cloneDeep(component));
       }
     } else {
+      setValue('');
       onComponentChanged(null);
     }
   };
