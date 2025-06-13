@@ -73,7 +73,7 @@ async def custom_docs() -> HTMLResponse:
 )
 async def upload_file(file: UploadFile, article_id: Annotated[str, Form()]) -> JSONResponse:
     valid_types = {
-        "image": ["image/png", "image/jpeg", "image/jpg"],
+        "image": ["image/jpeg", "image/png", "image/gif"],
         "html": ["text/html"],
         "css": ["text/css"]
     }
