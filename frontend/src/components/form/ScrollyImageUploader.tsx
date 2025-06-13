@@ -4,7 +4,7 @@ import { useUploadImage } from '../../hooks/useUploadImage';
 import { useScrollyStore } from '../../store';
 import { ScrollyComponent, ScrollyImageComponent } from '../../types';
 
-const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg'];
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png', 'image/gif'];
 
 interface ScrollyFileUploaderProps {
   formError: { type: string; file: string };
@@ -25,8 +25,7 @@ const ScrollyImageUploader: React.FC<ScrollyFileUploaderProps> = ({
     if (!file) {
       return;
     }
-    const fileExtension = file.name.split('.').pop();
-    if (fileExtension && ALLOWED_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
+    if (ALLOWED_FILE_TYPES.includes(file.type)) {
       uploadFile({ file, articleId });
       imageCompression(file, { maxSizeMB: 0.01, maxWidthOrHeight: 500 }).then((compressedFile) => {
         const reader = new FileReader();
@@ -40,7 +39,6 @@ const ScrollyImageUploader: React.FC<ScrollyFileUploaderProps> = ({
               ...component.metadata,
               image: file.name,
               fileBase64: base64,
-              fileExtension,
               fileSize: `${compressedFile.size}`,
               file: compressedFile,
               isDisplayFullscreen:
@@ -58,7 +56,7 @@ const ScrollyImageUploader: React.FC<ScrollyFileUploaderProps> = ({
     } else {
       setFormError({
         ...formError,
-        file: `Only the following file extensions are allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
+        file: `Only the following file type(s) are allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
       });
     }
   };

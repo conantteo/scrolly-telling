@@ -4,7 +4,7 @@ import { useUploadImage } from '../../hooks/useUploadImage';
 import { useScrollyStore } from '../../store';
 import { ScrollyComponent, ScrollyHtmlComponent } from '../../types';
 
-const ALLOWED_EXTENSIONS = ['html', 'css'];
+const ALLOWED_FILE_TYPES = ['text/html', 'text/css'];
 
 interface ScrollyHtmlUploaderProps {
   formError: { type: string; file: string };
@@ -25,15 +25,14 @@ const ScrollyHtmlUploader: React.FC<ScrollyHtmlUploaderProps> = ({
     if (!file) {
       return;
     }
-    const fileExtension = file.name.split('.').pop();
-    if (fileExtension && ALLOWED_EXTENSIONS.includes(fileExtension?.toLowerCase())) {
+    if (ALLOWED_FILE_TYPES.includes(file.type)) {
       uploadFile({ file, articleId });
       imageCompression(file, { maxSizeMB: 0.01, maxWidthOrHeight: 500 }).then((compressedFile) => {
         const reader = new FileReader();
         reader.readAsDataURL(compressedFile);
         reader.onload = () => {
           const base64 = reader.result as string;
-          if (fileExtension === 'css') {
+          if (file.type === 'text/css') {
             setComponent({
               ...component,
               type: 'html',
@@ -41,7 +40,6 @@ const ScrollyHtmlUploader: React.FC<ScrollyHtmlUploaderProps> = ({
                 ...component.metadata,
                 css: file.name,
                 cssFileBase64: base64,
-                cssFileExtension: fileExtension,
                 cssFileSize: `${compressedFile.size}`,
                 cssFile: compressedFile,
               },
@@ -54,7 +52,6 @@ const ScrollyHtmlUploader: React.FC<ScrollyHtmlUploaderProps> = ({
                 ...component.metadata,
                 html: file.name,
                 htmlFileBase64: base64,
-                htmlFileExtension: fileExtension,
                 htmlFileSize: `${compressedFile.size}`,
                 htmlFile: compressedFile,
               },
@@ -69,7 +66,7 @@ const ScrollyHtmlUploader: React.FC<ScrollyHtmlUploaderProps> = ({
     } else {
       setFormError({
         ...formError,
-        file: `Only the following file extensions are allowed: ${ALLOWED_EXTENSIONS.join(', ')}`,
+        file: `Only the following file type(s) are allowed: ${ALLOWED_FILE_TYPES.join(', ')}`,
       });
     }
   };

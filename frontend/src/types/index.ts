@@ -65,7 +65,6 @@ export type ScrollyImage = {
   fileBase64?: string;
   image?: string;
   caption?: string;
-  fileExtension?: string;
   fileSize?: string;
   file?: File;
   isDisplayFullscreen?: boolean;
@@ -76,11 +75,9 @@ export type ScrollyHtml = {
   cssFile?: File;
   html?: string;
   htmlFileBase64?: string;
-  htmlFileExtension?: string;
   htmlFileSize?: string;
   css?: string;
   cssFileBase64?: string;
-  cssFileExtension?: string;
   cssFileSize?: string;
 };
 

@@ -46,33 +46,33 @@ def generate_js_function(template_path: Path, output_file: Path, **kwargs: Any) 
     logger.info(f"JavaScript function generated in {output_file}")
 
 
-def stage_file(article_id: str, file_content: bytes, filename: str, file_size: int, file_content_type: str) -> None:
+def stage_file(article_id: str, file_content: bytes, filename: str, file_size: int, file_content_type: str, file_type: str) -> None:
     if BUCKET == "LOCAL":
-        Path.mkdir(LOCAL_OUTPUT_DIR / article_id / "images", parents=True, exist_ok=True)
+        Path.mkdir(LOCAL_OUTPUT_DIR / article_id / f"{file_type}", parents=True, exist_ok=True)
         # if Path.is_file(LOCAL_OUTPUT_DIR / article_id / "images" / filename):
         #     raise FileExistsError("An image with the same name exists, please upload with a different name.")
-        Path(LOCAL_OUTPUT_DIR / article_id / "images" / filename).write_bytes(file_content.read())
-        return str(LOCAL_OUTPUT_DIR / article_id / "images" / filename)
+        Path(LOCAL_OUTPUT_DIR / article_id / f"{file_type}" / filename).write_bytes(file_content.read())
+        return str(LOCAL_OUTPUT_DIR / article_id / f"{file_type}" / filename)
     if BUCKET == "MINIO":
         if not MINIO_CLIENT.bucket_exists(MINIO_PRIVATE_ARTICLE_BUCKET):
             MINIO_CLIENT.make_bucket(MINIO_PRIVATE_ARTICLE_BUCKET)
 
         MINIO_CLIENT.put_object(
             MINIO_PRIVATE_ARTICLE_BUCKET,
-            f"{article_id}/images/{filename}",
+            f"{article_id}/{file_type}/{filename}",
             file_content,
             length=file_size,
             content_type=file_content_type,
         )
-        return f"{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/images/{filename}"
+        return f"{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/{file_type}/{filename}"
     S3_CLIENT.put_object(
         Body=file_content,
         Bucket=S3_BUCKET,
         ServerSideEncryption="AES256",
-        Key=f"private-articles/{article_id}/images/{filename}",
+        Key=f"private-articles/{article_id}/{file_type}/{filename}",
         ContentType=file_content_type,
     )
-    return f"{MINIO_PREVIEW_ENDPOINT}/{article_id}/images/{filename}"
+    return f"{MINIO_PREVIEW_ENDPOINT}/{article_id}/{file_type}/{filename}"
 
 
 def copy_files(

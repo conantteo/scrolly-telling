@@ -63,7 +63,7 @@ async def custom_docs() -> HTMLResponse:
 
 
 @app.post(
-    "/upload-image",
+    "/upload-file",
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {"model": SuccessfulResponse},
@@ -71,9 +71,25 @@ async def custom_docs() -> HTMLResponse:
         status.HTTP_500_INTERNAL_SERVER_ERROR: {"model": ErrorResponse},
     },
 )
-async def upload_image(file: UploadFile, article_id: Annotated[str, Form()]) -> JSONResponse:
+async def upload_file(file: UploadFile, article_id: Annotated[str, Form()]) -> JSONResponse:
+    valid_types = {
+        "image": ["image/png", "image/jpeg", "image/jpg"],
+        "html": ["text/html"],
+        "css": ["text/css"]
+    }
+    if file.content_type in valid_types["image"]:
+        file_type = "images"
+    elif file.content_type == "text/html":
+        file_type = "html"
+    elif file.content_type == "text/css":
+        file_type = "css"
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Unsupported file type"
+        )
     try:
-        path = stage_file(article_id, file.file, file.filename, file.size, file.content_type)
+        path = stage_file(article_id, file.file, file.filename, file.size, file.content_type, file_type)
         logger.info({"message": f"{file.filename} uploaded successfully", "path": path})
         return JSONResponse(
             content={"message": f"{file.filename} uploaded successfully", "path": path},
