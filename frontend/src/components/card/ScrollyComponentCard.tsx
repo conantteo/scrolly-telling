@@ -72,7 +72,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
       <Card withBorder shadow="xl">
         <CardLabel
           label={`Page ${_.toNumber(id) + 1}`}
-          backgroundColor={currentScrollyFocusElement == id ? '#a5d8ff' : '#d0ebff'}
+          backgroundColor={currentScrollyFocusElement === id ? '#a5d8ff' : '#d0ebff'}
         />
         <CardLabel
           label={

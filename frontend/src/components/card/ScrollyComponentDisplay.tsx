@@ -10,8 +10,9 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
   const currentScrollyFocusElement = useScrollyStore((state) => state.currentScrollyFocusElement);
 
   const renderComponentOnFocus = (componentInProp: ScrollyComponent, isFocused: boolean) => {
-    const componentToRender =
-      componentInProp.type === 'image' ? (
+    let componentToRender = null;
+    if (componentInProp.type === 'image') {
+      componentToRender = (
         <>
           <AspectRatio ratio={1080 / 720} maw={500} mx="auto">
             <Image src={componentInProp.metadata?.fileBase64} />
@@ -22,12 +23,15 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
             </Text>
           ) : null}
         </>
-      ) : (
+      );
+    } else if (componentInProp.type === 'text') {
+      componentToRender = (
         <div
           style={{ overflowWrap: 'break-word' }}
           dangerouslySetInnerHTML={{ __html: componentInProp.metadata?.htmlContent ?? '' }}
         />
       );
+    }
     if (isFocused) {
       return <Box style={{ backgroundColor: '#d0ebff', minHeight: 25 }}>{componentToRender}</Box>;
     }
