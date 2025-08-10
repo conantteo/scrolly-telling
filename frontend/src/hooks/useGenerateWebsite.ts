@@ -31,6 +31,12 @@ const prepareDataForPost = (data: PostWebsiteRequest) => {
                 caption: component.metadata?.caption,
               }
             : undefined,
+        html:
+          component.type === 'html'
+            ? {
+                data: component.metadata?.html,
+              }
+            : undefined,
         contentHtml: component.type === 'text' ? component.metadata?.htmlContent : undefined,
       }));
       return { ...frame, components: updatedComponents, id: `${pageIndex}-${frameIndex}` };

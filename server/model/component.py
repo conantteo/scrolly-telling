@@ -2,6 +2,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from server.model.html import Html
 from server.model.image import Image
 
 
@@ -12,6 +13,7 @@ class Component(BaseModel):
     animation: Optional[str] = None
     contentHtml: Optional[str] = None
     image: Optional[Image] = None
+    html: Optional[Html] = None
 
 
 component_data = {

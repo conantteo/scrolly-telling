@@ -79,13 +79,15 @@ const ScrollyMainPanel: React.FC = () => {
   );
   const imageComponents = components.filter((component) => component.type === 'image');
   const textComponents = components.filter((component) => component.type === 'text');
+  const htmlComponents = components.filter((component) => component.type === 'html');
 
   return (
     <>
       <Group justify="space-between">
         <Title order={5}>Showing {pages.length} pages</Title>
         <Title order={5}>
-          {imageComponents.length} images + {textComponents.length} text content
+          {imageComponents.length} images + {textComponents.length} text content +{' '}
+          {htmlComponents.length} html content
         </Title>
       </Group>
       <Space h="md" />

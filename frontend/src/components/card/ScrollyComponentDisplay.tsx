@@ -31,6 +31,16 @@ const ScrollyComponentDisplay: React.FC<ScrollyComponentDisplayProps> = ({ compo
           dangerouslySetInnerHTML={{ __html: componentInProp.metadata?.htmlContent ?? '' }}
         />
       );
+    } else if (componentInProp.type === 'html') {
+      componentToRender = (
+        <>
+          <iframe
+            src={componentInProp.metadata?.htmlFileBase64}
+            width="100%"
+            frameBorder="0"
+          ></iframe>
+        </>
+      );
     }
     if (isFocused) {
       return <Box style={{ backgroundColor: '#d0ebff', minHeight: 25 }}>{componentToRender}</Box>;

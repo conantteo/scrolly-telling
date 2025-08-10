@@ -23,6 +23,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
   const components = frames.flatMap((frame) => frame.components || []);
   const imageComponents = components.filter((component) => component.type === 'image');
   const textComponents = components.filter((component) => component.type === 'text');
+  const htmlComponents = components.filter((component) => component.type === 'html');
   const currentScrollyFocusElement = useScrollyStore((state) => state.currentElementId);
 
   const getGradient = () => {
@@ -82,6 +83,7 @@ const ScrollyComponentCard: FC<ScrollyComponentCardProps> = ({ id }) => {
                   <Box>{frames.length} Frame(s)</Box>
                   <Box>{textComponents.length} Text(s)</Box>
                   <Box>{imageComponents.length} Image(s)</Box>
+                  <Box>{htmlComponents.length} HTML</Box>
                 </Stack>
               }
               position="right"

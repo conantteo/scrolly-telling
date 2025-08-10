@@ -27,38 +27,36 @@ const ScrollyHtmlUploader: React.FC<ScrollyHtmlUploaderProps> = ({
     }
     if (ALLOWED_FILE_TYPES.includes(file.type)) {
       uploadFile({ file, articleId });
-      imageCompression(file, { maxSizeMB: 0.01, maxWidthOrHeight: 500 }).then((compressedFile) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(compressedFile);
-        reader.onload = () => {
-          const base64 = reader.result as string;
-          if (file.type === 'text/css') {
-            setComponent({
-              ...component,
-              type: 'html',
-              metadata: {
-                ...component.metadata,
-                css: file.name,
-                cssFileBase64: base64,
-                cssFileSize: `${compressedFile.size}`,
-                cssFile: compressedFile,
-              },
-            });
-          } else {
-            setComponent({
-              ...component,
-              type: 'html',
-              metadata: {
-                ...component.metadata,
-                html: file.name,
-                htmlFileBase64: base64,
-                htmlFileSize: `${compressedFile.size}`,
-                htmlFile: compressedFile,
-              },
-            });
-          }
-        };
-      });
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        const base64 = reader.result as string;
+        if (file.type === 'text/css') {
+          setComponent({
+            ...component,
+            type: 'html',
+            metadata: {
+              ...component.metadata,
+              css: file.name,
+              cssFileBase64: base64,
+              cssFileSize: `${file.size}`,
+              cssFile: file,
+            },
+          });
+        } else {
+          setComponent({
+            ...component,
+            type: 'html',
+            metadata: {
+              ...component.metadata,
+              html: file.name,
+              htmlFileBase64: base64,
+              htmlFileSize: `${file.size}`,
+              htmlFile: file,
+            },
+          });
+        }
+      };
       setFormError({
         ...formError,
         file: '',

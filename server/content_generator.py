@@ -30,6 +30,8 @@ def generate_component_html(component, position_class_name, article_id, frame_in
         return generate_text_component_as_html(component, position_class_name)
     elif component.type == "image":
         return generate_image_component_as_html(component, position_class_name, article_id, frame_index)
+    elif component.type == "html":
+        return generate_html_component_as_html(component, position_class_name, article_id)
     return ""
 
 
@@ -58,6 +60,16 @@ def generate_image_component_as_html(component: Component, class_name: str, arti
     div_wrapper += "</figure>"
 
     return div_wrapper
+
+
+# Wrap each component with class <page>-<position>-component so that it is identifiable by JS
+def generate_html_component_as_html(component: Component, class_name: str, article_id: str):
+    if BUCKET == "S3":
+        minio_url = f"html/{component.html.data}"
+    else:
+        minio_url = f"{MINIO_SCHEME}://{MINIO_PREVIEW_ENDPOINT}/{MINIO_PRIVATE_ARTICLE_BUCKET}/{article_id}/html/{component.html.data}"
+
+    return f'<iframe class="{class_name}" id="comp-{component.id}" src="{minio_url}" frameborder="0"></iframe>'
 
 
 def prettify_except(soup_obj: BeautifulSoup, tag_name: str) -> str:
@@ -439,6 +451,18 @@ def generate_center_component_css(page_id: str, first_frame_components: List[Com
                         "height": "100%",
                     },
                 )
+        elif component.type == "html":
+            css += generate_css_class_block(
+                f"page-{page_id}-center-component",
+                {
+                    "justify-content": "center",
+                    "display": "flex",
+                    "flex-direction": "column",
+                    "text-align": "left",
+                    "width": "100%",
+                    "height": "100vh",
+                },
+            )
         else:
             css += generate_css_class_block(
                 f"page-{page_id}-center-component",
