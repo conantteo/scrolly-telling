@@ -1,4 +1,3 @@
-import imageCompression from 'browser-image-compression';
 import { Box, FileInput } from '@mantine/core';
 import { useUploadImage } from '../../hooks/useUploadImage';
 import { useScrollyStore } from '../../store';
