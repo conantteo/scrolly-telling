@@ -72,18 +72,18 @@ def generate_html_component_as_html(component: Component, class_name: str, artic
     return f'<iframe class="{class_name}" id="comp-{component.id}" src="{minio_url}" frameborder="0"></iframe>'
 
 
-def prettify_except(soup_obj: BeautifulSoup, tag_name: str) -> str:
-    regex_string = f"<{tag_name}>.*?</{tag_name}>"
-    regex = re.compile(regex_string, re.DOTALL)
-    prettified_text = soup_obj.prettify()
-    to_replace = re.findall(regex, prettified_text)
-    for txt in to_replace:
-        prettified_text = re.sub(
-            txt,
-            f"<{tag_name}>{txt.replace(f'<{tag_name}>', '').replace(f'</{tag_name}>', '').strip()}</{tag_name}>",
-            prettified_text,
-        )
-    return prettified_text
+# def prettify_except(soup_obj: BeautifulSoup, tag_name: str) -> str:
+#     regex_string = f"<{tag_name}>.*?</{tag_name}>"
+#     regex = re.compile(regex_string, re.DOTALL)
+#     prettified_text = soup_obj.prettify()
+#     to_replace = re.findall(regex, prettified_text)
+#     for txt in to_replace:
+#         prettified_text = re.sub(
+#             txt,
+#             f"<{tag_name}>{txt.replace(f'<{tag_name}>', '').replace(f'</{tag_name}>', '').strip()}</{tag_name}>",
+#             prettified_text,
+#         )
+#     return prettified_text
 
 
 def generate_html(article_id: str, body_content: str, title: str) -> str:
@@ -98,8 +98,8 @@ def generate_html(article_id: str, body_content: str, title: str) -> str:
     html_content = Template(html_template).render(title=title, scroll_trigger=True, body_content=body_content)
 
     # Use BeautifulSoup to pretty-print the HTML content
-    soup = BeautifulSoup(html_content, "html.parser")
-    formatted_html_content = prettify_except(soup, "u")
+    soup = BeautifulSoup(html_content, "html.parser", preserve_whitespace_tags=["a", "u", "p"])
+    formatted_html_content = soup.prettify()
 
     if BUCKET == "LOCAL":
         Path.mkdir(LOCAL_OUTPUT_DIR / article_id, parents=True, exist_ok=True)
